@@ -75,7 +75,6 @@
                 document.getElementById('headerProfileName').innerText = user.displayName || 'Мастер';
                 document.getElementById('authActionBtn').innerHTML = `<i class="fa-solid fa-right-from-bracket text-red-400 mr-1"></i> Выйти`;
                 document.getElementById('authActionBtn').onclick = logoutGoogle;
-                console.log("Авторизован:", user.email);
             } else {
                 window.currentUser = null;
                 document.getElementById('headerProfileName').innerText = 'Вход';
@@ -148,10 +147,10 @@
             <div>
                 <div class="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full text-amber-400 text-xs font-semibold mb-3">
                     <i class="fa-solid fa-shield-halved text-amber-500"></i>
-                    <span>Безопасная сделка (Эскроу защита)</span>
+                    <span>Безопасная сделка + Чат с продавцом</span>
                 </div>
                 <h1 class="text-3xl sm:text-4xl font-teko font-bold text-white tracking-wide">ПОКУПКА И ПРОДАЖА МОДОВ БЕЗ ПОСРЕДНИКОВ</h1>
-                <p class="text-gray-400 text-sm max-w-2xl mt-1">Деньги замораживаются на сайте и выдача ссылки на скачивание происходит мгновенно после подтверждения оплаты.</p>
+                <p class="text-gray-400 text-sm max-w-2xl mt-1">Обсуждайте детали в чате с продавцом, покупайте по безопасной сделке и получайте файлы моментально.</p>
             </div>
             <div class="flex items-center gap-4 bg-darkbg/80 border border-darkborder p-4 rounded-xl text-center">
                 <div>
@@ -180,9 +179,9 @@
         </div>
     </main>
 
-    <!-- Модальное окно: Покупка товара -->
+    <!-- Модальное окно: Покупка товара и Чат -->
     <div id="detailModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative">
+        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             <div id="detailModalContent"></div>
         </div>
@@ -195,7 +194,6 @@
                 <h3 class="font-teko text-3xl font-bold text-white tracking-wide">ВЫСТАВИТЬ МОД НА ПРОДАЖУ</h3>
                 <button onclick="closeCreateModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <!-- Важно: форма имеет onsubmit -->
             <form onsubmit="saveListing(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1">Название мода / тюнинга</label>
@@ -234,10 +232,12 @@
         </div>
     </div>
 
-    <!-- JavaScript логика маркетплейса -->
+    <!-- JavaScript логика маркетплейса и чата -->
     <script>
         let currentCategory = 'all';
         let allListings = {};
+        let activeChatId = null;
+        let chatUnsubscribe = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             const checkDb = setInterval(() => {
@@ -298,7 +298,7 @@
                         <div class="p-5 pt-0 flex items-center justify-between border-t border-darkborder/50 mt-4">
                             <span class="text-xs text-gray-500"><i class="fa-solid fa-user text-amber-500 mr-1"></i> ${item.authorName || 'Продавец'}</span>
                             <button onclick="openDetail('${id}')" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-4 py-2 rounded-xl text-xs transition-colors shadow-md">
-                                Купить за ${item.price} ₽
+                                Подробнее / Купить
                             </button>
                         </div>
                     </div>
@@ -324,28 +324,19 @@
 
         function saveListing(event) {
             event.preventDefault();
-            
             if (!window.currentUser) {
                 alert('Ошибка: Вы не вошли через Google!');
-                window.loginGoogle();
                 return;
             }
 
-            const title = document.getElementById('itemTitle').value;
-            const category = document.getElementById('itemCategory').value;
-            const price = Number(document.getElementById('itemPrice').value);
-            const image = document.getElementById('itemImage').value;
-            const fileLink = document.getElementById('itemFileLink').value;
-            const description = document.getElementById('itemDescription').value;
-
             const newRef = window.push(window.ref(window.db, 'listings'));
             window.set(newRef, {
-                title,
-                category,
-                price,
-                image,
-                fileLink,
-                description,
+                title: document.getElementById('itemTitle').value,
+                category: document.getElementById('itemCategory').value,
+                price: Number(document.getElementById('itemPrice').value),
+                image: document.getElementById('itemImage').value,
+                fileLink: document.getElementById('itemFileLink').value,
+                description: document.getElementById('itemDescription').value,
                 authorUid: window.currentUser.uid,
                 authorName: window.currentUser.displayName || 'Мастер',
                 sold: false,
@@ -366,31 +357,109 @@
 
         function openDetail(id) {
             const item = allListings[id];
+            activeChatId = id;
             const content = document.getElementById('detailModalContent');
             
             content.innerHTML = `
                 <div class="space-y-4">
-                    <img src="${item.image}" class="w-full h-64 object-cover rounded-xl">
-                    <h2 class="font-teko text-3xl font-bold text-white">${item.title}</h2>
+                    <img src="${item.image}" class="w-full h-56 object-cover rounded-xl">
+                    <div class="flex items-center justify-between">
+                        <h2 class="font-teko text-3xl font-bold text-white">${item.title}</h2>
+                        <span class="text-xl font-bold text-amber-500 font-mono">${item.price} ₽</span>
+                    </div>
                     <p class="text-gray-300 text-sm">${item.description}</p>
-                    <div class="flex items-center justify-between p-4 bg-darkbg rounded-xl border border-darkborder">
+                    <div class="text-xs text-gray-500">Продавец: <strong class="text-gray-300">${item.authorName || 'Мастер'}</strong></div>
+
+                    <!-- Блок покупки -->
+                    <div class="p-4 bg-darkbg rounded-xl border border-darkborder flex items-center justify-between">
                         <div>
-                            <span class="text-xs text-gray-400 block">Стоимость мода:</span>
-                            <span class="text-xl font-bold text-amber-500 font-mono">${item.price} ₽</span>
+                            <span class="text-xs text-gray-400 block">Безопасная сделка (Эскроу):</span>
+                            <span class="text-xs text-emerald-400 font-medium">Мгновенная выдача файла</span>
                         </div>
-                        <button onclick="buyItem('${id}')" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-6 py-3 rounded-xl text-sm shadow-lg">
-                            Купить с защитой сделки
+                        <button onclick="buyItem('${id}')" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-5 py-2.5 rounded-xl text-xs shadow-lg transition-colors">
+                            Купить за ${item.price} ₽
                         </button>
+                    </div>
+
+                    <!-- Блок чата с продавцом -->
+                    <div class="border-t border-darkborder pt-4 mt-4">
+                        <h3 class="font-teko text-2xl font-bold text-white mb-2">Чат с продавцом</h3>
+                        <div id="chatMessages" class="bg-darkbg border border-darkborder rounded-xl p-4 h-48 overflow-y-auto custom-scrollbar space-y-3 mb-3 text-xs">
+                            <div class="text-center text-gray-500 italic">Загрузка сообщений чата...</div>
+                        </div>
+                        <form onsubmit="sendMessage(event, '${id}')" class="flex gap-2">
+                            <input type="text" id="chatInput" required placeholder="Напишите вопрос продавцу..." class="flex-1 bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                            <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-5 py-2.5 rounded-xl text-xs transition-colors">Отправить</button>
+                        </form>
                     </div>
                 </div>
             `;
+
             document.getElementById('detailModal').classList.remove('hidden');
             document.getElementById('detailModal').classList.add('flex');
+
+            // Загружаем сообщения для этого товара в реальном времени
+            loadChatMessages(id);
         }
 
         function closeDetailModal() {
             document.getElementById('detailModal').classList.remove('flex');
             document.getElementById('detailModal').classList.add('hidden');
+            activeChatId = null;
+        }
+
+        function loadChatMessages(listingId) {
+            const chatRef = window.ref(window.db, `chats/${listingId}`);
+            window.onValue(chatRef, (snapshot) => {
+                if (activeChatId !== listingId) return;
+                const msgs = snapshot.val() || {};
+                const chatContainer = document.getElementById('chatMessages');
+                let html = '';
+                const keys = Object.keys(msgs);
+
+                if (keys.length === 0) {
+                    chatContainer.innerHTML = `<div class="text-center text-gray-500 italic">Здесь пока нет сообщений. Задайте вопрос продавцу первым!</div>`;
+                    return;
+                }
+
+                keys.forEach(k => {
+                    const m = msgs[k];
+                    const isMe = window.currentUser && m.senderUid === window.currentUser.uid;
+                    html += `
+                        <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                            <span class="text-[10px] text-gray-500 mb-0.5">${m.senderName}</span>
+                            <div class="max-w-[80%] p-3 rounded-xl ${isMe ? 'bg-amber-500 text-black font-medium' : 'bg-cardbg border border-darkborder text-gray-200'}">
+                                ${m.text}
+                            </div>
+                        </div>
+                    `;
+                });
+                chatContainer.innerHTML = html;
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+        }
+
+        function sendMessage(event, listingId) {
+            event.preventDefault();
+            if (!window.currentUser) {
+                alert('Войдите через Google, чтобы писать в чат!');
+                window.loginGoogle();
+                return;
+            }
+
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const chatRef = window.push(window.ref(window.db, `chats/${listingId}`));
+            window.set(chatRef, {
+                senderUid: window.currentUser.uid,
+                senderName: window.currentUser.displayName || 'Пользователь',
+                text: text,
+                date: Date.now()
+            }).then(() => {
+                input.value = '';
+            });
         }
 
         window.buyItem = function(id) {
