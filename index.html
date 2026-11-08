@@ -72,7 +72,6 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 window.currentUser = user;
-                // Загружаем профиль пользователя (ник, аватарка)
                 const savedProfile = JSON.parse(localStorage.getItem(`profile_${user.uid}`) || '{}');
                 const displayName = savedProfile.name || user.displayName || 'Профиль';
                 const avatarUrl = savedProfile.avatar || user.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80';
@@ -145,7 +144,7 @@
                     <i class="fa-solid fa-plus"></i>
                     <span class="hidden sm:inline">Продать мод</span>
                 </button>
-                <button onclick="openProfileModal()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 px-3.5 py-2 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-2">
+                <button onclick="openProfileModal()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 px-3 py-2 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-2">
                     <img id="headerAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" class="w-6 h-6 rounded-full object-cover">
                     <span id="headerProfileName" class="hidden sm:inline">Профиль</span>
                 </button>
@@ -250,14 +249,15 @@
         </div>
     </div>
 
-    <!-- Модальное окно: Выставить товар с прямой загрузкой изображения -->
+    <!-- Модальное окно: Выставить / Редактировать товар -->
     <div id="createModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="font-teko text-3xl font-bold text-white tracking-wide">ВЫСТАВИТЬ МОД НА ПРОДАЖУ (СЛОТ)</h3>
+                <h3 id="modalTitleText" class="font-teko text-3xl font-bold text-white tracking-wide">ВЫСТАВИТЬ МОД НА ПРОДАЖУ (СЛОТ)</h3>
                 <button onclick="closeCreateModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <form onsubmit="saveListing(event)" class="space-y-4">
+                <input type="hidden" id="editListingId">
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1">Название мода / тюнинга</label>
                     <input type="text" id="itemTitle" required placeholder="Напр: ЛиАЗ-5292 [Приватный салон]" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
@@ -281,7 +281,6 @@
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1">Прямая ссылка на скриншот (URL)</label>
                     <input type="url" id="itemImage" required placeholder="Загрузите картинку на Imgur/ImgBB и вставьте ссылку" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                    <p class="text-[11px] text-gray-500 mt-1">💡 Совет: используйте бесплатные хостинги картинок (Imgur, Postimages, ImgBB) для получения прямой ссылки.</p>
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1">Скрытая ссылка на скачивание (Яндекс Диск / Google Drive)</label>
@@ -291,7 +290,7 @@
                     <label class="block text-xs font-medium text-gray-400 mb-1">Описание</label>
                     <textarea id="itemDescription" rows="3" required placeholder="Опишите товар..." class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
                 </div>
-                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold py-3 rounded-xl text-sm shadow-lg shadow-amber-500/20">Опубликовать слот</button>
+                <button type="submit" id="submitBtnText" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold py-3 rounded-xl text-sm shadow-lg shadow-amber-500/20">Опубликовать слот</button>
             </form>
         </div>
     </div>
@@ -373,7 +372,7 @@
             grid.innerHTML = html || '<div class="col-span-full py-16 text-center text-gray-500">Ничего не найдено</div>';
         }
 
-        // Профиль (ник, аватарка, контакт)
+        // Профиль
         function openProfileModal() {
             if (!window.currentUser) {
                 alert('Войдите через Google, чтобы настроить профиль!');
@@ -409,7 +408,7 @@
             }
 
             closeProfileModal();
-            alert('Профиль и аватарка успешно обновлены!');
+            alert('Профиль успешно обновлен!');
         }
 
         function openCreateModal() {
@@ -418,6 +417,15 @@
                 window.loginGoogle();
                 return;
             }
+            document.getElementById('editListingId').value = '';
+            document.getElementById('modalTitleText').innerText = 'ВЫСТАВИТЬ МОД НА ПРОДАЖУ (СЛОТ)';
+            document.getElementById('submitBtnText').innerText = 'Опубликовать слот';
+            document.getElementById('itemTitle').value = '';
+            document.getElementById('itemPrice').value = '';
+            document.getElementById('itemImage').value = '';
+            document.getElementById('itemFileLink').value = '';
+            document.getElementById('itemDescription').value = '';
+
             document.getElementById('createModal').classList.remove('hidden');
             document.getElementById('createModal').classList.add('flex');
         }
@@ -427,6 +435,26 @@
             document.getElementById('createModal').classList.add('hidden');
         }
 
+        function editListing(id) {
+            const item = allListings[id];
+            if (!item) return;
+
+            document.getElementById('editListingId').value = id;
+            document.getElementById('modalTitleText').innerText = 'РЕДАКТИРОВАТЬ СЛОТ';
+            document.getElementById('submitBtnText').innerText = 'Сохранить изменения';
+            
+            document.getElementById('itemTitle').value = item.title;
+            document.getElementById('itemCategory').value = item.category;
+            document.getElementById('itemPrice').value = item.price;
+            document.getElementById('itemImage').value = item.image;
+            document.getElementById('itemFileLink').value = item.fileLink;
+            document.getElementById('itemDescription').value = item.description;
+
+            closeMySlotsModal();
+            document.getElementById('createModal').classList.remove('hidden');
+            document.getElementById('createModal').classList.add('flex');
+        }
+
         function saveListing(event) {
             event.preventDefault();
             if (!window.currentUser) {
@@ -434,12 +462,12 @@
                 return;
             }
 
+            const editId = document.getElementById('editListingId').value;
             const savedProfile = JSON.parse(localStorage.getItem(`profile_${window.currentUser.uid}`) || '{}');
             const authorName = savedProfile.name || window.currentUser.displayName || 'Мастер';
             const authorAvatar = savedProfile.avatar || window.currentUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80';
 
-            const newRef = window.push(window.ref(window.db, 'listings'));
-            window.set(newRef, {
+            const listingData = {
                 title: document.getElementById('itemTitle').value,
                 category: document.getElementById('itemCategory').value,
                 price: Number(document.getElementById('itemPrice').value),
@@ -450,21 +478,24 @@
                 authorName: authorName,
                 authorAvatar: authorAvatar,
                 sold: false,
-                date: Date.now()
-            }).then(() => {
-                closeCreateModal();
-                alert('Слот успешно выставлен на продажу!');
-                document.getElementById('itemTitle').value = '';
-                document.getElementById('itemPrice').value = '';
-                document.getElementById('itemImage').value = '';
-                document.getElementById('itemFileLink').value = '';
-                document.getElementById('itemDescription').value = '';
-            }).catch((error) => {
-                alert('Не удалось выставить слот: ' + error.message);
-            });
+                date: editId && allListings[editId] ? allListings[editId].date : Date.now()
+            };
+
+            if (editId) {
+                window.set(window.ref(window.db, `listings/${editId}`), listingData).then(() => {
+                    closeCreateModal();
+                    alert('Слот успешно обновлен!');
+                });
+            } else {
+                const newRef = window.push(window.ref(window.db, 'listings'));
+                window.set(newRef, listingData).then(() => {
+                    closeCreateModal();
+                    alert('Слот успешно выставлен на продажу!');
+                });
+            }
         }
 
-        // Мои слоты
+        // Мои слоты с возможностью редактирования и удаления
         function openMySlotsModal() {
             if (!window.currentUser) {
                 alert('Войдите через Google!');
@@ -489,9 +520,14 @@
                                     <p class="text-xs text-amber-400 font-mono">${item.price} ₽</p>
                                 </div>
                             </div>
-                            <button onclick="deleteListing('${id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-2 rounded-xl text-xs transition-colors">
-                                <i class="fa-solid fa-trash mr-1"></i> Удалить
-                            </button>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="editListing('${id}')" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-2 rounded-xl text-xs transition-colors">
+                                    <i class="fa-solid fa-pen mr-1"></i> Редактировать
+                                </button>
+                                <button onclick="deleteListing('${id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-2 rounded-xl text-xs transition-colors">
+                                    <i class="fa-solid fa-trash mr-1"></i> Удалить
+                                </button>
+                            </div>
                         </div>
                     `;
                 }
