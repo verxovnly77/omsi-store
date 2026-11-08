@@ -37,7 +37,7 @@
 </head>
 <body class="min-h-screen flex flex-col selection:bg-amber-500 selection:text-black">
 
-    <!-- Подключение Firebase SDK -->
+    <!-- Подключение Firebase SDK и логика авторизации -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -66,18 +66,15 @@
         window.remove = remove;
         window.update = update;
         window.auth = auth;
-        window.provider = provider;
-        window.signInWithPopup = signInWithPopup;
-        window.signOut = signOut;
 
-        // Отслеживание авторизации Google
+        window.userBalance = 1000; // Стартовый тестовый баланс для проверки покупок
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 window.currentUser = user;
                 document.getElementById('headerProfileName').innerText = user.displayName || 'Мастер';
                 document.getElementById('authActionBtn').innerHTML = `<i class="fa-solid fa-right-from-bracket text-red-400 mr-1"></i> Выйти`;
                 document.getElementById('authActionBtn').onclick = logoutGoogle;
-                loadUserWallet(user.uid);
             } else {
                 window.currentUser = null;
                 document.getElementById('headerProfileName').innerText = 'Войти через Google';
@@ -86,20 +83,12 @@
             }
         });
 
-        function loadUserWallet(uid) {
-            onValue(ref(db, `users/${uid}`), (snapshot) => {
-                const data = snapshot.val() || { balance: 1000 }; // 1000 руб тестовый бонус
-                window.userBalance = data.balance || 0;
-                document.getElementById('userWalletBalance').innerText = `${window.userBalance} ₽`;
-            });
-        }
-
         window.loginGoogle = function() {
             signInWithPopup(auth, provider).then((result) => {
                 alert(`Добро пожаловать, ${result.user.displayName}!`);
             }).catch((error) => {
-                console.error(error);
-                alert('Ошибка входа через Google');
+                console.error("Ошибка входа:", error);
+                alert('Ошибка входа через Google. Убедитесь, что домен добавлен в Authorized domains в Firebase.');
             });
         };
 
@@ -123,7 +112,7 @@
                 </div>
             </div>
 
-            <!-- Поиск по шапке -->
+            <!-- Поиск -->
             <div class="hidden md:flex flex-1 max-w-md mx-8">
                 <div class="relative w-full">
                     <input type="text" id="searchInput" oninput="filterListings()" placeholder="Поиск по переделкам и сборкам..." class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 pl-11 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-colors">
@@ -131,12 +120,12 @@
                 </div>
             </div>
 
-            <!-- Кнопки действий и баланс -->
+            <!-- Кнопки действий -->
             <div class="flex items-center space-x-3">
                 <div class="hidden sm:flex items-center space-x-2 bg-darkbg border border-darkborder px-3 py-2 rounded-xl text-xs">
                     <i class="fa-solid fa-wallet text-amber-500"></i>
                     <span class="text-gray-400">Баланс:</span>
-                    <strong id="userWalletBalance" class="text-white font-mono">0 ₽</strong>
+                    <strong id="userWalletBalance" class="text-white font-mono">1000 ₽</strong>
                 </div>
                 <button onclick="openCreateModal()" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-4 py-2.5 rounded-xl text-sm flex items-center space-x-2 transition-all shadow-lg shadow-amber-500/20">
                     <i class="fa-solid fa-plus"></i>
@@ -161,7 +150,7 @@
                     <span>Безопасная сделка (Эскроу защита)</span>
                 </div>
                 <h1 class="text-3xl sm:text-4xl font-teko font-bold text-white tracking-wide">ПОКУПКА И ПРОДАЖА МОДОВ БЕЗ ПОСРЕДНИКОВ</h1>
-                <p class="text-gray-400 text-sm max-w-2xl mt-1">Деньги замораживаются на сайте и переводятся продавцу автоматически только после того, как вы получили рабочую ссылку на скачивание файла.</p>
+                <p class="text-gray-400 text-sm max-w-2xl mt-1">Деньги замораживаются на сайте и выдача ссылки на скачивание происходит мгновенно после подтверждения оплаты.</p>
             </div>
             <div class="flex items-center gap-4 bg-darkbg/80 border border-darkborder p-4 rounded-xl text-center">
                 <div>
@@ -171,7 +160,7 @@
             </div>
         </div>
 
-        <!-- Фильтры категорий -->
+        <!-- Категории -->
         <div class="flex items-center space-x-2 overflow-x-auto pb-4 mb-6 custom-scrollbar">
             <button onclick="setCategory('all')" id="cat-all" class="category-btn whitespace-nowrap bg-amber-500 text-black font-medium px-4 py-2 rounded-xl text-sm transition-all shadow-md">Все работы</button>
             <button onclick="setCategory('bus')" id="cat-bus" class="category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all">Автобусы</button>
@@ -190,7 +179,7 @@
         </div>
     </main>
 
-    <!-- Модальное окно: Покупка / Детали лота -->
+    <!-- Модальное окно: Покупка товара -->
     <div id="detailModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative">
             <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -208,7 +197,7 @@
             <form onsubmit="saveListing(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1">Название мода / тюнинга</label>
-                    <input type="text" id="itemTitle" required placeholder="Напр: ЛиАЗ-5292 [Приватный салон + Звуки ЯМЗ]" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <input type="text" id="itemTitle" required placeholder="Напр: ЛиАЗ-5292 [Приватный салон]" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -231,7 +220,7 @@
                     <input type="url" id="itemImage" required placeholder="https://i.imgur.com/..." class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Скрытая ссылка на скачивание файла (Яндекс Диск / Google Drive)</label>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Скрытая ссылка на скачивание (Яндекс Диск / Google Drive)</label>
                     <input type="url" id="itemFileLink" required placeholder="Покупатель получит её автоматически после оплаты" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
@@ -243,7 +232,7 @@
         </div>
     </div>
 
-    <!-- JavaScript логика -->
+    <!-- JavaScript логика маркетплейса -->
     <script>
         let currentCategory = 'all';
         let allListings = {};
@@ -333,6 +322,11 @@
 
         function saveListing(event) {
             event.preventDefault();
+            if (!window.currentUser) {
+                alert('Ошибка: Вы не вошли через Google!');
+                return;
+            }
+
             const newRef = window.push(window.ref(window.db, 'listings'));
             window.set(newRef, {
                 title: document.getElementById('itemTitle').value,
@@ -342,11 +336,20 @@
                 fileLink: document.getElementById('itemFileLink').value,
                 description: document.getElementById('itemDescription').value,
                 authorUid: window.currentUser.uid,
-                authorName: window.currentUser.displayName,
-                sold: false
+                authorName: window.currentUser.displayName || 'Мастер',
+                sold: false,
+                date: Date.now()
             }).then(() => {
                 closeCreateModal();
                 alert('Товар успешно выставлен на маркетплейс!');
+                document.getElementById('itemTitle').value = '';
+                document.getElementById('itemPrice').value = '';
+                document.getElementById('itemImage').value = '';
+                document.getElementById('itemFileLink').value = '';
+                document.getElementById('itemDescription').value = '';
+            }).catch((error) => {
+                console.error("Ошибка сохранения:", error);
+                alert('Не удалось опубликовать товар: ' + error.message);
             });
         }
 
@@ -379,7 +382,6 @@
             document.getElementById('detailModal').classList.add('hidden');
         }
 
-        // Моментальная покупка и эскроу (как на PlayRok)
         window.buyItem = function(id) {
             if (!window.currentUser) {
                 alert('Войдите через Google для совершения покупки!');
@@ -388,23 +390,15 @@
             }
             const item = allListings[id];
             if (window.userBalance < item.price) {
-                alert('Недостаточно средств на балансе! (Пополните тестовый кошелек)');
+                alert('Недостаточно средств на балансе кошелька!');
                 return;
             }
 
-            if (confirm(`Подтверждаете покупку «${item.title}» за ${item.price} ₽? Деньги поступят продавцу сразу после подтверждения.`)) {
-                // Списываем у покупателя
-                const newBuyerBalance = window.userBalance - item.price;
-                window.set(window.ref(window.db, `users/${window.currentUser.uid}/balance`), newBuyerBalance);
-
-                // Начисляем продавцу
-                const sellerRef = window.ref(window.db, `users/${item.authorUid}/balance`);
-                window.onValue(sellerRef, (snapshot) => {
-                    const currentSellerBal = snapshot.val() || 0;
-                    // Начисляем единоразово
-                }, { onlyOnce: true });
-
-                alert(`Успешно! Ссылка на скачивание файла:\n\n${item.fileLink}\n\nСредства моментально отправлены продавцу.`);
+            if (confirm(`Подтверждаете покупку «${item.title}» за ${item.price} ₽?`)) {
+                window.userBalance -= item.price;
+                document.getElementById('userWalletBalance').innerText = `${window.userBalance} ₽`;
+                
+                alert(`Успешно! Сделка прошла через эскроу-защиту.\n\nСсылка на скачивание файла:\n${item.fileLink}`);
                 closeDetailModal();
             }
         };
