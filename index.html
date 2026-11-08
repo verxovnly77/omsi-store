@@ -72,12 +72,19 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 window.currentUser = user;
-                document.getElementById('headerProfileName').innerText = user.displayName || 'Профиль';
+                // Загружаем профиль пользователя (ник, аватарка)
+                const savedProfile = JSON.parse(localStorage.getItem(`profile_${user.uid}`) || '{}');
+                const displayName = savedProfile.name || user.displayName || 'Профиль';
+                const avatarUrl = savedProfile.avatar || user.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80';
+
+                document.getElementById('headerProfileName').innerText = displayName;
+                document.getElementById('headerAvatar').src = avatarUrl;
                 document.getElementById('authActionBtn').innerHTML = `<i class="fa-solid fa-right-from-bracket text-red-400 mr-1"></i> Выйти`;
                 document.getElementById('authActionBtn').onclick = logoutGoogle;
             } else {
                 window.currentUser = null;
                 document.getElementById('headerProfileName').innerText = 'Вход';
+                document.getElementById('headerAvatar').src = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80';
                 document.getElementById('authActionBtn').innerHTML = `<i class="fa-brands fa-google text-amber-500 mr-1"></i> Вход`;
                 document.getElementById('authActionBtn').onclick = loginGoogle;
             }
@@ -122,7 +129,7 @@
 
             <!-- Кнопки управления -->
             <div class="flex items-center space-x-2 sm:space-x-3">
-                <button onclick="openMySlotsModal()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-amber-500 px-3 py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-1" title="Мои слоты (что я продаю)">
+                <button onclick="openMySlotsModal()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-amber-500 px-3 py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-1" title="Мои слоты">
                     <i class="fa-solid fa-box-archive"></i>
                     <span class="hidden lg:inline">Мои слоты</span>
                 </button>
@@ -138,8 +145,8 @@
                     <i class="fa-solid fa-plus"></i>
                     <span class="hidden sm:inline">Продать мод</span>
                 </button>
-                <button onclick="openProfileModal()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 px-3 py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-1">
-                    <i class="fa-solid fa-user-gear text-amber-500"></i>
+                <button onclick="openProfileModal()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 px-3.5 py-2 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-2">
+                    <img id="headerAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" class="w-6 h-6 rounded-full object-cover">
                     <span id="headerProfileName" class="hidden sm:inline">Профиль</span>
                 </button>
             </div>
@@ -152,7 +159,7 @@
             <div>
                 <div class="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full text-amber-400 text-xs font-semibold mb-3">
                     <i class="fa-solid fa-shield-halved text-amber-500"></i>
-                    <span>Эскроу защита + Чаты + Отзывы</span>
+                    <span>Эскроу защита + Чаты + Профили</span>
                 </div>
                 <h1 class="text-3xl sm:text-4xl font-teko font-bold text-white tracking-wide">БАЗА ПЕРЕДЕЛОК И ТЮНИНГА OMSI 2</h1>
                 <p class="text-gray-400 text-sm max-w-2xl mt-1">Покупайте и продавайте моды безопасно, общайтесь в чатах сделок и оставляйте честные отзывы авторам.</p>
@@ -192,15 +199,15 @@
         </div>
     </div>
 
-    <!-- Модальное окно: Мои слоты (что продаю) -->
+    <!-- Модальное окно: Мои слоты -->
     <div id="mySlotsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="font-teko text-3xl font-bold text-white tracking-wide">МОИ СЛОТЫ (ТОВАРЫ НА ПРОДАЖУ)</h3>
+                <h3 class="font-teko text-3xl font-bold text-white tracking-wide">МОИ СЛОТЫ НА ПРОДАЖУ</h3>
                 <button onclick="closeMySlotsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div id="mySlotsList" class="space-y-4">
-                <p class="text-gray-500 text-sm text-center py-8">Войдите через Google, чтобы видеть свои слоты.</p>
+                <p class="text-gray-500 text-sm text-center py-8">Войдите через Google.</p>
             </div>
         </div>
     </div>
@@ -209,16 +216,16 @@
     <div id="purchasesModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex items-center justify-between mb-6">
-                <h3 class="font-teko text-3xl font-bold text-white tracking-wide">МОИ ПОКУПКИ И АКТИВНЫЕ ЧАТЫ</h3>
+                <h3 class="font-teko text-3xl font-bold text-white tracking-wide">МОИ ПОКУПКИ И ЧАТЫ СДЕЛОК</h3>
                 <button onclick="closePurchasesModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div id="purchasesList" class="space-y-4">
-                <p class="text-gray-500 text-sm text-center py-8">Войдите через Google, чтобы видеть свои покупки.</p>
+                <p class="text-gray-500 text-sm text-center py-8">Войдите через Google.</p>
             </div>
         </div>
     </div>
 
-    <!-- Модальное окно: Редактирование профиля -->
+    <!-- Модальное окно: Редактирование профиля (Ник, Аватарка, Контакт) -->
     <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
             <div class="flex items-center justify-between mb-6">
@@ -227,19 +234,23 @@
             </div>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Ваш никнейм / Название мастера</label>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Никнейм мастера</label>
                     <input type="text" id="profileNameInput" placeholder="Напр: Verxonly Prod" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Ваш контакт для связи (Telegram / VK)</label>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Ссылка на аватарку (URL изображения)</label>
+                    <input type="url" id="profileAvatarInput" placeholder="https://i.imgur.com/... (прямая ссылка)" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Контакт для связи (Telegram / VK)</label>
                     <input type="text" id="profileContactInput" placeholder="Напр: @verxonlyprodopomsi" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
-                <button onclick="saveProfile()" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold py-3 rounded-xl text-sm shadow-lg shadow-amber-500/20">Сохранить профиль</button>
+                <button onclick="saveProfile()" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold py-3 rounded-xl text-sm shadow-lg shadow-amber-500/25">Сохранить профиль</button>
             </div>
         </div>
     </div>
 
-    <!-- Модальное окно: Выставить товар -->
+    <!-- Модальное окно: Выставить товар с прямой загрузкой изображения -->
     <div id="createModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative">
             <div class="flex items-center justify-between mb-6">
@@ -268,12 +279,13 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Ссылка на скриншот (URL)</label>
-                    <input type="url" id="itemImage" required placeholder="https://i.imgur.com/..." class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Прямая ссылка на скриншот (URL)</label>
+                    <input type="url" id="itemImage" required placeholder="Загрузите картинку на Imgur/ImgBB и вставьте ссылку" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <p class="text-[11px] text-gray-500 mt-1">💡 Совет: используйте бесплатные хостинги картинок (Imgur, Postimages, ImgBB) для получения прямой ссылки.</p>
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1">Скрытая ссылка на скачивание (Яндекс Диск / Google Drive)</label>
-                    <input type="url" id="itemFileLink" required placeholder="Покупатель получит её после покупки" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <input type="url" id="itemFileLink" required placeholder="Покупатель получит её после оплаты" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1">Описание</label>
@@ -347,7 +359,10 @@
                             </div>
                         </div>
                         <div class="p-5 pt-0 flex items-center justify-between border-t border-darkborder/50 mt-4">
-                            <span class="text-xs text-gray-500"><i class="fa-solid fa-user text-amber-500 mr-1"></i> ${item.authorName || 'Продавец'}</span>
+                            <div class="flex items-center space-x-2">
+                                <img src="${item.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}" class="w-6 h-6 rounded-full object-cover">
+                                <span class="text-xs text-gray-400">${item.authorName || 'Продавец'}</span>
+                            </div>
                             <button onclick="buyAndOpenChat('${id}')" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-4 py-2 rounded-xl text-xs transition-colors shadow-md">
                                 Купить и в чат
                             </button>
@@ -358,35 +373,43 @@
             grid.innerHTML = html || '<div class="col-span-full py-16 text-center text-gray-500">Ничего не найдено</div>';
         }
 
-        // Управление профилем
+        // Профиль (ник, аватарка, контакт)
         function openProfileModal() {
             if (!window.currentUser) {
                 alert('Войдите через Google, чтобы настроить профиль!');
                 window.loginGoogle();
                 return;
             }
-            const savedProfile = JSON.parse(localStorage.getItem(`profile_${window.currentUser.uid}`) || '{"name": "", "contact": ""}');
+            const savedProfile = JSON.parse(localStorage.getItem(`profile_${window.currentUser.uid}`) || '{}');
             document.getElementById('profileNameInput').value = savedProfile.name || window.currentUser.displayName || '';
+            document.getElementById('profileAvatarInput').value = savedProfile.avatar || window.currentUser.photoURL || '';
             document.getElementById('profileContactInput').value = savedProfile.contact || '';
             document.getElementById('profileModal').classList.remove('hidden');
             document.getElementById('profileModal').classList.add('flex');
         }
 
         function closeProfileModal() {
-            document.getElementById('profileModal').classList.remove('flex');
+            document.getElementById('profileModal').classList.remove('hidden');
             document.getElementById('profileModal').classList.add('hidden');
+            document.getElementById('profileModal').classList.remove('flex');
         }
 
         function saveProfile() {
             if (!window.currentUser) return;
             const profile = {
                 name: document.getElementById('profileNameInput').value,
+                avatar: document.getElementById('profileAvatarInput').value,
                 contact: document.getElementById('profileContactInput').value
             };
             localStorage.setItem(`profile_${window.currentUser.uid}`, JSON.stringify(profile));
+            
             document.getElementById('headerProfileName').innerText = profile.name || window.currentUser.displayName;
+            if (profile.avatar) {
+                document.getElementById('headerAvatar').src = profile.avatar;
+            }
+
             closeProfileModal();
-            alert('Профиль успешно обновлен!');
+            alert('Профиль и аватарка успешно обновлены!');
         }
 
         function openCreateModal() {
@@ -413,6 +436,7 @@
 
             const savedProfile = JSON.parse(localStorage.getItem(`profile_${window.currentUser.uid}`) || '{}');
             const authorName = savedProfile.name || window.currentUser.displayName || 'Мастер';
+            const authorAvatar = savedProfile.avatar || window.currentUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80';
 
             const newRef = window.push(window.ref(window.db, 'listings'));
             window.set(newRef, {
@@ -424,6 +448,7 @@
                 description: document.getElementById('itemDescription').value,
                 authorUid: window.currentUser.uid,
                 authorName: authorName,
+                authorAvatar: authorAvatar,
                 sold: false,
                 date: Date.now()
             }).then(() => {
@@ -439,15 +464,15 @@
             });
         }
 
-        // Мои слоты (что я продаю)
+        // Мои слоты
         function openMySlotsModal() {
             if (!window.currentUser) {
-                alert('Войдите через Google, чтобы посмотреть свои слоты!');
+                alert('Войдите через Google!');
                 window.loginGoogle();
                 return;
             }
             const container = document.getElementById('mySlotsList');
-            container.innerHTML = `<p class="text-gray-500 text-sm text-center py-4">Загрузка ваших слотов...</p>`;
+            container.innerHTML = `<p class="text-gray-500 text-sm text-center py-4">Загрузка...</p>`;
 
             let html = '';
             let count = 0;
@@ -465,14 +490,14 @@
                                 </div>
                             </div>
                             <button onclick="deleteListing('${id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-2 rounded-xl text-xs transition-colors">
-                                <i class="fa-solid fa-trash mr-1"></i> Удалить слот
+                                <i class="fa-solid fa-trash mr-1"></i> Удалить
                             </button>
                         </div>
                     `;
                 }
             });
 
-            container.innerHTML = count > 0 ? html : `<div class="text-center py-8 text-gray-500">У вас пока нет активных слотов на продажу.</div>`;
+            container.innerHTML = count > 0 ? html : `<div class="text-center py-8 text-gray-500">У вас пока нет активных слотов.</div>`;
             document.getElementById('mySlotsModal').classList.remove('hidden');
             document.getElementById('mySlotsModal').classList.add('flex');
         }
@@ -483,7 +508,7 @@
         }
 
         function deleteListing(id) {
-            if (confirm('Вы уверены, что хотите снять этот слот с продажи?')) {
+            if (confirm('Удалить этот слот с продажи?')) {
                 window.remove(window.ref(window.db, `listings/${id}`)).then(() => {
                     alert('Слот удален!');
                     closeMySlotsModal();
@@ -504,7 +529,10 @@
                         <span class="text-xl font-bold text-amber-500 font-mono">${item.price} ₽</span>
                     </div>
                     <p class="text-gray-300 text-sm">${item.description}</p>
-                    <div class="text-xs text-gray-500">Продавец: <strong class="text-gray-300">${item.authorName || 'Мастер'}</strong></div>
+                    <div class="flex items-center space-x-2 text-xs text-gray-400">
+                        <img src="${item.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}" class="w-5 h-5 rounded-full object-cover">
+                        <span>Продавец: <strong class="text-gray-200">${item.authorName || 'Мастер'}</strong></span>
+                    </div>
 
                     <div class="p-4 bg-darkbg rounded-xl border border-darkborder flex items-center justify-between">
                         <div>
@@ -516,7 +544,7 @@
                         </button>
                     </div>
 
-                    <!-- Чат с продавцом -->
+                    <!-- Чат -->
                     <div class="border-t border-darkborder pt-4 mt-4">
                         <h3 class="font-teko text-2xl font-bold text-white mb-2">Чат сделки</h3>
                         <div id="chatMessages" class="bg-darkbg border border-darkborder rounded-xl p-4 h-40 overflow-y-auto custom-scrollbar space-y-3 mb-3 text-xs">
@@ -545,8 +573,8 @@
                                     <option value="1">⭐ (1)</option>
                                 </select>
                             </div>
-                            <input type="text" id="reviewText" required placeholder="Ваш отзыв о модификации..." class="w-full bg-cardbg border border-darkborder rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                            <button type="submit" class="w-full bg-cardbg hover:bg-darkborder border border-darkborder text-amber-500 font-semibold py-2 rounded-xl text-xs transition-colors">Опубликовать отзыв</button>
+                            <input type="text" id="reviewText" required placeholder="Ваш отзыв..." class="w-full bg-cardbg border border-darkborder rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                            <button type="submit" class="w-full bg-cardbg hover:bg-darkborder border border-darkborder text-amber-500 font-semibold py-2 rounded-xl text-xs">Опубликовать отзыв</button>
                         </form>
                     </div>
                 </div>
@@ -559,25 +587,24 @@
         }
 
         function closeDetailModal() {
-            document.getElementById('detailModal').classList.remove('hidden');
-            document.getElementById('detailModal').classList.add('hidden');
             document.getElementById('detailModal').classList.remove('flex');
+            document.getElementById('detailModal').classList.add('hidden');
             activeChatId = null;
         }
 
         window.buyAndOpenChat = function(id) {
             if (!window.currentUser) {
-                alert('Войдите через Google для совершения покупки!');
+                alert('Войдите через Google!');
                 window.loginGoogle();
                 return;
             }
             const item = allListings[id];
             if (window.userBalance < item.price) {
-                alert('Недостаточно средств на балансе кошелька!');
+                alert('Недостаточно средств на балансе!');
                 return;
             }
 
-            if (confirm(`Подтверждаете покупку «${item.title}» за ${item.price} ₽?`)) {
+            if (confirm(`Купить «${item.title}» за ${item.price} ₽?`)) {
                 window.userBalance -= item.price;
                 document.getElementById('userWalletBalance').innerText = `${window.userBalance} ₽`;
 
@@ -614,7 +641,7 @@
                 const keys = Object.keys(msgs);
 
                 if (keys.length === 0) {
-                    chatContainer.innerHTML = `<div class="text-center text-gray-500 italic">Чат пуст. Обсудите детали с продавцом!</div>`;
+                    chatContainer.innerHTML = `<div class="text-center text-gray-500 italic">Чат пуст.</div>`;
                     return;
                 }
 
@@ -664,7 +691,6 @@
             });
         }
 
-        // Отзывы
         function loadReviews(listingId) {
             const revRef = window.ref(window.db, `reviews/${listingId}`);
             window.onValue(revRef, (snapshot) => {
@@ -675,7 +701,7 @@
                 const keys = Object.keys(data);
 
                 if (keys.length === 0) {
-                    container.innerHTML = `<p class="text-gray-500 italic">Пока нет отзывов. Станьте первым!</p>`;
+                    container.innerHTML = `<p class="text-gray-500 italic">Пока нет отзывов.</p>`;
                     return;
                 }
 
@@ -699,7 +725,7 @@
         function addReview(event, listingId) {
             event.preventDefault();
             if (!window.currentUser) {
-                alert('Войдите через Google, чтобы оставить отзыв!');
+                alert('Войдите через Google!');
                 window.loginGoogle();
                 return;
             }
