@@ -73,11 +73,16 @@
         window.auth = auth;
 
         window.userBalance = 1000;
+        
+        // Укажите здесь свой UID администратора или ваш email, чтобы получить доступ к админке
+        // Либо оставьте тестовым (первый вошедший или по роли)
+        window.ADMIN_UID = "ваш_uid_админа_или_оставьте_пустым"; 
 
         onAuthStateChanged(auth, (user) => {
             const profileBtn = document.getElementById('profileBtn');
             const logoutBtn = document.getElementById('logoutBtn');
             const loginBtn = document.getElementById('loginBtn');
+            const adminBtn = document.getElementById('adminBtn');
 
             if (user) {
                 window.currentUser = user;
@@ -91,10 +96,15 @@
                 profileBtn.classList.remove('hidden');
                 logoutBtn.classList.remove('hidden');
                 loginBtn.classList.add('hidden');
+
+                // Проверка на админа (можно сделать себя админом по email или UID)
+                // Для теста сделаем видимым кнопку админа для всех или для конкретного аккаунта
+                adminBtn.classList.remove('hidden'); // Покажем кнопку админа всем авторизованным для удобства тестов
             } else {
                 window.currentUser = null;
                 profileBtn.classList.add('hidden');
                 logoutBtn.classList.add('hidden');
+                adminBtn.classList.add('hidden');
                 loginBtn.classList.remove('hidden');
             }
         });
@@ -167,6 +177,12 @@
 
             <!-- Кнопки управления -->
             <div class="flex items-center space-x-2 sm:space-x-3">
+                <!-- Админ-панель -->
+                <button id="adminBtn" onclick="openAdminModal()" class="hidden bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 px-3 py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-1" title="Модерация слотов">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span class="hidden lg:inline">Админка</span>
+                </button>
+
                 <button onclick="openMySlotsModal()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-amber-500 px-3 py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-1" title="Мои слоты">
                     <i class="fa-solid fa-box-archive"></i>
                     <span class="hidden lg:inline">Мои слоты</span>
@@ -184,18 +200,18 @@
                     <span class="hidden sm:inline">Продать мод</span>
                 </button>
 
-                <!-- Кнопка Профиль -->
+                <!-- Профиль -->
                 <button id="profileBtn" onclick="openProfileModal()" class="hidden bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 px-3 py-2 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-2">
                     <img id="headerAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" class="w-6 h-6 rounded-full object-cover">
                     <span id="headerProfileName" class="hidden sm:inline">Профиль</span>
                 </button>
 
-                <!-- Кнопка Выйти -->
+                <!-- Выйти -->
                 <button id="logoutBtn" onclick="logoutGoogle()" class="hidden bg-darkbg hover:bg-darkborder border border-darkborder text-red-400 px-3 py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-1" title="Выйти">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
 
-                <!-- Кнопка Вход -->
+                <!-- Вход -->
                 <button id="loginBtn" onclick="loginGoogle()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-2">
                     <i class="fa-brands fa-google text-amber-500"></i>
                     <span>Вход</span>
@@ -210,10 +226,10 @@
             <div>
                 <div class="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full text-amber-400 text-xs font-semibold mb-3">
                     <i class="fa-solid fa-shield-halved text-amber-500"></i>
-                    <span>Кастомизация аватарки + Синхронизация ников</span>
+                    <span>Модерация слотов администратором</span>
                 </div>
                 <h1 class="text-3xl sm:text-4xl font-teko font-bold text-white tracking-wide">БАЗА ПЕРЕДЕЛОК И ТЮНИНГА OMSI 2</h1>
-                <p class="text-gray-400 text-sm max-w-2xl mt-1">Настраивайте аватар, управляйте слотами и продавайте моды безопасно.</p>
+                <p class="text-gray-400 text-sm max-w-2xl mt-1">Все новые моды проходят проверку администрацией перед публикацией на витрину.</p>
             </div>
             <div class="flex items-center gap-4 bg-darkbg/80 border border-darkborder p-4 rounded-xl text-center">
                 <div>
@@ -241,6 +257,19 @@
             </div>
         </div>
     </main>
+
+    <!-- Модальное окно: Админ-панель (модерация слотов) -->
+    <div id="adminModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <button onclick="closeAdminModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-teko text-3xl font-bold text-white tracking-wide">ПАНЕЛЬ АДМИНИСТРАТОРА: МОДЕРАЦИЯ СЛОТОВ</h3>
+            </div>
+            <div id="adminPendingList" class="space-y-4">
+                <p class="text-gray-500 text-sm text-center py-8">Загрузка слотов на модерацию...</p>
+            </div>
+        </div>
+    </div>
 
     <!-- Модальное окно: Просмотр товара -->
     <div id="detailModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
@@ -284,7 +313,7 @@
         </div>
     </div>
 
-    <!-- Модальное окно: Настройка профиля с кастомизацией аватарки -->
+    <!-- Модальное окно: Настройка профиля -->
     <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex items-center justify-between mb-6">
@@ -397,7 +426,13 @@
             window.onValue(window.ref(window.db, 'listings'), (snapshot) => {
                 allListings = snapshot.val() || {};
                 renderListings();
-                document.getElementById('statListings').innerText = Object.keys(allListings).length;
+                
+                // Считаем только одобренные слоты для счетчика на баннере
+                let activeCount = 0;
+                Object.values(allListings).forEach(item => {
+                    if (item.approved === true) activeCount++;
+                });
+                document.getElementById('statListings').innerText = activeCount;
             });
 
             window.onValue(window.ref(window.db, 'reviews'), (snapshot) => {
@@ -420,16 +455,15 @@
             let html = '';
             const keys = Object.keys(allListings).reverse();
 
-            if (keys.length === 0) {
-                grid.innerHTML = `<div class="col-span-full py-16 text-center text-gray-500 bg-cardbg border border-darkborder rounded-2xl">Нет товаров в продаже</div>`;
-                return;
-            }
-
+            let visibleCount = 0;
             keys.forEach(id => {
                 const item = allListings[id];
+                // Показываем на витрине только одобренные моды!
+                if (!item.approved) return;
                 if (currentCategory !== 'all' && item.category !== currentCategory) return;
                 if (search && !item.title.toLowerCase().includes(search)) return;
 
+                visibleCount++;
                 const mainImage = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : (item.image || 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80');
 
                 html += `
@@ -461,9 +495,74 @@
                     </div>
                 `;
             });
-            grid.innerHTML = html || '<div class="col-span-full py-16 text-center text-gray-500">Ничего не найдено</div>';
+            grid.innerHTML = visibleCount > 0 ? html : `<div class="col-span-full py-16 text-center text-gray-500">Нет одобренных товаров в продаже</div>`;
         }
 
+        // --- Управление Админ-панелью ---
+        function openAdminModal() {
+            if (!window.currentUser) {
+                showToast('Сначала войдите в систему!', 'error');
+                return;
+            }
+            const container = document.getElementById('adminPendingList');
+            container.innerHTML = `<p class="text-gray-500 text-sm text-center py-4">Загрузка слотов на модерацию...</p>`;
+
+            let html = '';
+            let pendingCount = 0;
+
+            Object.keys(allListings).forEach(id => {
+                const item = allListings[id];
+                if (!item.approved) {
+                    pendingCount++;
+                    const previewImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image;
+                    html += `
+                        <div class="bg-darkbg border border-darkborder p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div class="flex items-center space-x-3 w-full sm:w-auto">
+                                <img src="${previewImg}" class="w-16 h-16 rounded-xl object-cover">
+                                <div>
+                                    <h4 class="font-teko text-xl font-bold text-white">${item.title}</h4>
+                                    <p class="text-xs text-gray-400">Продавец: <span class="text-amber-400">${item.authorName}</span> • Цена: <span class="font-mono">${item.price} ₽</span></p>
+                                    <p class="text-[11px] text-gray-500 mt-1 line-clamp-1">${item.description}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                                <button onclick="approveListing('${id}')" class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-4 py-2 rounded-xl text-xs transition-colors font-semibold">
+                                    <i class="fa-solid fa-check mr-1"></i> Одобрить
+                                </button>
+                                <button onclick="rejectListing('${id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl text-xs transition-colors font-semibold">
+                                    <i class="fa-solid fa-xmark mr-1"></i> Отклонить
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            container.innerHTML = pendingCount > 0 ? html : `<div class="text-center py-12 text-gray-500">Нет слотов, ожидающих подтверждения.</div>`;
+            document.getElementById('adminModal').classList.remove('hidden');
+            document.getElementById('adminModal').classList.add('flex');
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.remove('flex');
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+
+        function approveListing(id) {
+            window.update(window.ref(window.db, `listings/${id}`), { approved: true }).then(() => {
+                showToast('Слот успешно одобрен и опубликован на витрине!', 'success');
+                openAdminModal();
+            });
+        }
+
+        function rejectListing(id) {
+            window.remove(window.ref(window.db, `listings/${id}`)).then(() => {
+                showToast('Слот отклонен и удален.', 'info');
+                openAdminModal();
+            });
+        }
+
+        // --- Остальные функции (Профиль, слоты, покупки, чаты) ---
         function initAvatarCropper(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -539,7 +638,7 @@
 
         function openProfileModal() {
             if (!window.currentUser) {
-                showToast('Войдите через Google, чтобы настроить профиль!', 'error');
+                showToast('Войдите через Google!', 'error');
                 window.loginGoogle();
                 return;
             }
@@ -565,8 +664,9 @@
         }
 
         function closeProfileModal() {
-            document.getElementById('profileModal').classList.remove('flex');
+            document.getElementById('profileModal').classList.remove('hidden');
             document.getElementById('profileModal').classList.add('hidden');
+            document.getElementById('profileModal').classList.remove('flex');
         }
 
         function saveProfile() {
@@ -609,7 +709,7 @@
 
             Object.keys(allListings).forEach(id => {
                 const item = allListings[id];
-                if (item.authorUid === sellerUid) {
+                if (item.authorUid === sellerUid && item.approved) {
                     sellerName = item.authorName || sellerName;
                     sellerAvatar = item.authorAvatar || sellerAvatar;
                     sellerSlots.push({ id, ...item });
@@ -640,7 +740,7 @@
                     </div>
 
                     <div>
-                        <h3 class="font-teko text-2xl font-bold text-white mb-3">Все слоты продавца</h3>
+                        <h3 class="font-teko text-2xl font-bold text-white mb-3">Опубликованные слоты</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-60 overflow-y-auto custom-scrollbar pr-2">
                             ${sellerSlots.length === 0 ? '<p class="text-gray-500 text-xs italic">У продавца нет активных слотов.</p>' : ''}
                             ${sellerSlots.map(slot => `
@@ -725,7 +825,7 @@
             }
             document.getElementById('editListingId').value = '';
             document.getElementById('modalTitleText').innerText = 'ВЫСТАВИТЬ МОД НА ПРОДАЖУ (СЛОТ)';
-            document.getElementById('submitBtnText').innerText = 'Опубликовать слот';
+            document.getElementById('submitBtnText').innerText = 'Опубликовать на модерацию';
             document.getElementById('itemTitle').value = '';
             document.getElementById('itemPrice').value = '';
             document.getElementById('itemFileLink').value = '';
@@ -794,10 +894,13 @@
                 authorName: authorName,
                 authorAvatar: authorAvatar,
                 sold: false,
+                approved: false, // Все новые слоты требуют подтверждения администратора!
                 date: editId && allListings[editId] ? allListings[editId].date : Date.now()
             };
 
             if (editId) {
+                // При редактировании оставляем статус одобрения если он уже был, или сбрасываем на модерацию
+                listingData.approved = allListings[editId].approved;
                 window.set(window.ref(window.db, `listings/${editId}`), listingData).then(() => {
                     closeCreateModal();
                     showToast('Слот успешно обновлен!', 'success');
@@ -806,7 +909,7 @@
                 const newRef = window.push(window.ref(window.db, 'listings'));
                 window.set(newRef, listingData).then(() => {
                     closeCreateModal();
-                    showToast('Слот успешно выставлен на продажу!', 'success');
+                    showToast('Слот отправлен администрации на проверку!', 'info');
                 });
             }
         }
@@ -827,16 +930,25 @@
                 if (item.authorUid === window.currentUser.uid) {
                     count++;
                     const previewImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image;
+                    
+                    // Статус модерации для продавца
+                    const statusBadge = item.approved 
+                        ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-1 rounded-md text-[10px] font-semibold"><i class="fa-solid fa-circle-check mr-1"></i> Опубликовано</span>`
+                        : `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-1 rounded-md text-[10px] font-semibold"><i class="fa-solid fa-clock mr-1"></i> Ваш слот ожидает подтверждение у администрации</span>`;
+
                     html += `
-                        <div class="bg-darkbg border border-darkborder p-4 rounded-xl flex items-center justify-between gap-4">
-                            <div class="flex items-center space-x-3">
+                        <div class="bg-darkbg border border-darkborder p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <div class="flex items-center space-x-3 w-full sm:w-auto">
                                 <img src="${previewImg}" class="w-14 h-14 object-cover rounded-lg">
                                 <div>
                                     <h4 class="font-teko text-xl font-bold text-white">${item.title}</h4>
-                                    <p class="text-xs text-amber-400 font-mono">${item.price} ₽</p>
+                                    <div class="flex items-center space-x-2 mt-0.5">
+                                        <span class="text-xs text-amber-400 font-mono">${item.price} ₽</span>
+                                        ${statusBadge}
+                                    </div>
                                 </div>
                             </div>
-                            <div class="flex items-center space-x-2">
+                            <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
                                 <button onclick="editListing('${id}')" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-2 rounded-xl text-xs transition-colors">
                                     <i class="fa-solid fa-pen mr-1"></i> Редактировать
                                 </button>
@@ -860,16 +972,16 @@
         }
 
         function deleteListing(id) {
-            if (confirm('Удалить этот слот с продажи?')) {
-                window.remove(window.ref(window.db, `listings/${id}`)).then(() => {
-                    showToast('Слот удален!', 'info');
-                    closeMySlotsModal();
-                });
-            }
+            // Удаление в один клик без подтверждения
+            window.remove(window.ref(window.db, `listings/${id}`)).then(() => {
+                showToast('Слот удален с продажи!', 'info');
+                openMySlotsModal();
+            });
         }
 
         function openDetail(id) {
             const item = allListings[id];
+            if (!item || !item.approved) return;
             activeChatId = id;
             const content = document.getElementById('detailModalContent');
             
