@@ -179,7 +179,7 @@
                     <i class="fa-solid fa-plus"></i>
                     <span class="hidden sm:inline">Продать мод</span>
                 </button>
-                <button id="authActionBtn" onclick="loginGoogle()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 px-3.5 py-2 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-2">
+                <button id="authActionBtn" onclick="loginGoogle()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 px-3 py-2 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-2">
                     <img id="headerAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" class="w-6 h-6 rounded-full object-cover">
                     <span id="headerProfileName" class="hidden sm:inline">Вход</span>
                 </button>
@@ -193,10 +193,10 @@
             <div>
                 <div class="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full text-amber-400 text-xs font-semibold mb-3">
                     <i class="fa-solid fa-shield-halved text-amber-500"></i>
-                    <span>Профили продавцов + Отзывы + Слоты</span>
+                    <span>Кастомизация аватарки + Синхронизация ников</span>
                 </div>
                 <h1 class="text-3xl sm:text-4xl font-teko font-bold text-white tracking-wide">БАЗА ПЕРЕДЕЛОК И ТЮНИНГА OMSI 2</h1>
-                <p class="text-gray-400 text-sm max-w-2xl mt-1">Изучайте профили мастеров, их слоты на продажу и отзывы перед совершением сделки.</p>
+                <p class="text-gray-400 text-sm max-w-2xl mt-1">Настраивайте размер и масштаб аватара прямо в профиле, создавайте слоты и продавайте моды.</p>
             </div>
             <div class="flex items-center gap-4 bg-darkbg/80 border border-darkborder p-4 rounded-xl text-center">
                 <div>
@@ -225,7 +225,7 @@
         </div>
     </main>
 
-    <!-- Модальное окно: Просмотр товара, галерея, чат и отзывы -->
+    <!-- Модальное окно: Просмотр товара -->
     <div id="detailModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -233,7 +233,7 @@
         </div>
     </div>
 
-    <!-- Модальное окно: Публичный профиль продавца -->
+    <!-- Модальное окно: Профиль продавца -->
     <div id="sellerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <button onclick="closeSellerModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -267,21 +267,29 @@
         </div>
     </div>
 
-    <!-- Модальное окно: Настройка профиля -->
+    <!-- Модальное окно: Настройка профиля с кастомизацией аватарки -->
     <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
+        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div class="flex items-center justify-between mb-6">
                 <h3 class="font-teko text-3xl font-bold text-white tracking-wide">НАСТРОЙКА ПРОФИЛЯ</h3>
                 <button onclick="closeProfileModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="space-y-4">
-                <div class="flex items-center space-x-4">
-                    <img id="profilePreviewImg" src="" class="w-16 h-16 rounded-full object-cover border-2 border-amber-500">
-                    <div>
-                        <span class="text-xs text-gray-400 block mb-1">Аватарка с устройства:</span>
-                        <input type="file" id="avatarFileInput" accept="image/*" onchange="previewAvatar(event)" class="text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-500 file:text-black hover:file:bg-amber-600 cursor-pointer">
+                <!-- Кастомизация аватарки (Круг предпросмотра + ползунок масштаба) -->
+                <div class="flex flex-col items-center justify-center space-y-3 bg-darkbg p-4 rounded-2xl border border-darkborder">
+                    <div class="relative w-24 h-24 rounded-full overflow-hidden border-2 border-amber-500 shadow-xl bg-black flex items-center justify-center">
+                        <canvas id="avatarCanvas" width="150" height="150" class="w-full h-full object-cover cursor-grab"></canvas>
                     </div>
+                    <div class="w-full space-y-1">
+                        <div class="flex justify-between text-[11px] text-gray-400">
+                            <span>Масштаб / Размер</span>
+                            <span id="scaleValue">100%</span>
+                        </div>
+                        <input type="range" id="avatarZoomRange" min="1" max="3" step="0.05" value="1" oninput="updateAvatarTransform()" class="w-full accent-amber-500 cursor-pointer">
+                    </div>
+                    <input type="file" id="avatarFileInput" accept="image/*" onchange="initAvatarCropper(event)" class="text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-500 file:text-black hover:file:bg-amber-600 cursor-pointer">
                 </div>
+
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1">Никнейм мастера</label>
                     <input type="text" id="profileNameInput" placeholder="Напр: Verxonly Prod" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
@@ -348,8 +356,16 @@
         let allListings = {};
         let allReviews = {};
         let activeChatId = null;
-        let tempAvatarBase64 = '';
         let tempListingImages = [];
+
+        // Переменные для кастомизации аватарки (кроппер на Canvas)
+        let avatarImgObj = new Image();
+        let avatarScale = 1;
+        let avatarOffsetX = 0;
+        let avatarOffsetY = 0;
+        let isDraggingAvatar = false;
+        let startDragX = 0;
+        let startDragY = 0;
 
         window.addEventListener('DOMContentLoaded', () => {
             const checkDb = setInterval(() => {
@@ -358,6 +374,8 @@
                     loadData();
                 }
             }, 200);
+
+            initAvatarCanvasEvents();
         });
 
         function loadData() {
@@ -431,12 +449,149 @@
             grid.innerHTML = html || '<div class="col-span-full py-16 text-center text-gray-500">Ничего не найдено</div>';
         }
 
-        // Открытие публичного профиля продавца
+        // Логика кроппера и кастомизации аватарки на Canvas
+        function initAvatarCropper(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                avatarImgObj.onload = function() {
+                    avatarScale = 1;
+                    avatarOffsetX = 0;
+                    avatarOffsetY = 0;
+                    document.getElementById('avatarZoomRange').value = 1;
+                    document.getElementById('scaleValue').innerText = '100%';
+                    drawAvatarCanvas();
+                };
+                avatarImgObj.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function drawAvatarCanvas() {
+            const canvas = document.getElementById('avatarCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (!avatarImgObj.src) return;
+
+            ctx.save();
+            ctx.translate(canvas.width / 2 + avatarOffsetX, canvas.height / 2 + avatarOffsetY);
+            ctx.scale(avatarScale, avatarScale);
+            ctx.drawImage(avatarImgObj, -avatarImgObj.width / 2, -avatarImgObj.height / 2);
+            ctx.restore();
+        }
+
+        function updateAvatarTransform() {
+            avatarScale = parseFloat(document.getElementById('avatarZoomRange').value);
+            document.getElementById('scaleValue').innerText = Math.round(avatarScale * 100) + '%';
+            drawAvatarCanvas();
+        }
+
+        function initAvatarCanvasEvents() {
+            const canvas = document.getElementById('avatarCanvas');
+
+            canvas.addEventListener('mousedown', (e) => {
+                isDraggingAvatar = true;
+                startDragX = e.clientX - avatarOffsetX;
+                startDragY = e.clientY - avatarOffsetY;
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDraggingAvatar) return;
+                avatarOffsetX = e.clientX - startDragX;
+                avatarOffsetY = e.clientY - startDragY;
+                drawAvatarCanvas();
+            });
+
+            window.addEventListener('mouseup', () => { isDraggingAvatar = false; });
+
+            // Поддержка сенсорных экранов
+            canvas.addEventListener('touchstart', (e) => {
+                isDraggingAvatar = true;
+                startDragX = e.touches[0].clientX - avatarOffsetX;
+                startDragY = e.touches[0].clientY - avatarOffsetY;
+            });
+
+            window.addEventListener('touchmove', (e) => {
+                if (!isDraggingAvatar) return;
+                avatarOffsetX = e.touches[0].clientX - startDragX;
+                avatarOffsetY = e.touches[0].clientY - startDragY;
+                drawAvatarCanvas();
+            });
+
+            window.addEventListener('touchend', () => { isDraggingAvatar = false; });
+        }
+
+        function openProfileModal() {
+            if (!window.currentUser) {
+                showToast('Войдите через Google, чтобы настроить профиль!', 'error');
+                window.loginGoogle();
+                return;
+            }
+            const savedProfile = JSON.parse(localStorage.getItem(`profile_${window.currentUser.uid}`) || '{}');
+            document.getElementById('profileNameInput').value = savedProfile.name || window.currentUser.displayName || '';
+            document.getElementById('profileContactInput').value = savedProfile.contact || '';
+            
+            const currentAvatar = savedProfile.avatar || window.currentUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80';
+            
+            avatarImgObj.onload = function() {
+                avatarScale = 1;
+                avatarOffsetX = 0;
+                avatarOffsetY = 0;
+                document.getElementById('avatarZoomRange').value = 1;
+                document.getElementById('scaleValue').innerText = '100%';
+                drawAvatarCanvas();
+            };
+            avatarImgObj.src = currentAvatar;
+            document.getElementById('avatarFileInput').value = '';
+
+            document.getElementById('profileModal').classList.remove('hidden');
+            document.getElementById('profileModal').classList.add('flex');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('hidden');
+            document.getElementById('profileModal').classList.add('hidden');
+            document.getElementById('profileModal').classList.remove('flex');
+        }
+
+        function saveProfile() {
+            if (!window.currentUser) return;
+            const canvas = document.getElementById('avatarCanvas');
+            const croppedAvatarUrl = canvas.toDataURL('image/jpeg', 0.9);
+
+            const profile = {
+                name: document.getElementById('profileNameInput').value,
+                avatar: croppedAvatarUrl,
+                contact: document.getElementById('profileContactInput').value
+            };
+            localStorage.setItem(`profile_${window.currentUser.uid}`, JSON.stringify(profile));
+            
+            document.getElementById('headerProfileName').innerText = profile.name || window.currentUser.displayName;
+            document.getElementById('headerAvatar').src = profile.avatar;
+
+            // Синхронизация никнейма и аватарки со всеми активными объявлениями пользователя
+            const uid = window.currentUser.uid;
+            Object.keys(allListings).forEach(id => {
+                if (allListings[id].authorUid === uid) {
+                    window.update(window.ref(window.db, `listings/${id}`), {
+                        authorName: profile.name || window.currentUser.displayName,
+                        authorAvatar: profile.avatar
+                    });
+                }
+            });
+
+            closeProfileModal();
+            showToast('Профиль и все объявления синхронизированы!', 'success');
+        }
+
+        // Публичный профиль продавца
         function openSellerProfile(sellerUid) {
             const sellerModal = document.getElementById('sellerModal');
             const content = document.getElementById('sellerModalContent');
 
-            // Ищем информацию о продавце по его лотам
             let sellerName = 'Продавец';
             let sellerAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80';
             let sellerSlots = [];
@@ -449,7 +604,6 @@
                     sellerAvatar = item.authorAvatar || sellerAvatar;
                     sellerSlots.push({ id, ...item });
 
-                    // Собираем отзывы на этот товар
                     if (allReviews[id]) {
                         Object.keys(allReviews[id]).forEach(rKey => {
                             sellerReviews.push(allReviews[id][rKey]);
@@ -458,14 +612,12 @@
                 }
             });
 
-            // Считаем средний рейтинг
             let totalRating = 0;
             sellerReviews.forEach(r => totalRating += r.rating);
             const avgRating = sellerReviews.length > 0 ? (totalRating / sellerReviews.length).toFixed(1) : '5.0';
 
             content.innerHTML = `
                 <div class="space-y-6">
-                    <!-- Шапка профиля -->
                     <div class="flex items-center space-x-4 bg-darkbg p-6 rounded-2xl border border-darkborder">
                         <img src="${sellerAvatar}" class="w-20 h-20 rounded-full object-cover border-2 border-amber-500 shadow-lg">
                         <div>
@@ -477,7 +629,6 @@
                         </div>
                     </div>
 
-                    <!-- Слоты продавца -->
                     <div>
                         <h3 class="font-teko text-2xl font-bold text-white mb-3">Все слоты продавца</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-60 overflow-y-auto custom-scrollbar pr-2">
@@ -494,7 +645,6 @@
                         </div>
                     </div>
 
-                    <!-- Отзывы о мастере / его товарах -->
                     <div>
                         <h3 class="font-teko text-2xl font-bold text-white mb-3">Отзывы покупателей</h3>
                         <div class="space-y-2.5 max-h-60 overflow-y-auto custom-scrollbar pr-2">
@@ -518,8 +668,8 @@
         }
 
         function closeSellerModal() {
-            sellerModal.classList.remove('flex');
-            sellerModal.classList.add('hidden');
+            document.getElementById('sellerModal').classList.remove('flex');
+            document.getElementById('sellerModal').classList.add('hidden');
         }
 
         function handleListingImages(event) {
@@ -555,58 +705,6 @@
         function removeListingImage(index) {
             tempListingImages.splice(index, 1);
             renderListingImagesPreview();
-        }
-
-        function previewAvatar(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                tempAvatarBase64 = e.target.result;
-                document.getElementById('profilePreviewImg').src = tempAvatarBase64;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function openProfileModal() {
-            if (!window.currentUser) {
-                showToast('Войдите через Google, чтобы настроить профиль!', 'error');
-                window.loginGoogle();
-                return;
-            }
-            const savedProfile = JSON.parse(localStorage.getItem(`profile_${window.currentUser.uid}`) || '{}');
-            document.getElementById('profileNameInput').value = savedProfile.name || window.currentUser.displayName || '';
-            document.getElementById('profileContactInput').value = savedProfile.contact || '';
-            
-            tempAvatarBase64 = savedProfile.avatar || window.currentUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80';
-            document.getElementById('profilePreviewImg').src = tempAvatarBase64;
-            document.getElementById('avatarFileInput').value = '';
-
-            document.getElementById('profileModal').classList.remove('hidden');
-            document.getElementById('profileModal').classList.add('flex');
-        }
-
-        function closeProfileModal() {
-            document.getElementById('profileModal').classList.remove('hidden');
-            document.getElementById('profileModal').classList.add('hidden');
-            document.getElementById('profileModal').classList.remove('flex');
-        }
-
-        function saveProfile() {
-            if (!window.currentUser) return;
-            const profile = {
-                name: document.getElementById('profileNameInput').value,
-                avatar: tempAvatarBase64,
-                contact: document.getElementById('profileContactInput').value
-            };
-            localStorage.setItem(`profile_${window.currentUser.uid}`, JSON.stringify(profile));
-            
-            document.getElementById('headerProfileName').innerText = profile.name || window.currentUser.displayName;
-            document.getElementById('headerAvatar').src = profile.avatar;
-
-            closeProfileModal();
-            showToast('Профиль и аватарка успешно сохранены!', 'success');
         }
 
         function openCreateModal() {
