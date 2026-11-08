@@ -28,7 +28,6 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #090A0D; color: #F3F4F6; }
         .font-teko { font-family: 'Teko', sans-serif; }
-        .emc-display { background: #0F0A00; border: 1px solid #B45309; box-shadow: inset 0 0 15px rgba(245, 158, 11, 0.15); color: #FBBF24; font-family: 'Courier New', monospace; text-shadow: 0 0 8px rgba(251, 191, 36, 0.6); }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: #090A0D; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #1F2430; border-radius: 3px; }
@@ -179,7 +178,7 @@
                     <i class="fa-solid fa-plus"></i>
                     <span class="hidden sm:inline">Продать мод</span>
                 </button>
-                <button id="authActionBtn" onclick="loginGoogle()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 px-3 py-2 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-2">
+                <button id="authActionBtn" onclick="openProfileModal()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 px-3 py-2 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-2">
                     <img id="headerAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" class="w-6 h-6 rounded-full object-cover">
                     <span id="headerProfileName" class="hidden sm:inline">Вход</span>
                 </button>
@@ -196,7 +195,7 @@
                     <span>Кастомизация аватарки + Синхронизация ников</span>
                 </div>
                 <h1 class="text-3xl sm:text-4xl font-teko font-bold text-white tracking-wide">БАЗА ПЕРЕДЕЛОК И ТЮНИНГА OMSI 2</h1>
-                <p class="text-gray-400 text-sm max-w-2xl mt-1">Настраивайте размер и масштаб аватара прямо в профиле, создавайте слоты и продавайте моды.</p>
+                <p class="text-gray-400 text-sm max-w-2xl mt-1">Настраивайте аватар, управляйте слотами и продавайте моды безопасно.</p>
             </div>
             <div class="flex items-center gap-4 bg-darkbg/80 border border-darkborder p-4 rounded-xl text-center">
                 <div>
@@ -275,7 +274,6 @@
                 <button onclick="closeProfileModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="space-y-4">
-                <!-- Кастомизация аватарки (Круг предпросмотра + ползунок масштаба) -->
                 <div class="flex flex-col items-center justify-center space-y-3 bg-darkbg p-4 rounded-2xl border border-darkborder">
                     <div class="relative w-24 h-24 rounded-full overflow-hidden border-2 border-amber-500 shadow-xl bg-black flex items-center justify-center">
                         <canvas id="avatarCanvas" width="150" height="150" class="w-full h-full object-cover cursor-grab"></canvas>
@@ -358,7 +356,6 @@
         let activeChatId = null;
         let tempListingImages = [];
 
-        // Переменные для кастомизации аватарки (кроппер на Canvas)
         let avatarImgObj = new Image();
         let avatarScale = 1;
         let avatarOffsetX = 0;
@@ -449,7 +446,6 @@
             grid.innerHTML = html || '<div class="col-span-full py-16 text-center text-gray-500">Ничего не найдено</div>';
         }
 
-        // Логика кроппера и кастомизации аватарки на Canvas
         function initAvatarCropper(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -507,7 +503,6 @@
 
             window.addEventListener('mouseup', () => { isDraggingAvatar = false; });
 
-            // Поддержка сенсорных экранов
             canvas.addEventListener('touchstart', (e) => {
                 isDraggingAvatar = true;
                 startDragX = e.touches[0].clientX - avatarOffsetX;
@@ -552,9 +547,8 @@
         }
 
         function closeProfileModal() {
-            document.getElementById('profileModal').classList.remove('hidden');
-            document.getElementById('profileModal').classList.add('hidden');
             document.getElementById('profileModal').classList.remove('flex');
+            document.getElementById('profileModal').classList.add('hidden');
         }
 
         function saveProfile() {
@@ -572,7 +566,6 @@
             document.getElementById('headerProfileName').innerText = profile.name || window.currentUser.displayName;
             document.getElementById('headerAvatar').src = profile.avatar;
 
-            // Синхронизация никнейма и аватарки со всеми активными объявлениями пользователя
             const uid = window.currentUser.uid;
             Object.keys(allListings).forEach(id => {
                 if (allListings[id].authorUid === uid) {
@@ -587,7 +580,6 @@
             showToast('Профиль и все объявления синхронизированы!', 'success');
         }
 
-        // Публичный профиль продавца
         function openSellerProfile(sellerUid) {
             const sellerModal = document.getElementById('sellerModal');
             const content = document.getElementById('sellerModalContent');
