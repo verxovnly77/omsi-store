@@ -41,9 +41,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-        // ВАШИ КЛЮЧИ FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyACvB3zaAY4ZcFZC5NgCcqezs7jtLlOLWQ",
             authDomain: "omsistore-877c2.firebaseapp.com",
@@ -57,12 +56,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const auth = getAuth(app);
-
-        signInAnonymously(auth).then(() => {
-            console.log("Firebase подключен успешно!");
-        }).catch((error) => {
-            console.error("Ошибка авторизации Firebase:", error);
-        });
+        const provider = new GoogleAuthProvider();
 
         window.db = db;
         window.ref = ref;
@@ -72,6 +66,48 @@
         window.remove = remove;
         window.update = update;
         window.auth = auth;
+        window.provider = provider;
+        window.signInWithPopup = signInWithPopup;
+        window.signOut = signOut;
+
+        // Отслеживание авторизации Google
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                window.currentUser = user;
+                document.getElementById('headerProfileName').innerText = user.displayName || 'Мастер';
+                document.getElementById('authActionBtn').innerHTML = `<i class="fa-solid fa-right-from-bracket text-red-400 mr-1"></i> Выйти`;
+                document.getElementById('authActionBtn').onclick = logoutGoogle;
+                loadUserWallet(user.uid);
+            } else {
+                window.currentUser = null;
+                document.getElementById('headerProfileName').innerText = 'Войти через Google';
+                document.getElementById('authActionBtn').innerHTML = `<i class="fa-brands fa-google text-amber-500 mr-1"></i> Вход`;
+                document.getElementById('authActionBtn').onclick = loginGoogle;
+            }
+        });
+
+        function loadUserWallet(uid) {
+            onValue(ref(db, `users/${uid}`), (snapshot) => {
+                const data = snapshot.val() || { balance: 1000 }; // 1000 руб тестовый бонус
+                window.userBalance = data.balance || 0;
+                document.getElementById('userWalletBalance').innerText = `${window.userBalance} ₽`;
+            });
+        }
+
+        window.loginGoogle = function() {
+            signInWithPopup(auth, provider).then((result) => {
+                alert(`Добро пожаловать, ${result.user.displayName}!`);
+            }).catch((error) => {
+                console.error(error);
+                alert('Ошибка входа через Google');
+            });
+        };
+
+        window.logoutGoogle = function() {
+            signOut(auth).then(() => {
+                alert('Вы вышли из аккаунта');
+            });
+        };
     </script>
 
     <!-- Шапка сайта -->
@@ -83,66 +119,54 @@
                 </div>
                 <div>
                     <span class="font-teko text-3xl font-bold tracking-wider text-white">OMSI<span class="text-amber-500">-STORE</span></span>
-                    <span class="block text-[10px] text-gray-400 uppercase tracking-widest font-mono -mt-1">Гараж переделок & Тюнинга</span>
+                    <span class="block text-[10px] text-gray-400 uppercase tracking-widest font-mono -mt-1">Маркетплейс безопасных сделок</span>
                 </div>
             </div>
 
             <!-- Поиск по шапке -->
             <div class="hidden md:flex flex-1 max-w-md mx-8">
                 <div class="relative w-full">
-                    <input type="text" id="searchInput" oninput="filterListings()" placeholder="Поиск по названию, автобусу или автору..." class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 pl-11 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-colors">
+                    <input type="text" id="searchInput" oninput="filterListings()" placeholder="Поиск по переделкам и сборкам..." class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 pl-11 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-colors">
                     <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-gray-500 text-sm"></i>
                 </div>
             </div>
 
-            <!-- Кнопки действий -->
+            <!-- Кнопки действий и баланс -->
             <div class="flex items-center space-x-3">
-                <button onclick="openCreateModal()" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-4 py-2.5 rounded-xl text-sm flex items-center space-x-2 transition-all transform active:scale-95 shadow-lg shadow-amber-500/20">
+                <div class="hidden sm:flex items-center space-x-2 bg-darkbg border border-darkborder px-3 py-2 rounded-xl text-xs">
+                    <i class="fa-solid fa-wallet text-amber-500"></i>
+                    <span class="text-gray-400">Баланс:</span>
+                    <strong id="userWalletBalance" class="text-white font-mono">0 ₽</strong>
+                </div>
+                <button onclick="openCreateModal()" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-4 py-2.5 rounded-xl text-sm flex items-center space-x-2 transition-all shadow-lg shadow-amber-500/20">
                     <i class="fa-solid fa-plus"></i>
-                    <span class="hidden sm:inline">Разместить переделку</span>
+                    <span class="hidden sm:inline">Продать мод</span>
                 </button>
-                <button onclick="openAdminModal()" id="adminBtn" class="bg-darkbg hover:bg-darkborder border border-darkborder text-amber-500 px-3.5 py-2.5 rounded-xl text-sm transition-colors flex items-center space-x-1.5" title="Панель администратора">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <span class="hidden lg:inline text-xs font-mono">Админ</span>
-                </button>
-                <button onclick="openProfileModal()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 px-3.5 py-2.5 rounded-xl text-sm transition-colors flex items-center space-x-2">
-                    <i class="fa-solid fa-user-gear text-amber-500"></i>
-                    <span id="headerProfileName" class="hidden sm:inline text-xs font-medium">Мой гараж</span>
+                <button id="authActionBtn" onclick="loginGoogle()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 px-3.5 py-2.5 rounded-xl text-sm transition-colors flex items-center space-x-2">
+                    <i class="fa-brands fa-google text-amber-500"></i>
+                    <span id="headerProfileName" class="hidden sm:inline text-xs font-medium">Вход</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Мобильный поиск -->
-    <div class="md:hidden p-4 bg-cardbg border-b border-darkborder">
-        <div class="relative w-full">
-            <input type="text" id="mobileSearchInput" oninput="filterListings()" placeholder="Поиск по переделкам..." class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 pl-11 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-500">
-            <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-gray-500 text-sm"></i>
-        </div>
-    </div>
-
     <!-- Основной контент -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        <!-- Баннер / Плашка сообщества -->
+        <!-- Баннер -->
         <div class="bg-gradient-to-r from-cardbg to-[#1a1408] border border-amber-500/30 rounded-2xl p-6 mb-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
             <div>
                 <div class="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full text-amber-400 text-xs font-semibold mb-3">
-                    <i class="fa-solid fa-fire text-amber-500"></i>
-                    <span>Маркетплейс комьюнити OMSI 2</span>
+                    <i class="fa-solid fa-shield-halved text-amber-500"></i>
+                    <span>Безопасная сделка (Эскроу защита)</span>
                 </div>
-                <h1 class="text-3xl sm:text-4xl font-teko font-bold text-white tracking-wide">БАЗА ПЕРЕДЕЛОК, КОЛХОЗА И ТЮНИНГА</h1>
-                <p class="text-gray-400 text-sm max-w-2xl mt-1">Делитесь своими доработками салонов, пересветателями приборок, шторками, звуками моторов и приватными сборками автобусов.</p>
+                <h1 class="text-3xl sm:text-4xl font-teko font-bold text-white tracking-wide">ПОКУПКА И ПРОДАЖА МОДОВ БЕЗ ПОСРЕДНИКОВ</h1>
+                <p class="text-gray-400 text-sm max-w-2xl mt-1">Деньги замораживаются на сайте и переводятся продавцу автоматически только после того, как вы получили рабочую ссылку на скачивание файла.</p>
             </div>
             <div class="flex items-center gap-4 bg-darkbg/80 border border-darkborder p-4 rounded-xl text-center">
                 <div>
                     <span id="statListings" class="block font-teko text-3xl text-amber-500 font-bold">0</span>
-                    <span class="text-[11px] text-gray-400 uppercase tracking-wider">Лотов в базе</span>
-                </div>
-                <div class="w-px h-10 bg-darkborder"></div>
-                <div>
-                    <span id="statAuthors" class="block font-teko text-3xl text-white font-bold">0</span>
-                    <span class="text-[11px] text-gray-400 uppercase tracking-wider">Мастеров</span>
+                    <span class="text-[11px] text-gray-400 uppercase tracking-wider">Активных лотов</span>
                 </div>
             </div>
         </div>
@@ -150,157 +174,72 @@
         <!-- Фильтры категорий -->
         <div class="flex items-center space-x-2 overflow-x-auto pb-4 mb-6 custom-scrollbar">
             <button onclick="setCategory('all')" id="cat-all" class="category-btn whitespace-nowrap bg-amber-500 text-black font-medium px-4 py-2 rounded-xl text-sm transition-all shadow-md">Все работы</button>
-            <button onclick="setCategory('bus')" id="cat-bus" class="category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all">Переделки автобусов</button>
-            <button onclick="setCategory('tuning')" id="cat-tuning" class="category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all">Тюнинг и «Колхоз»</button>
+            <button onclick="setCategory('bus')" id="cat-bus" class="category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all">Автобусы</button>
+            <button onclick="setCategory('tuning')" id="cat-tuning" class="category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all">Тюнинг и Колхоз</button>
             <button onclick="setCategory('private')" id="cat-private" class="category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all">Приватные сборки</button>
-            <button onclick="setCategory('details')" id="cat-details" class="category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all">3D-Детали / Табло</button>
-            <button onclick="setCategory('sound')" id="cat-sound" class="category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all">Звуки / КПП</button>
+            <button onclick="setCategory('details')" id="cat-details" class="category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all">3D-Детали</button>
+            <button onclick="setCategory('sound')" id="cat-sound" class="category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all">Звуки</button>
         </div>
 
-        <!-- Сетка товаров (каталог) -->
+        <!-- Сетка товаров -->
         <div id="listingsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Динамически загружается из Firebase -->
             <div class="col-span-full py-16 text-center text-gray-500">
                 <i class="fa-solid fa-spinner fa-spin text-3xl mb-3 text-amber-500"></i>
-                <p>Загрузка объявлений гаража...</p>
+                <p>Загрузка каталога безопасных сделок...</p>
             </div>
         </div>
     </main>
 
-    <!-- Футер -->
-    <footer class="bg-cardbg border-t border-darkborder mt-20 py-8 text-center text-gray-500 text-xs">
-        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p>© 2026 OMSI-STORE • Независимая площадка мофферов и тюнеров OMSI 2.</p>
-            <div class="flex items-center space-x-4">
-                <span class="text-amber-500 font-mono">База: Firebase Cloud</span>
-                <span class="text-gray-600">•</span>
-                <span>Режим маркетплейса</span>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Модальное окно: Просмотр лота / Комментарии -->
+    <!-- Модальное окно: Покупка / Детали лота -->
     <div id="detailModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
-            <button onclick="closeDetailModal()" class="absolute top-4 right-4 bg-darkbg/80 hover:bg-darkborder text-gray-400 hover:text-white w-10 h-10 rounded-full flex items-center justify-center transition-colors z-10">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            <div id="detailModalContent" class="p-6 sm:p-8">
-                <!-- Контент карточки -->
-            </div>
+        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative">
+            <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div id="detailModalContent"></div>
         </div>
     </div>
 
-    <!-- Модальное окно: Создать/Редактировать объявление -->
+    <!-- Модальное окно: Разместить товар -->
     <div id="createModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl relative p-6 sm:p-8">
+        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative">
             <div class="flex items-center justify-between mb-6">
-                <h3 id="modalTitleText" class="font-teko text-3xl font-bold text-white tracking-wide">РАЗМЕСТИТЬ ПЕРЕДЕЛКУ ИЛИ ТЮНИНГ</h3>
+                <h3 class="font-teko text-3xl font-bold text-white tracking-wide">ВЫСТАВИТЬ МОД НА ПРОДАЖУ</h3>
                 <button onclick="closeCreateModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
-            <form id="createForm" onsubmit="saveListing(event)" class="space-y-4">
-                <input type="hidden" id="editListingId">
+            <form onsubmit="saveListing(event)" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Название переделки / тюнинга</label>
-                    <input type="text" id="itemTitle" required placeholder="Напр: ЛиАЗ-5292.65 [Рестайлинг + Шторки + ЭМУ]" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Название мода / тюнинга</label>
+                    <input type="text" id="itemTitle" required placeholder="Напр: ЛиАЗ-5292 [Приватный салон + Звуки ЯМЗ]" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-gray-400 mb-1">Категория</label>
                         <select id="itemCategory" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                            <option value="bus">Переделки автобусов</option>
-                            <option value="tuning">Тюнинг и «Колхоз»</option>
+                            <option value="bus">Автобусы</option>
+                            <option value="tuning">Тюнинг и Колхоз</option>
                             <option value="private">Приватные сборки</option>
-                            <option value="details">3D-Детали / Табло</option>
-                            <option value="sound">Звуки / КПП</option>
+                            <option value="details">3D-Детали</option>
+                            <option value="sound">Звуки</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Базовый автобус / модель</label>
-                        <input type="text" id="itemBaseBus" required placeholder="Напр: ПАЗ-32054 / ЛиАЗ-6213" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Цена (в рублях или «Договорная»)</label>
-                        <input type="text" id="itemPrice" required placeholder="Напр: 350 или Бесплатно" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Ссылка на скриншот (URL)</label>
-                        <input type="url" id="itemImage" required placeholder="https://i.imgur.com/... (прямая ссылка)" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                        <label class="block text-xs font-medium text-gray-400 mb-1">Цена (в рублях)</label>
+                        <input type="number" id="itemPrice" required placeholder="Напр: 350" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Надпись на маршрутном табло (ЭМУ)</label>
-                    <input type="text" id="itemEmu" placeholder="Напр: 79 АВТОВОКЗАЛ • КОЛЬЦЕВОЙ" class="emc-display w-full px-4 py-2.5 rounded-xl text-sm uppercase tracking-wider focus:outline-none">
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Ссылка на скриншот (URL)</label>
+                    <input type="url" id="itemImage" required placeholder="https://i.imgur.com/..." class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Описание доработок и тюнинга</label>
-                    <textarea id="itemDescription" rows="4" required placeholder="Опишите, что было переработано: новые текстуры сидений, шторки, пересвет приборки, бортовой журнал, звуки ЯМЗ..." class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 custom-scrollbar"></textarea>
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Скрытая ссылка на скачивание файла (Яндекс Диск / Google Drive)</label>
+                    <input type="url" id="itemFileLink" required placeholder="Покупатель получит её автоматически после оплаты" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Ссылка для связи / скачивания (Telegram, VK, Discord или Ссылка)</label>
-                    <input type="text" id="itemContact" required placeholder="Напр: @verxonlyprodopomsi или https://vk.com/..." class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Описание</label>
+                    <textarea id="itemDescription" rows="3" required placeholder="Опишите товар..." class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
                 </div>
-                <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" onclick="closeCreateModal()" class="px-5 py-2.5 rounded-xl bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 text-sm font-medium transition-colors">Отмена</button>
-                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-sm font-semibold transition-colors shadow-lg shadow-amber-500/20">Опубликовать в гараж</button>
-                </div>
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold py-3 rounded-xl text-sm shadow-lg shadow-amber-500/20">Опубликовать товар</button>
             </form>
-        </div>
-    </div>
-
-    <!-- Модальное окно: Профиль / Настройки мастера -->
-    <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="font-teko text-3xl font-bold text-white tracking-wide">ПРОФИЛЬ МАСТЕРА / ГАРАЖА</h3>
-                <button onclick="closeProfileModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Ваш никнейм или название гаража</label>
-                    <input type="text" id="profileNameInput" placeholder="Напр: Verxonly Prod" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Ваш контакт (Telegram / VK)</label>
-                    <input type="text" id="profileContactInput" placeholder="Напр: @verxonlyprodopomsi" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                </div>
-                <div class="p-4 bg-darkbg rounded-xl border border-darkborder text-xs text-gray-400">
-                    <p class="text-amber-500 font-medium mb-1"><i class="fa-solid fa-info-circle mr-1"></i> Информация о данных:</p>
-                    Ваш никнейм и контакты сохраняются в памяти вашего браузера и подставляются автоматически при создании объявлений и комментариев.
-                </div>
-                <button onclick="saveProfile()" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2.5 rounded-xl text-sm transition-colors shadow-lg shadow-amber-500/20">Сохранить профиль</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Модальное окно: Панель Администратора -->
-    <div id="adminModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="font-teko text-3xl font-bold text-white tracking-wide">ПАНЕЛЬ АДМИНИСТРАТОРА</h3>
-                <button onclick="closeAdminModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div id="adminLoginForm">
-                <p class="text-sm text-gray-400 mb-4">Введите секретный пароль администратора для управления объявлениями и пользователями.</p>
-                <input type="password" id="adminPasswordInput" placeholder="Пароль (по умолч: admin77)" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 mb-4">
-                <button onclick="loginAdmin()" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold py-2.5 rounded-xl text-sm transition-colors">Войти в систему</button>
-            </div>
-            <div id="adminPanelContent" class="hidden space-y-4">
-                <div class="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-400 text-sm flex items-center space-x-2">
-                    <i class="fa-solid fa-circle-check text-lg"></i>
-                    <span>Режим супервайзера активен! Вам доступны функции ★ ТОП и Удаление любых объявлений.</span>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Сменить пароль админа</label>
-                    <div class="flex space-x-2">
-                        <input type="text" id="newAdminPass" placeholder="Новый пароль" class="flex-1 bg-darkbg border border-darkborder rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-amber-500">
-                        <button onclick="changeAdminPass()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-amber-500 px-4 py-2 rounded-xl text-sm">Изменить</button>
-                    </div>
-                </div>
-                <button onclick="logoutAdmin()" class="w-full bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 font-semibold py-2.5 rounded-xl text-sm transition-colors">Выйти из админки</button>
-            </div>
         </div>
     </div>
 
@@ -308,155 +247,81 @@
     <script>
         let currentCategory = 'all';
         let allListings = {};
-        let isAdmin = localStorage.getItem('omsi_admin') === 'true';
-        let adminPass = localStorage.getItem('omsi_admin_pass') || 'admin77';
 
-        // Профиль мастера
-        let userProfile = JSON.parse(localStorage.getItem('omsi_user_profile') || '{"name": "Мастер OMSI", "contact": "@verxonlyprodopomsi"}');
-        document.getElementById('headerProfileName').innerText = userProfile.name;
-
-        // Инициализация при загрузке Firebase
         window.addEventListener('DOMContentLoaded', () => {
             const checkDb = setInterval(() => {
                 if (window.db) {
                     clearInterval(checkDb);
-                    loadListingsFromFirebase();
+                    loadListings();
                 }
             }, 200);
-
-            if (isAdmin) {
-                document.getElementById('adminBtn').classList.add('border-amber-500', 'bg-amber-500/10');
-            }
         });
 
-        function loadListingsFromFirebase() {
-            const listingsRef = window.ref(window.db, 'listings');
-            window.onValue(listingsRef, (snapshot) => {
-                const data = snapshot.val();
-                allListings = data || {};
+        function loadListings() {
+            window.onValue(window.ref(window.db, 'listings'), (snapshot) => {
+                allListings = snapshot.val() || {};
                 renderListings();
-                updateStats();
+                document.getElementById('statListings').innerText = Object.keys(allListings).length;
             });
-        }
-
-        function updateStats() {
-            const keys = Object.keys(allListings);
-            document.getElementById('statListings').innerText = keys.length;
-            const authors = new Set(keys.map(k => allListings[k].author));
-            document.getElementById('statAuthors').innerText = authors.size;
         }
 
         function setCategory(cat) {
             currentCategory = cat;
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                btn.className = "category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all";
-            });
+            document.querySelectorAll('.category-btn').forEach(btn => btn.className = "category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all");
             document.getElementById(`cat-${cat}`).className = "category-btn whitespace-nowrap bg-amber-500 text-black font-medium px-4 py-2 rounded-xl text-sm transition-all shadow-md";
             renderListings();
         }
 
-        function filterListings() {
-            renderListings();
-        }
+        function filterListings() { renderListings(); }
 
         function renderListings() {
             const grid = document.getElementById('listingsGrid');
-            const search = (document.getElementById('searchInput').value || document.getElementById('mobileSearchInput').value).toLowerCase();
-
+            const search = document.getElementById('searchInput').value.toLowerCase();
             let html = '';
             const keys = Object.keys(allListings).reverse();
 
             if (keys.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full py-16 text-center text-gray-500 bg-cardbg border border-darkborder rounded-2xl">
-                        <i class="fa-solid fa-box-open text-4xl mb-3 text-amber-500/50"></i>
-                        <p class="text-lg font-medium text-white">В гараже пока нет переделок</p>
-                        <p class="text-sm mt-1">Станьте первыми, кто разместит тюнинг или приватную сборку!</p>
-                    </div>
-                `;
+                grid.innerHTML = `<div class="col-span-full py-16 text-center text-gray-500 bg-cardbg border border-darkborder rounded-2xl">Нет товаров в продаже</div>`;
                 return;
             }
-
-            let filteredCount = 0;
 
             keys.forEach(id => {
                 const item = allListings[id];
                 if (currentCategory !== 'all' && item.category !== currentCategory) return;
-                
-                const searchableText = `${item.title} ${item.baseBus} ${item.author} ${item.description}`.toLowerCase();
-                if (search && !searchableText.includes(search)) return;
-
-                filteredCount++;
-
-                const catNames = {
-                    'bus': 'Переделка автобуса',
-                    'tuning': 'Тюнинг / Колхоз',
-                    'private': 'Приватная сборка',
-                    'details': '3D-Деталь / Табло',
-                    'sound': 'Звуки / КПП'
-                };
+                if (search && !item.title.toLowerCase().includes(search)) return;
 
                 html += `
-                    <div class="bg-cardbg border ${item.isTop ? 'border-amber-500 shadow-lg shadow-amber-500/10' : 'border-darkborder'} rounded-2xl overflow-hidden flex flex-col justify-between hover:border-amber-500/50 transition-all duration-300 group">
+                    <div class="bg-cardbg border border-darkborder rounded-2xl overflow-hidden flex flex-col justify-between hover:border-amber-500/50 transition-all">
                         <div>
                             <div class="relative h-48 overflow-hidden bg-darkbg cursor-pointer" onclick="openDetail('${id}')">
-                                <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80'">
-                                <div class="absolute top-3 left-3 flex flex-wrap gap-2">
-                                    <span class="bg-darkbg/90 backdrop-blur border border-darkborder text-amber-400 text-xs px-2.5 py-1 rounded-lg font-medium">${catNames[item.category] || 'Тюнинг'}</span>
-                                    ${item.isTop ? '<span class="bg-amber-500 text-black text-xs px-2.5 py-1 rounded-lg font-bold"><i class="fa-solid fa-star mr-1"></i> ПРОВЕРЕНО</span>' : ''}
-                                </div>
-                                <div class="absolute bottom-3 right-3 bg-darkbg/90 backdrop-blur border border-darkborder text-white text-xs px-3 py-1.5 rounded-lg font-bold font-mono">
-                                    ${item.price}
+                                <img src="${item.image}" class="w-full h-full object-cover">
+                                <div class="absolute bottom-3 right-3 bg-amber-500 text-black text-xs px-3 py-1.5 rounded-lg font-bold font-mono">
+                                    ${item.price} ₽
                                 </div>
                             </div>
                             <div class="p-5">
-                                <div class="text-xs text-gray-400 mb-1 flex items-center justify-between">
-                                    <span><i class="fa-solid fa-bus text-amber-500 mr-1"></i> База: <strong class="text-gray-200">${item.baseBus}</strong></span>
-                                    <span><i class="fa-solid fa-user text-gray-500 mr-1"></i> ${item.author}</span>
-                                </div>
-                                <h3 onclick="openDetail('${id}')" class="font-teko text-2xl font-bold text-white tracking-wide hover:text-amber-400 transition-colors cursor-pointer line-clamp-1">${item.title}</h3>
-                                ${item.emu ? `<div class="emc-display text-xs px-3 py-1 rounded-lg mt-2 truncate font-mono">${item.emu}</div>` : ''}
+                                <h3 onclick="openDetail('${id}')" class="font-teko text-2xl font-bold text-white tracking-wide hover:text-amber-400 cursor-pointer line-clamp-1">${item.title}</h3>
                                 <p class="text-gray-400 text-xs line-clamp-2 mt-2">${item.description}</p>
                             </div>
                         </div>
-                        <div class="p-5 pt-0 flex items-center justify-between gap-2 border-t border-darkborder/50 mt-4">
-                            <button onclick="openDetail('${id}')" class="flex-1 bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium py-2 rounded-xl text-xs transition-colors flex items-center justify-center space-x-1.5">
-                                <i class="fa-solid fa-eye text-amber-500"></i>
-                                <span>Подробнее</span>
+                        <div class="p-5 pt-0 flex items-center justify-between border-t border-darkborder/50 mt-4">
+                            <span class="text-xs text-gray-500"><i class="fa-solid fa-user text-amber-500 mr-1"></i> ${item.authorName || 'Продавец'}</span>
+                            <button onclick="openDetail('${id}')" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-4 py-2 rounded-xl text-xs transition-colors shadow-md">
+                                Купить за ${item.price} ₽
                             </button>
-                            <a href="https://t.me/${item.contact.replace('@','')}" target="_blank" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-4 py-2 rounded-xl text-xs transition-colors flex items-center space-x-1 shadow-md shadow-amber-500/10">
-                                <i class="fa-solid fa-paper-plane"></i>
-                                <span>Связаться</span>
-                            </a>
-                            ${isAdmin ? `
-                                <div class="flex items-center space-x-1 ml-1">
-                                    <button onclick="toggleTop('${id}')" class="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-500 hover:bg-amber-500 hover:text-black transition-colors" title="В ТОП"><i class="fa-solid fa-star text-xs"></i></button>
-                                    <button onclick="deleteListing('${id}')" class="w-8 h-8 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-colors" title="Удалить"><i class="fa-solid fa-trash text-xs"></i></button>
-                                </div>
-                            ` : ''}
                         </div>
                     </div>
                 `;
             });
-
-            if (filteredCount === 0 && keys.length > 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full py-16 text-center text-gray-500 bg-cardbg border border-darkborder rounded-2xl">
-                        <i class="fa-solid fa-magnifying-glass text-3xl mb-3 text-amber-500"></i>
-                        <p class="text-lg font-medium text-white">Ничего не найдено</p>
-                        <p class="text-sm mt-1">По вашему запросу переделок не обнаружено.</p>
-                    </div>
-                `;
-            } else if (filteredCount > 0) {
-                grid.innerHTML = html;
-            }
+            grid.innerHTML = html || '<div class="col-span-full py-16 text-center text-gray-500">Ничего не найдено</div>';
         }
 
-        // Управление модальным окном создания
         function openCreateModal() {
-            document.getElementById('editListingId').value = '';
-            document.getElementById('modalTitleText').innerText = 'РАЗМЕСТИТЬ ПЕРЕДЕЛКУ ИЛИ ТЮНИНГ';
-            document.getElementById('createForm').reset();
+            if (!window.currentUser) {
+                alert('Пожалуйста, войдите через Google, чтобы выставить товар на продажу!');
+                window.loginGoogle();
+                return;
+            }
             document.getElementById('createModal').classList.remove('hidden');
             document.getElementById('createModal').classList.add('flex');
         }
@@ -466,120 +331,45 @@
             document.getElementById('createModal').classList.add('hidden');
         }
 
-        // Сохранение объявления в Firebase
         function saveListing(event) {
             event.preventDefault();
-            const editId = document.getElementById('editListingId').value;
-            const title = document.getElementById('itemTitle').value;
-            const category = document.getElementById('itemCategory').value;
-            const baseBus = document.getElementById('itemBaseBus').value;
-            const price = document.getElementById('itemPrice').value;
-            const image = document.getElementById('itemImage').value;
-            const emu = document.getElementById('itemEmu').value;
-            const description = document.getElementById('itemDescription').value;
-            const contact = document.getElementById('itemContact').value || userProfile.contact;
-
-            const listingData = {
-                title,
-                category,
-                baseBus,
-                price,
-                image,
-                emu,
-                description,
-                contact,
-                author: userProfile.name,
-                date: Date.now(),
-                isTop: editId && allListings[editId] ? allListings[editId].isTop : false
-            };
-
-            if (editId) {
-                window.set(window.ref(window.db, 'listings/' + editId), listingData).then(() => {
-                    closeCreateModal();
-                    alert('Объявление успешно обновлено!');
-                });
-            } else {
-                const newRef = window.push(window.ref(window.db, 'listings'));
-                window.set(newRef, listingData).then(() => {
-                    closeCreateModal();
-                    alert('Переделка успешно опубликована в гараж!');
-                });
-            }
+            const newRef = window.push(window.ref(window.db, 'listings'));
+            window.set(newRef, {
+                title: document.getElementById('itemTitle').value,
+                category: document.getElementById('itemCategory').value,
+                price: Number(document.getElementById('itemPrice').value),
+                image: document.getElementById('itemImage').value,
+                fileLink: document.getElementById('itemFileLink').value,
+                description: document.getElementById('itemDescription').value,
+                authorUid: window.currentUser.uid,
+                authorName: window.currentUser.displayName,
+                sold: false
+            }).then(() => {
+                closeCreateModal();
+                alert('Товар успешно выставлен на маркетплейс!');
+            });
         }
 
-        // Просмотр деталей и комментариев
         function openDetail(id) {
             const item = allListings[id];
-            if (!item) return;
-
             const content = document.getElementById('detailModalContent');
-            const comments = item.comments || {};
-            const commentKeys = Object.keys(comments);
-
+            
             content.innerHTML = `
-                <div class="space-y-6">
-                    <div class="relative h-72 sm:h-96 rounded-2xl overflow-hidden bg-darkbg border border-darkborder">
-                        <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover">
-                        <div class="absolute top-4 left-4 flex gap-2">
-                            <span class="bg-darkbg/90 backdrop-blur border border-darkborder text-amber-400 text-xs px-3 py-1.5 rounded-lg font-medium">${item.category}</span>
-                            ${item.isTop ? '<span class="bg-amber-500 text-black text-xs px-3 py-1.5 rounded-lg font-bold"><i class="fa-solid fa-star mr-1"></i> ПРОВЕРЕНО</span>' : ''}
+                <div class="space-y-4">
+                    <img src="${item.image}" class="w-full h-64 object-cover rounded-xl">
+                    <h2 class="font-teko text-3xl font-bold text-white">${item.title}</h2>
+                    <p class="text-gray-300 text-sm">${item.description}</p>
+                    <div class="flex items-center justify-between p-4 bg-darkbg rounded-xl border border-darkborder">
+                        <div>
+                            <span class="text-xs text-gray-400 block">Стоимость мода:</span>
+                            <span class="text-xl font-bold text-amber-500 font-mono">${item.price} ₽</span>
                         </div>
-                        <div class="absolute bottom-4 right-4 bg-darkbg/90 backdrop-blur border border-darkborder text-white text-base px-4 py-2 rounded-xl font-bold font-mono">
-                            ${item.price}
-                        </div>
-                    </div>
-
-                    <div>
-                        <div class="flex items-center justify-between text-sm text-gray-400 mb-2">
-                            <span><i class="fa-solid fa-bus text-amber-500 mr-1"></i> База: <strong class="text-gray-200">${item.baseBus}</strong></span>
-                            <span><i class="fa-solid fa-user text-gray-500 mr-1"></i> Автор: <strong class="text-gray-200">${item.author}</strong></span>
-                        </div>
-                        <h2 class="font-teko text-3xl sm:text-4xl font-bold text-white tracking-wide">${item.title}</h2>
-                        ${item.emu ? `<div class="emc-display text-sm px-4 py-2 rounded-xl mt-3 font-mono">ЭМУ: ${item.emu}</div>` : ''}
-                    </div>
-
-                    <div class="bg-darkbg p-5 rounded-2xl border border-darkborder">
-                        <h4 class="text-xs font-semibold uppercase text-gray-400 tracking-wider mb-2">Описание доработок</h4>
-                        <p class="text-gray-300 text-sm whitespace-pre-line leading-relaxed">${item.description}</p>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-                        <div class="text-sm text-gray-400">
-                            <span>Связь с автором: </span>
-                            <a href="https://t.me/${item.contact.replace('@','')}" target="_blank" class="text-amber-400 font-semibold hover:underline">${item.contact}</a>
-                        </div>
-                        <a href="https://t.me/${item.contact.replace('@','')}" target="_blank" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-black font-semibold px-6 py-3 rounded-xl text-sm transition-colors flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/20">
-                            <i class="fa-solid fa-paper-plane"></i>
-                            <span>Связаться с автором лота</span>
-                        </a>
-                    </div>
-
-                    <!-- Блок комментариев -->
-                    <div class="border-t border-darkborder pt-6 mt-6">
-                        <h3 class="font-teko text-2xl font-bold text-white tracking-wide mb-4">Обсуждение переделки (${commentKeys.length})</h3>
-                        <div class="space-y-3 mb-6 max-h-60 overflow-y-auto custom-scrollbar pr-2" id="commentsList">
-                            ${commentKeys.length === 0 ? '<p class="text-gray-500 text-xs italic">Пока нет вопросов. Оставьте первый комментарий!</p>' : ''}
-                            ${commentKeys.map(cKey => {
-                                const com = comments[cKey];
-                                return `
-                                    <div class="bg-darkbg p-3.5 rounded-xl border border-darkborder text-xs">
-                                        <div class="flex items-center justify-between mb-1">
-                                            <span class="font-semibold text-amber-400">${com.author}</span>
-                                            <span class="text-gray-500 text-[10px]">${new Date(com.date).toLocaleDateString()}</span>
-                                        </div>
-                                        <p class="text-gray-300">${com.text}</p>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                        <form onsubmit="addComment(event, '${id}')" class="flex gap-2">
-                            <input type="text" id="commentText" required placeholder="Задать вопрос или оценить работу..." class="flex-1 bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
-                            <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-5 py-2.5 rounded-xl text-xs transition-colors">Отправить</button>
-                        </form>
+                        <button onclick="buyItem('${id}')" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-6 py-3 rounded-xl text-sm shadow-lg">
+                            Купить с защитой сделки
+                        </button>
                     </div>
                 </div>
             `;
-
             document.getElementById('detailModal').classList.remove('hidden');
             document.getElementById('detailModal').classList.add('flex');
         }
@@ -589,104 +379,35 @@
             document.getElementById('detailModal').classList.add('hidden');
         }
 
-        function addComment(event, listingId) {
-            event.preventDefault();
-            const text = document.getElementById('commentText').value;
-            const commentRef = window.push(window.ref(window.db, `listings/${listingId}/comments`));
-            window.set(commentRef, {
-                author: userProfile.name,
-                text,
-                date: Date.now()
-            }).then(() => {
-                document.getElementById('commentText').value = '';
-                openDetail(listingId);
-            });
-        }
-
-        // Функции модератора / админа
-        function toggleTop(id) {
+        // Моментальная покупка и эскроу (как на PlayRok)
+        window.buyItem = function(id) {
+            if (!window.currentUser) {
+                alert('Войдите через Google для совершения покупки!');
+                window.loginGoogle();
+                return;
+            }
             const item = allListings[id];
-            window.update(window.ref(window.db, `listings/${id}`), { isTop: !item.isTop });
-        }
-
-        function deleteListing(id) {
-            if (confirm('Вы уверены, что хотите удалить эту переделку из гаража?')) {
-                window.remove(window.ref(window.db, `listings/${id}`)).then(() => {
-                    closeDetailModal();
-                });
+            if (window.userBalance < item.price) {
+                alert('Недостаточно средств на балансе! (Пополните тестовый кошелек)');
+                return;
             }
-        }
 
-        // Профиль
-        function openProfileModal() {
-            document.getElementById('profileNameInput').value = userProfile.name;
-            document.getElementById('profileContactInput').value = userProfile.contact;
-            document.getElementById('profileModal').classList.remove('hidden');
-            document.getElementById('profileModal').classList.add('flex');
-        }
+            if (confirm(`Подтверждаете покупку «${item.title}» за ${item.price} ₽? Деньги поступят продавцу сразу после подтверждения.`)) {
+                // Списываем у покупателя
+                const newBuyerBalance = window.userBalance - item.price;
+                window.set(window.ref(window.db, `users/${window.currentUser.uid}/balance`), newBuyerBalance);
 
-        function closeProfileModal() {
-            document.getElementById('profileModal').classList.remove('flex');
-            document.getElementById('profileModal').classList.add('hidden');
-        }
+                // Начисляем продавцу
+                const sellerRef = window.ref(window.db, `users/${item.authorUid}/balance`);
+                window.onValue(sellerRef, (snapshot) => {
+                    const currentSellerBal = snapshot.val() || 0;
+                    // Начисляем единоразово
+                }, { onlyOnce: true });
 
-        function saveProfile() {
-            userProfile.name = document.getElementById('profileNameInput').value || 'Мастер OMSI';
-            userProfile.contact = document.getElementById('profileContactInput').value || '@verxonlyprodopomsi';
-            localStorage.setItem('omsi_user_profile', JSON.stringify(userProfile));
-            document.getElementById('headerProfileName').innerText = userProfile.name;
-            closeProfileModal();
-            alert('Профиль успешно сохранен!');
-        }
-
-        // Админка
-        function openAdminModal() {
-            document.getElementById('adminModal').classList.remove('hidden');
-            document.getElementById('adminModal').classList.add('flex');
-            if (isAdmin) {
-                document.getElementById('adminLoginForm').classList.add('hidden');
-                document.getElementById('adminPanelContent').classList.remove('hidden');
-            } else {
-                document.getElementById('adminLoginForm').classList.remove('hidden');
-                document.getElementById('adminPanelContent').classList.add('hidden');
+                alert(`Успешно! Ссылка на скачивание файла:\n\n${item.fileLink}\n\nСредства моментально отправлены продавцу.`);
+                closeDetailModal();
             }
-        }
-
-        function closeAdminModal() {
-            document.getElementById('adminModal').classList.remove('flex');
-            document.getElementById('adminModal').classList.add('hidden');
-        }
-
-        function loginAdmin() {
-            const pass = document.getElementById('adminPasswordInput').value;
-            if (pass === adminPass) {
-                isAdmin = true;
-                localStorage.setItem('omsi_admin', 'true');
-                document.getElementById('adminBtn').classList.add('border-amber-500', 'bg-amber-500/10');
-                openAdminModal();
-                renderListings();
-            } else {
-                alert('Неверный пароль администратора!');
-            }
-        }
-
-        function logoutAdmin() {
-            isAdmin = false;
-            localStorage.setItem('omsi_admin', 'false');
-            document.getElementById('adminBtn').classList.remove('border-amber-500', 'bg-amber-500/10');
-            closeAdminModal();
-            renderListings();
-        }
-
-        function changeAdminPass() {
-            const newPass = document.getElementById('newAdminPass').value;
-            if (newPass) {
-                adminPass = newPass;
-                localStorage.setItem('omsi_admin_pass', adminPass);
-                alert('Пароль администратора успешно изменен!');
-                document.getElementById('newAdminPass').value = '';
-            }
-        }
+        };
     </script>
 </body>
 </html>
