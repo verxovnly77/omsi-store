@@ -43,7 +43,6 @@
 
     <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
-    <!-- Firebase и глобальные функции авторизации -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -74,9 +73,10 @@
         window.auth = auth;
 
         window.userBalance = 1000;
-        window.ADMIN_EMAILS = ["nikitaguzman065@gmail.com"]; 
+        
+        // Ваш административный email
+        window.ADMIN_EMAILS = ["nikitaguzman065@gmail.com", "verxonlyprod@gmail.com"]; 
 
-        // Экспортируем функции в глобальную область видимости (window)
         window.loginGoogle = function() {
             signInWithPopup(auth, provider).then((result) => {
                 showToast(`Добро пожаловать, ${result.user.displayName}!`, 'success');
@@ -100,7 +100,7 @@
 
             if (user) {
                 window.currentUser = user;
-                const isAdmin = window.ADMIN_EMAILS.includes(user.email) || user.email === "verxonlyprod@gmail.com";
+                const isAdmin = window.ADMIN_EMAILS.includes(user.email) || user.email === "nikitaguzman065@gmail.com";
                 window.isAdmin = isAdmin;
 
                 const savedProfile = JSON.parse(localStorage.getItem(`profile_${user.uid}`) || '{}');
@@ -138,12 +138,12 @@
         });
 
         function checkSellerNotifications(uid) {
-            onValue(ref(db, `users/${uid}/notifications`), (snapshot) => {
+            window.onValue(window.ref(window.db, `users/${uid}/notifications`), (snapshot) => {
                 const notifs = snapshot.val() || {};
                 Object.keys(notifs).forEach(key => {
                     if (!notifs[key].read) {
                         showToast(`🔔 Уведомление: ${notifs[key].text}`, 'info');
-                        update(ref(db, `users/${uid}/notifications/${key}`), { read: true });
+                        window.update(window.ref(window.db, `users/${uid}/notifications/${key}`), { read: true });
                     }
                 });
             });
@@ -251,10 +251,10 @@
             <div>
                 <div class="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full text-amber-400 text-xs font-semibold mb-3">
                     <i class="fa-solid fa-shield-halved text-amber-500"></i>
-                    <span>Безопасные сделки + Отдельные чаты</span>
+                    <span>Безопасные сделки + Права администратора</span>
                 </div>
                 <h1 class="text-3xl sm:text-4xl font-teko font-bold text-white tracking-wide">БАЗА ПЕРЕДЕЛОК И ТЮНИНГА OMSI 2</h1>
-                <p class="text-gray-400 text-sm max-w-2xl mt-1">Покупайте и продавайте моды, общайтесь в чатах с отдельными иконками и получайте уведомления о продажах.</p>
+                <p class="text-gray-400 text-sm max-w-2xl mt-1">Покупайте и продавайте моды, администраторы могут управлять контентом и блокировать пользователей.</p>
             </div>
             <div class="flex items-center gap-4 bg-darkbg/80 border border-darkborder p-4 rounded-xl text-center">
                 <div>
@@ -502,10 +502,15 @@
                 visibleCount++;
                 const mainImage = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : (item.image || 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80');
 
-                const isAuthorAdmin = window.ADMIN_EMAILS.includes(item.authorEmail) || item.authorEmail === "verxonlyprod@gmail.com";
+                const isAuthorAdmin = window.ADMIN_EMAILS.includes(item.authorEmail) || item.authorEmail === "nikitaguzman065@gmail.com";
                 const authorNameDisplay = isAuthorAdmin 
                     ? `<span class="text-red-500 font-bold">${item.authorName || 'Продавец'}</span> <span class="text-[9px] bg-red-500/20 text-red-400 px-1 rounded">[Админ]</span>` 
                     : (item.authorName || 'Продавец');
+
+                // Кнопка удаления для админа прямо на карточке
+                const adminDeleteBtn = window.isAdmin 
+                    ? `<button onclick="event.stopPropagation(); adminDeleteListing('${id}')" class="bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 px-2 py-2 rounded-xl text-xs transition-colors" title="Удалить слот (Админ)"><i class="fa-solid fa-trash"></i></button>`
+                    : '';
 
                 html += `
                     <div class="bg-cardbg border border-darkborder rounded-2xl overflow-hidden flex flex-col justify-between hover:border-amber-500/50 transition-all">
@@ -530,6 +535,7 @@
                                 <span class="text-xs text-gray-300 group-hover:text-amber-400 transition-colors">${authorNameDisplay}</span>
                             </div>
                             <div class="flex items-center space-x-2">
+                                ${adminDeleteBtn}
                                 <button onclick="openDetail('${id}')" class="bg-darkbg hover:bg-darkborder border border-darkborder text-amber-500 px-3 py-2 rounded-xl text-xs transition-colors" title="Открыть чат">
                                     <i class="fa-solid fa-comments"></i>
                                 </button>
@@ -542,6 +548,13 @@
                 `;
             });
             grid.innerHTML = visibleCount > 0 ? html : `<div class="col-span-full py-16 text-center text-gray-500">Нет одобренных товаров в продаже</div>`;
+        }
+
+        window.adminDeleteListing = function(id) {
+            if (!window.isAdmin) return;
+            window.remove(window.ref(window.db, `listings/${id}`)).then(() => {
+                showToast('Слот успешно удален администратором!', 'info');
+            });
         }
 
         window.openAdminModal = function() {
@@ -1031,7 +1044,7 @@
                 authorAvatar: authorAvatar,
                 authorEmail: window.currentUser.email,
                 sold: false,
-                approved: false,
+                approved: window.isAdmin ? true : false, // Админы публикуют сразу без модерации
                 date: editId && allListings[editId] ? allListings[editId].date : Date.now()
             };
 
@@ -1045,7 +1058,7 @@
                 const newRef = window.push(window.ref(window.db, 'listings'));
                 window.set(newRef, listingData).then(() => {
                     closeCreateModal();
-                    showToast('Слот отправлен на проверку администрации!', 'info');
+                    showToast(window.isAdmin ? 'Слот успешно опубликован!' : 'Слот отправлен на проверку администрации!', 'info');
                 });
             }
         }
@@ -1063,20 +1076,20 @@
             let count = 0;
             Object.keys(allListings).forEach(id => {
                 const item = allListings[id];
-                if (item.authorUid === window.currentUser.uid) {
+                if (item.authorUid === window.currentUser.uid || window.isAdmin) {
                     count++;
                     const previewImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image;
                     
                     const statusBadge = item.approved 
                         ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-1 rounded-md text-[10px] font-semibold"><i class="fa-solid fa-circle-check mr-1"></i> Опубликовано</span>`
-                        : `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-1 rounded-md text-[10px] font-semibold"><i class="fa-solid fa-clock mr-1"></i> Ваш слот ожидает подтверждение у администрации</span>`;
+                        : `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-1 rounded-md text-[10px] font-semibold"><i class="fa-solid fa-clock mr-1"></i> Ожидает подтверждения</span>`;
 
                     html += `
                         <div class="bg-darkbg border border-darkborder p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div class="flex items-center space-x-3 w-full sm:w-auto">
                                 <img src="${previewImg}" class="w-14 h-14 object-cover rounded-lg">
                                 <div>
-                                    <h4 class="font-teko text-xl font-bold text-white">${item.title}</h4>
+                                    <h4 class="font-teko text-xl font-bold text-white">${item.title} ${item.authorUid !== window.currentUser.uid ? '<span class="text-xs text-red-400">(Чужой слот)</span>' : ''}</h4>
                                     <div class="flex items-center space-x-2 mt-0.5 flex-wrap">
                                         <span class="text-xs text-amber-400 font-mono">${item.price} ₽</span>
                                         ${statusBadge}
@@ -1084,9 +1097,11 @@
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
-                                <button onclick="editListing('${id}')" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-2 rounded-xl text-xs transition-colors">
-                                    <i class="fa-solid fa-pen mr-1"></i> Редактировать
-                                </button>
+                                ${item.authorUid === window.currentUser.uid ? `
+                                    <button onclick="editListing('${id}')" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-2 rounded-xl text-xs transition-colors">
+                                        <i class="fa-solid fa-pen mr-1"></i> Редактировать
+                                    </button>
+                                ` : ''}
                                 <button onclick="deleteListing('${id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-2 rounded-xl text-xs transition-colors">
                                     <i class="fa-solid fa-trash mr-1"></i> Удалить
                                 </button>
@@ -1120,8 +1135,12 @@
             const content = document.getElementById('detailModalContent');
             
             const imagesList = Array.isArray(item.images) && item.images.length > 0 ? item.images : [item.image || 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80'];
-            const isAuthorAdmin = window.ADMIN_EMAILS.includes(item.authorEmail) || item.authorEmail === "verxonlyprod@gmail.com";
+            const isAuthorAdmin = window.ADMIN_EMAILS.includes(item.authorEmail) || item.authorEmail === "nikitaguzman065@gmail.com";
             const authorDisplayName = isAuthorAdmin ? `${item.authorName || 'Мастер'} [Админ]` : (item.authorName || 'Мастер');
+
+            const adminDeleteDetailBtn = window.isAdmin 
+                ? `<button onclick="adminDeleteListing('${id}'); closeDetailModal();" class="w-full mt-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 font-semibold py-2.5 rounded-xl text-xs transition-colors"><i class="fa-solid fa-trash mr-1"></i> Удалить слот (Права Администратора)</button>`
+                : '';
 
             content.innerHTML = `
                 <div class="space-y-4">
@@ -1155,6 +1174,8 @@
                             Купить за ${item.price} ₽
                         </button>
                     </div>
+
+                    ${adminDeleteDetailBtn}
 
                     <!-- Чат -->
                     <div class="border-t border-darkborder pt-4 mt-4">
