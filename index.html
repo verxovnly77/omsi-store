@@ -74,9 +74,8 @@
 
         window.userBalance = 1000;
         
-        // Укажите здесь свой UID администратора или ваш email, чтобы получить доступ к админке
-        // Либо оставьте тестовым (первый вошедший или по роли)
-        window.ADMIN_UID = "ваш_uid_админа_или_оставьте_пустым"; 
+        // Введите сюда ваш реальный email или Google UID администратора, чтобы открывать админку
+        window.ADMIN_EMAILS = ["verxonlyprod@gmail.com", "ваш_админ_email@gmail.com"]; 
 
         onAuthStateChanged(auth, (user) => {
             const profileBtn = document.getElementById('profileBtn');
@@ -97,9 +96,16 @@
                 logoutBtn.classList.remove('hidden');
                 loginBtn.classList.add('hidden');
 
-                // Проверка на админа (можно сделать себя админом по email или UID)
-                // Для теста сделаем видимым кнопку админа для всех или для конкретного аккаунта
-                adminBtn.classList.remove('hidden'); // Покажем кнопку админа всем авторизованным для удобства тестов
+                // Проверка прав администратора по email или можно сделать себя админом по UID
+                // Если ваш email есть в списке ADMIN_EMAILS или вы первый пользователь, показываем кнопку админки
+                if (window.ADMIN_EMAILS.includes(user.email) || user.email === "verxonlyprod@gmail.com") {
+                    adminBtn.classList.remove('hidden');
+                } else {
+                    adminBtn.classList.add('hidden');
+                }
+
+                // Проверяем уведомления для продавца
+                checkSellerNotifications(user.uid);
             } else {
                 window.currentUser = null;
                 profileBtn.classList.add('hidden');
@@ -123,6 +129,19 @@
                 showToast('Вы вышли из аккаунта', 'info');
             });
         };
+
+        function checkSellerNotifications(uid) {
+            window.onValue(window.ref(window.db, `users/${uid}/notifications`), (snapshot) => {
+                const notifs = snapshot.val() || {};
+                Object.keys(notifs).forEach(key => {
+                    if (!notifs[key].read) {
+                        showToast(`🔔 Уведомление: ${notifs[key].text}`, 'info');
+                        // Помечаем как прочитанное
+                        window.update(window.ref(window.db, `users/${uid}/notifications/${key}`), { read: true });
+                    }
+                });
+            });
+        }
     </script>
 
     <script>
@@ -150,7 +169,7 @@
                 toast.style.opacity = '0';
                 toast.style.transform = 'translateY(-10px)';
                 setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            }, 3500);
         }
     </script>
 
@@ -177,7 +196,7 @@
 
             <!-- Кнопки управления -->
             <div class="flex items-center space-x-2 sm:space-x-3">
-                <!-- Админ-панель -->
+                <!-- Админ-панель (скрыта для обычных пользователей) -->
                 <button id="adminBtn" onclick="openAdminModal()" class="hidden bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 px-3 py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-1" title="Модерация слотов">
                     <i class="fa-solid fa-shield-halved"></i>
                     <span class="hidden lg:inline">Админка</span>
@@ -226,10 +245,10 @@
             <div>
                 <div class="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full text-amber-400 text-xs font-semibold mb-3">
                     <i class="fa-solid fa-shield-halved text-amber-500"></i>
-                    <span>Модерация слотов администратором</span>
+                    <span>Безопасные сделки + Отдельные чаты</span>
                 </div>
                 <h1 class="text-3xl sm:text-4xl font-teko font-bold text-white tracking-wide">БАЗА ПЕРЕДЕЛОК И ТЮНИНГА OMSI 2</h1>
-                <p class="text-gray-400 text-sm max-w-2xl mt-1">Все новые моды проходят проверку администрацией перед публикацией на витрину.</p>
+                <p class="text-gray-400 text-sm max-w-2xl mt-1">Покупайте и продавайте моды, общайтесь в чатах с отдельными иконками и получайте уведомления о продажах.</p>
             </div>
             <div class="flex items-center gap-4 bg-darkbg/80 border border-darkborder p-4 rounded-xl text-center">
                 <div>
@@ -258,20 +277,20 @@
         </div>
     </main>
 
-    <!-- Модальное окно: Админ-панель (модерация слотов) -->
+    <!-- Модальное окно: Админ-панель -->
     <div id="adminModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <button onclick="closeAdminModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
             <div class="flex items-center justify-between mb-6">
-                <h3 class="font-teko text-3xl font-bold text-white tracking-wide">ПАНЕЛЬ АДМИНИСТРАТОРА: МОДЕРАЦИЯ СЛОТОВ</h3>
+                <h3 class="font-teko text-3xl font-bold text-white tracking-wide">СЛОТЫ, ОЖИДАЮЩИЕ ПОДТВЕРЖДЕНИЯ</h3>
             </div>
             <div id="adminPendingList" class="space-y-4">
-                <p class="text-gray-500 text-sm text-center py-8">Загрузка слотов на модерацию...</p>
+                <p class="text-gray-500 text-sm text-center py-8">Загрузка...</p>
             </div>
         </div>
     </div>
 
-    <!-- Модальное окно: Просмотр товара -->
+    <!-- Модальное окно: Просмотр товара и чат -->
     <div id="detailModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -390,7 +409,7 @@
                     <label class="block text-xs font-medium text-gray-400 mb-1">Описание</label>
                     <textarea id="itemDescription" rows="3" required placeholder="Опишите товар..." class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
                 </div>
-                <button type="submit" id="submitBtnText" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold py-3 rounded-xl text-sm shadow-lg shadow-amber-500/20">Опубликовать слот</button>
+                <button type="submit" id="submitBtnText" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold py-3 rounded-xl text-sm shadow-lg shadow-amber-500/20">Опубликовать на модерацию</button>
             </form>
         </div>
     </div>
@@ -427,7 +446,6 @@
                 allListings = snapshot.val() || {};
                 renderListings();
                 
-                // Считаем только одобренные слоты для счетчика на баннере
                 let activeCount = 0;
                 Object.values(allListings).forEach(item => {
                     if (item.approved === true) activeCount++;
@@ -458,8 +476,7 @@
             let visibleCount = 0;
             keys.forEach(id => {
                 const item = allListings[id];
-                // Показываем на витрине только одобренные моды!
-                if (!item.approved) return;
+                if (!item.approved) return; // Показываем только подтвержденные моды
                 if (currentCategory !== 'all' && item.category !== currentCategory) return;
                 if (search && !item.title.toLowerCase().includes(search)) return;
 
@@ -488,9 +505,15 @@
                                 <img src="${item.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}" class="w-6 h-6 rounded-full object-cover border border-amber-500/50 group-hover:scale-105 transition-transform">
                                 <span class="text-xs text-gray-300 group-hover:text-amber-400 transition-colors">${item.authorName || 'Продавец'}</span>
                             </div>
-                            <button onclick="buyAndOpenChat('${id}')" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-4 py-2 rounded-xl text-xs transition-colors shadow-md">
-                                Купить и в чат
-                            </button>
+                            <div class="flex items-center space-x-2">
+                                <!-- Отдельная иконка чата -->
+                                <button onclick="openDetail('${id}')" class="bg-darkbg hover:bg-darkborder border border-darkborder text-amber-500 px-3 py-2 rounded-xl text-xs transition-colors" title="Открыть чат с продавцом">
+                                    <i class="fa-solid fa-comments"></i>
+                                </button>
+                                <button onclick="buyAndOpenChat('${id}')" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-4 py-2 rounded-xl text-xs transition-colors shadow-md">
+                                    Купить
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -498,12 +521,8 @@
             grid.innerHTML = visibleCount > 0 ? html : `<div class="col-span-full py-16 text-center text-gray-500">Нет одобренных товаров в продаже</div>`;
         }
 
-        // --- Управление Админ-панелью ---
         function openAdminModal() {
-            if (!window.currentUser) {
-                showToast('Сначала войдите в систему!', 'error');
-                return;
-            }
+            if (!window.currentUser) return;
             const container = document.getElementById('adminPendingList');
             container.innerHTML = `<p class="text-gray-500 text-sm text-center py-4">Загрузка слотов на модерацию...</p>`;
 
@@ -550,19 +569,18 @@
 
         function approveListing(id) {
             window.update(window.ref(window.db, `listings/${id}`), { approved: true }).then(() => {
-                showToast('Слот успешно одобрен и опубликован на витрине!', 'success');
+                showToast('Слот подтвержден и опубликован!', 'success');
                 openAdminModal();
             });
         }
 
         function rejectListing(id) {
             window.remove(window.ref(window.db, `listings/${id}`)).then(() => {
-                showToast('Слот отклонен и удален.', 'info');
+                showToast('Слот отклонен.', 'info');
                 openAdminModal();
             });
         }
 
-        // --- Остальные функции (Профиль, слоты, покупки, чаты) ---
         function initAvatarCropper(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -664,9 +682,8 @@
         }
 
         function closeProfileModal() {
-            document.getElementById('profileModal').classList.remove('hidden');
-            document.getElementById('profileModal').classList.add('hidden');
             document.getElementById('profileModal').classList.remove('flex');
+            document.getElementById('profileModal').classList.add('hidden');
         }
 
         function saveProfile() {
@@ -695,7 +712,7 @@
             });
 
             closeProfileModal();
-            showToast('Профиль и все объявления синхронизированы!', 'success');
+            showToast('Профиль сохранен!', 'success');
         }
 
         function openSellerProfile(sellerUid) {
@@ -894,12 +911,11 @@
                 authorName: authorName,
                 authorAvatar: authorAvatar,
                 sold: false,
-                approved: false, // Все новые слоты требуют подтверждения администратора!
+                approved: false, // Требует подтверждения админа
                 date: editId && allListings[editId] ? allListings[editId].date : Date.now()
             };
 
             if (editId) {
-                // При редактировании оставляем статус одобрения если он уже был, или сбрасываем на модерацию
                 listingData.approved = allListings[editId].approved;
                 window.set(window.ref(window.db, `listings/${editId}`), listingData).then(() => {
                     closeCreateModal();
@@ -909,7 +925,7 @@
                 const newRef = window.push(window.ref(window.db, 'listings'));
                 window.set(newRef, listingData).then(() => {
                     closeCreateModal();
-                    showToast('Слот отправлен администрации на проверку!', 'info');
+                    showToast('Слот отправлен на проверку администрации!', 'info');
                 });
             }
         }
@@ -931,7 +947,6 @@
                     count++;
                     const previewImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image;
                     
-                    // Статус модерации для продавца
                     const statusBadge = item.approved 
                         ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-1 rounded-md text-[10px] font-semibold"><i class="fa-solid fa-circle-check mr-1"></i> Опубликовано</span>`
                         : `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-1 rounded-md text-[10px] font-semibold"><i class="fa-solid fa-clock mr-1"></i> Ваш слот ожидает подтверждение у администрации</span>`;
@@ -942,7 +957,7 @@
                                 <img src="${previewImg}" class="w-14 h-14 object-cover rounded-lg">
                                 <div>
                                     <h4 class="font-teko text-xl font-bold text-white">${item.title}</h4>
-                                    <div class="flex items-center space-x-2 mt-0.5">
+                                    <div class="flex items-center space-x-2 mt-0.5 flex-wrap">
                                         <span class="text-xs text-amber-400 font-mono">${item.price} ₽</span>
                                         ${statusBadge}
                                     </div>
@@ -967,12 +982,12 @@
         }
 
         function closeMySlotsModal() {
-            document.getElementById('mySlotsModal').classList.remove('flex');
+            document.getElementById('mySlotsModal').classList.remove('hidden');
             document.getElementById('mySlotsModal').classList.add('hidden');
+            document.getElementById('mySlotsModal').classList.remove('flex');
         }
 
         function deleteListing(id) {
-            // Удаление в один клик без подтверждения
             window.remove(window.ref(window.db, `listings/${id}`)).then(() => {
                 showToast('Слот удален с продажи!', 'info');
                 openMySlotsModal();
@@ -1083,6 +1098,7 @@
             window.userBalance -= item.price;
             document.getElementById('userWalletBalance').innerText = `${window.userBalance} ₽`;
 
+            // Запись покупки
             const purchaseRef = window.push(window.ref(window.db, `users/${window.currentUser.uid}/purchases`));
             window.set(purchaseRef, {
                 listingId: id,
@@ -1093,6 +1109,15 @@
                 date: Date.now()
             });
 
+            // Уведомление продавцу о покупке
+            const notifRef = window.push(window.ref(window.db, `users/${item.authorUid}/notifications`));
+            window.set(notifRef, {
+                text: `Ваш мод «${item.title}» был успешно куплен пользователем ${window.currentUser.displayName || 'Покупатель'} за ${item.price} ₽!`,
+                read: false,
+                date: Date.now()
+            });
+
+            // Системное сообщение в чат
             const chatRef = window.push(window.ref(window.db, `chats/${id}`));
             window.set(chatRef, {
                 senderUid: 'system',
@@ -1154,14 +1179,26 @@
             const text = input.value.trim();
             if (!text) return;
 
+            const senderName = window.currentUser.displayName || 'Пользователь';
             const chatRef = window.push(window.ref(window.db, `chats/${listingId}`));
             window.set(chatRef, {
                 senderUid: window.currentUser.uid,
-                senderName: window.currentUser.displayName || 'Пользователь',
+                senderName: senderName,
                 text: text,
                 date: Date.now()
             }).then(() => {
                 input.value = '';
+
+                // Уведомление продавцу о новом сообщении (если пишет покупатель, а не сам продавец)
+                const item = allListings[listingId];
+                if (item && item.authorUid !== window.currentUser.uid) {
+                    const notifRef = window.push(window.ref(window.db, `users/${item.authorUid}/notifications`));
+                    window.set(notifRef, {
+                        text: `Новое сообщение по моду «${item.title}» от ${senderName}: "${text}"`,
+                        read: false,
+                        date: Date.now()
+                    });
+                }
             });
         }
 
