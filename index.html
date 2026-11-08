@@ -158,7 +158,7 @@
             <div>
                 <div class="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full text-amber-400 text-xs font-semibold mb-3">
                     <i class="fa-solid fa-shield-halved text-amber-500"></i>
-                    <span>Эскроу защита + Чаты + Профили</span>
+                    <span>Эскроу защита + Загрузка аватарок с ПК</span>
                 </div>
                 <h1 class="text-3xl sm:text-4xl font-teko font-bold text-white tracking-wide">БАЗА ПЕРЕДЕЛОК И ТЮНИНГА OMSI 2</h1>
                 <p class="text-gray-400 text-sm max-w-2xl mt-1">Покупайте и продавайте моды безопасно, общайтесь в чатах сделок и оставляйте честные отзывы авторам.</p>
@@ -224,7 +224,7 @@
         </div>
     </div>
 
-    <!-- Модальное окно: Редактирование профиля (Ник, Аватарка, Контакт) -->
+    <!-- Модальное окно: Редактирование профиля с загрузкой аватарки с устройства -->
     <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
             <div class="flex items-center justify-between mb-6">
@@ -232,13 +232,17 @@
                 <button onclick="closeProfileModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             <div class="space-y-4">
+                <!-- Превью текущей аватарки -->
+                <div class="flex items-center space-x-4">
+                    <img id="profilePreviewImg" src="" class="w-16 h-16 rounded-full object-cover border-2 border-amber-500">
+                    <div>
+                        <span class="text-xs text-gray-400 block mb-1">Загрузить аватарку с устройства:</span>
+                        <input type="file" id="avatarFileInput" accept="image/*" onchange="previewAvatar(event)" class="text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-500 file:text-black hover:file:bg-amber-600 cursor-pointer">
+                    </div>
+                </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1">Никнейм мастера</label>
                     <input type="text" id="profileNameInput" placeholder="Напр: Verxonly Prod" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Ссылка на аватарку (URL изображения)</label>
-                    <input type="url" id="profileAvatarInput" placeholder="https://i.imgur.com/... (прямая ссылка)" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1">Контакт для связи (Telegram / VK)</label>
@@ -280,7 +284,7 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1">Прямая ссылка на скриншот (URL)</label>
-                    <input type="url" id="itemImage" required placeholder="Загрузите картинку на Imgur/ImgBB и вставьте ссылку" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <input type="url" id="itemImage" required placeholder="Вставьте ссылку на скриншот" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1">Скрытая ссылка на скачивание (Яндекс Диск / Google Drive)</label>
@@ -300,6 +304,7 @@
         let currentCategory = 'all';
         let allListings = {};
         let activeChatId = null;
+        let tempAvatarBase64 = ''; // Временное хранение аватарки при выборе файла
 
         window.addEventListener('DOMContentLoaded', () => {
             const checkDb = setInterval(() => {
@@ -372,6 +377,19 @@
             grid.innerHTML = html || '<div class="col-span-full py-16 text-center text-gray-500">Ничего не найдено</div>';
         }
 
+        // Загрузка аватарки с устройства (конвертация в Base64)
+        function previewAvatar(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                tempAvatarBase64 = e.target.result;
+                document.getElementById('profilePreviewImg').src = tempAvatarBase64;
+            };
+            reader.readAsDataURL(file);
+        }
+
         // Профиль
         function openProfileModal() {
             if (!window.currentUser) {
@@ -381,8 +399,12 @@
             }
             const savedProfile = JSON.parse(localStorage.getItem(`profile_${window.currentUser.uid}`) || '{}');
             document.getElementById('profileNameInput').value = savedProfile.name || window.currentUser.displayName || '';
-            document.getElementById('profileAvatarInput').value = savedProfile.avatar || window.currentUser.photoURL || '';
             document.getElementById('profileContactInput').value = savedProfile.contact || '';
+            
+            tempAvatarBase64 = savedProfile.avatar || window.currentUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80';
+            document.getElementById('profilePreviewImg').src = tempAvatarBase64;
+            document.getElementById('avatarFileInput').value = '';
+
             document.getElementById('profileModal').classList.remove('hidden');
             document.getElementById('profileModal').classList.add('flex');
         }
@@ -397,18 +419,16 @@
             if (!window.currentUser) return;
             const profile = {
                 name: document.getElementById('profileNameInput').value,
-                avatar: document.getElementById('profileAvatarInput').value,
+                avatar: tempAvatarBase64,
                 contact: document.getElementById('profileContactInput').value
             };
             localStorage.setItem(`profile_${window.currentUser.uid}`, JSON.stringify(profile));
             
             document.getElementById('headerProfileName').innerText = profile.name || window.currentUser.displayName;
-            if (profile.avatar) {
-                document.getElementById('headerAvatar').src = profile.avatar;
-            }
+            document.getElementById('headerAvatar').src = profile.avatar;
 
             closeProfileModal();
-            alert('Профиль успешно обновлен!');
+            alert('Профиль и аватарка успешно сохранены!');
         }
 
         function openCreateModal() {
@@ -495,7 +515,7 @@
             }
         }
 
-        // Мои слоты с возможностью редактирования и удаления
+        // Мои слоты
         function openMySlotsModal() {
             if (!window.currentUser) {
                 alert('Войдите через Google!');
@@ -623,8 +643,9 @@
         }
 
         function closeDetailModal() {
-            document.getElementById('detailModal').classList.remove('flex');
+            document.getElementById('detailModal').classList.remove('hidden');
             document.getElementById('detailModal').classList.add('hidden');
+            document.getElementById('detailModal').classList.remove('flex');
             activeChatId = null;
         }
 
