@@ -43,6 +43,7 @@
 
     <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
+    <!-- Firebase и глобальные функции авторизации -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -73,9 +74,23 @@
         window.auth = auth;
 
         window.userBalance = 1000;
-        
-        // Ваши административные email-адреса
-        window.ADMIN_EMAILS = ["nikitaguzman065@gmail.com]; 
+        window.ADMIN_EMAILS = ["nikitaguzman065@gmail.com"]; 
+
+        // Экспортируем функции в глобальную область видимости (window)
+        window.loginGoogle = function() {
+            signInWithPopup(auth, provider).then((result) => {
+                showToast(`Добро пожаловать, ${result.user.displayName}!`, 'success');
+            }).catch((error) => {
+                console.error("Ошибка входа:", error);
+                showToast('Ошибка входа через Google.', 'error');
+            });
+        };
+
+        window.logoutGoogle = function() {
+            signOut(auth).then(() => {
+                showToast('Вы вышли из аккаунта', 'info');
+            });
+        };
 
         onAuthStateChanged(auth, (user) => {
             const profileBtn = document.getElementById('profileBtn');
@@ -94,7 +109,7 @@
 
                 const nameContainer = document.getElementById('headerProfileName');
                 if (isAdmin) {
-                    nameContainer.innerHTML = `<span class="text-red-500 font-bold">${displayName}</span> <span class="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">[Администратор]</span>`;
+                    nameContainer.innerHTML = `<span class="text-red-500 font-bold">${displayName}</span> <span class="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">[Админ]</span>`;
                 } else {
                     nameContainer.innerText = displayName;
                 }
@@ -122,28 +137,13 @@
             }
         });
 
-        window.loginGoogle = function() {
-            signInWithPopup(auth, provider).then((result) => {
-                showToast(`Добро пожаловать, ${result.user.displayName}!`, 'success');
-            }).catch((error) => {
-                console.error("Ошибка входа:", error);
-                showToast('Ошибка входа через Google.', 'error');
-            });
-        };
-
-        window.logoutGoogle = function() {
-            signOut(auth).then(() => {
-                showToast('Вы вышли из аккаунта', 'info');
-            });
-        };
-
         function checkSellerNotifications(uid) {
-            window.onValue(window.ref(window.db, `users/${uid}/notifications`), (snapshot) => {
+            onValue(ref(db, `users/${uid}/notifications`), (snapshot) => {
                 const notifs = snapshot.val() || {};
                 Object.keys(notifs).forEach(key => {
                     if (!notifs[key].read) {
                         showToast(`🔔 Уведомление: ${notifs[key].text}`, 'info');
-                        window.update(window.ref(window.db, `users/${uid}/notifications/${key}`), { read: true });
+                        update(ref(db, `users/${uid}/notifications/${key}`), { read: true });
                     }
                 });
             });
@@ -202,7 +202,7 @@
 
             <!-- Кнопки управления -->
             <div class="flex items-center space-x-2 sm:space-x-3">
-                <!-- Админ-панель (видна только администраторам) -->
+                <!-- Админ-панель -->
                 <button id="adminBtn" onclick="openAdminModal()" class="hidden bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 px-3 py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-1 shadow-lg shadow-red-500/10" title="Модерация слотов">
                     <i class="fa-solid fa-shield-halved"></i>
                     <span class="hidden lg:inline">Админка</span>
@@ -251,10 +251,10 @@
             <div>
                 <div class="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full text-amber-400 text-xs font-semibold mb-3">
                     <i class="fa-solid fa-shield-halved text-amber-500"></i>
-                    <span>Панель модерации + Система банов + Роли админов</span>
+                    <span>Безопасные сделки + Отдельные чаты</span>
                 </div>
                 <h1 class="text-3xl sm:text-4xl font-teko font-bold text-white tracking-wide">БАЗА ПЕРЕДЕЛОК И ТЮНИНГА OMSI 2</h1>
-                <p class="text-gray-400 text-sm max-w-2xl mt-1">Качественные моды, безопасные сделки, чаты и система управления репутацией.</p>
+                <p class="text-gray-400 text-sm max-w-2xl mt-1">Покупайте и продавайте моды, общайтесь в чатах с отдельными иконками и получайте уведомления о продажах.</p>
             </div>
             <div class="flex items-center gap-4 bg-darkbg/80 border border-darkborder p-4 rounded-xl text-center">
                 <div>
@@ -283,7 +283,7 @@
         </div>
     </main>
 
-    <!-- Модальное окно: Админ-панель (Слоты ожидания) -->
+    <!-- Модальное окно: Админ-панель -->
     <div id="adminModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <button onclick="closeAdminModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -296,7 +296,7 @@
         </div>
     </div>
 
-    <!-- Модальное окно: Просмотр полной информации и описание товара (для админа и покупателей) -->
+    <!-- Модальное окно: Полное описание (админ) -->
     <div id="adminItemDetailModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <button onclick="document.getElementById('adminItemDetailModal').classList.add('hidden'); document.getElementById('adminItemDetailModal').classList.remove('flex');" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -312,7 +312,7 @@
         </div>
     </div>
 
-    <!-- Модальное окно: Профиль продавца (с панелью бана для админов) -->
+    <!-- Модальное окно: Профиль продавца -->
     <div id="sellerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
             <button onclick="closeSellerModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
@@ -428,7 +428,7 @@
         </div>
     </div>
 
-    <!-- JavaScript логика -->
+    <!-- Основная логика приложения -->
     <script>
         let currentCategory = 'all';
         let allListings = {};
@@ -477,14 +477,14 @@
             });
         }
 
-        function setCategory(cat) {
+        window.setCategory = function(cat) {
             currentCategory = cat;
             document.querySelectorAll('.category-btn').forEach(btn => btn.className = "category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all");
             document.getElementById(`cat-${cat}`).className = "category-btn whitespace-nowrap bg-amber-500 text-black font-medium px-4 py-2 rounded-xl text-sm transition-all shadow-md";
             renderListings();
         }
 
-        function filterListings() { renderListings(); }
+        window.filterListings = function() { renderListings(); }
 
         function renderListings() {
             const grid = document.getElementById('listingsGrid');
@@ -502,7 +502,6 @@
                 visibleCount++;
                 const mainImage = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : (item.image || 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80');
 
-                // Проверяем, является ли автор админом для подсветки никнейма
                 const isAuthorAdmin = window.ADMIN_EMAILS.includes(item.authorEmail) || item.authorEmail === "verxonlyprod@gmail.com";
                 const authorNameDisplay = isAuthorAdmin 
                     ? `<span class="text-red-500 font-bold">${item.authorName || 'Продавец'}</span> <span class="text-[9px] bg-red-500/20 text-red-400 px-1 rounded">[Админ]</span>` 
@@ -545,8 +544,7 @@
             grid.innerHTML = visibleCount > 0 ? html : `<div class="col-span-full py-16 text-center text-gray-500">Нет одобренных товаров в продаже</div>`;
         }
 
-        // --- Управление Админ-панелью ---
-        function openAdminModal() {
+        window.openAdminModal = function() {
             if (!window.currentUser || !window.isAdmin) return;
             const container = document.getElementById('adminPendingList');
             container.innerHTML = `<p class="text-gray-500 text-sm text-center py-4">Загрузка слотов...</p>`;
@@ -590,13 +588,12 @@
             document.getElementById('adminModal').classList.add('flex');
         }
 
-        function closeAdminModal() {
+        window.closeAdminModal = function() {
             document.getElementById('adminModal').classList.remove('flex');
             document.getElementById('adminModal').classList.add('hidden');
         }
 
-        // Просмотр полного описания мода администратором перед подтверждением
-        function openAdminItemDetail(id) {
+        window.openAdminItemDetail = function(id) {
             const item = allListings[id];
             if (!item) return;
             const content = document.getElementById('adminItemDetailContent');
@@ -635,29 +632,27 @@
             document.getElementById('adminItemDetailModal').classList.add('flex');
         }
 
-        function approveListing(id) {
+        window.approveListing = function(id) {
             window.update(window.ref(window.db, `listings/${id}`), { approved: true }).then(() => {
                 showToast('Слот подтвержден и опубликован!', 'success');
                 openAdminModal();
             });
         }
 
-        function rejectListing(id) {
+        window.rejectListing = function(id) {
             window.remove(window.ref(window.db, `listings/${id}`)).then(() => {
                 showToast('Слот отклонен.', 'info');
                 openAdminModal();
             });
         }
 
-        // --- Управление банами в профиле продавца ---
-        function banUser(sellerUid, sellerName) {
+        window.banUser = function(sellerUid, sellerName) {
             if (!window.isAdmin) return;
             const daysInput = document.getElementById(`banDays_${sellerUid}`);
             const reasonInput = document.getElementById(`banReason_${sellerUid}`);
             
             const days = parseInt(daysInput.value) || 7;
             const reason = reasonInput.value.trim() || 'Нарушение правил площадки';
-
             const unbanTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
 
             window.set(window.ref(window.db, `users/${sellerUid}/ban`), {
@@ -671,7 +666,7 @@
             });
         }
 
-        function unbanUser(sellerUid, sellerName) {
+        window.unbanUser = function(sellerUid, sellerName) {
             if (!window.isAdmin) return;
             window.remove(window.ref(window.db, `users/${sellerUid}/ban`)).then(() => {
                 showToast(`Пользователь ${sellerName} разблокирован.`, 'success');
@@ -679,7 +674,7 @@
             });
         }
 
-        function initAvatarCropper(event) {
+        window.initAvatarCropper = function(event) {
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
@@ -709,7 +704,7 @@
             ctx.restore();
         }
 
-        function updateAvatarTransform() {
+        window.updateAvatarTransform = function() {
             avatarScale = parseFloat(document.getElementById('avatarZoomRange').value);
             document.getElementById('scaleValue').innerText = Math.round(avatarScale * 100) + '%';
             drawAvatarCanvas();
@@ -717,6 +712,7 @@
 
         function initAvatarCanvasEvents() {
             const canvas = document.getElementById('avatarCanvas');
+            if(!canvas) return;
             canvas.addEventListener('mousedown', (e) => {
                 isDraggingAvatar = true;
                 startDragX = e.clientX - avatarOffsetX;
@@ -731,7 +727,7 @@
             window.addEventListener('mouseup', () => { isDraggingAvatar = false; });
         }
 
-        function openProfileModal() {
+        window.openProfileModal = function() {
             if (!window.currentUser) {
                 showToast('Войдите через Google!', 'error');
                 window.loginGoogle();
@@ -742,6 +738,7 @@
             document.getElementById('profileContactInput').value = savedProfile.contact || '';
             
             const currentAvatar = savedProfile.avatar || window.currentUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80';
+            
             avatarImgObj.onload = function() {
                 avatarScale = 1;
                 avatarOffsetX = 0;
@@ -757,12 +754,12 @@
             document.getElementById('profileModal').classList.add('flex');
         }
 
-        function closeProfileModal() {
+        window.closeProfileModal = function() {
             document.getElementById('profileModal').classList.remove('flex');
             document.getElementById('profileModal').classList.add('hidden');
         }
 
-        function saveProfile() {
+        window.saveProfile = function() {
             if (!window.currentUser) return;
             const canvas = document.getElementById('avatarCanvas');
             const croppedAvatarUrl = canvas.toDataURL('image/jpeg', 0.9);
@@ -777,7 +774,7 @@
             const displayName = profile.name || window.currentUser.displayName;
             const nameContainer = document.getElementById('headerProfileName');
             if (window.isAdmin) {
-                nameContainer.innerHTML = `<span class="text-red-500 font-bold">${displayName}</span> <span class="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">[Администратор]</span>`;
+                nameContainer.innerHTML = `<span class="text-red-500 font-bold">${displayName}</span> <span class="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">[Админ]</span>`;
             } else {
                 nameContainer.innerText = displayName;
             }
@@ -797,7 +794,7 @@
             showToast('Профиль сохранен!', 'success');
         }
 
-        function openSellerProfile(sellerUid) {
+        window.openSellerProfile = function(sellerUid) {
             const sellerModal = document.getElementById('sellerModal');
             const content = document.getElementById('sellerModalContent');
 
@@ -821,7 +818,6 @@
                 }
             });
 
-            // Проверяем, забанен ли пользователь
             const sellerData = allUsersData[sellerUid] || {};
             const banInfo = sellerData.ban || null;
 
@@ -912,12 +908,12 @@
             sellerModal.classList.add('flex');
         }
 
-        function closeSellerModal() {
+        window.closeSellerModal = function() {
             document.getElementById('sellerModal').classList.remove('flex');
             document.getElementById('sellerModal').classList.add('hidden');
         }
 
-        function handleListingImages(event) {
+        window.handleListingImages = function(event) {
             const files = event.target.files;
             if (!files || files.length === 0) return;
             for (let i = 0; i < files.length; i++) {
@@ -946,19 +942,18 @@
             container.innerHTML = html;
         }
 
-        function removeListingImage(index) {
+        window.removeListingImage = function(index) {
             tempListingImages.splice(index, 1);
             renderListingImagesPreview();
         }
 
-        function openCreateModal() {
+        window.openCreateModal = function() {
             if (!window.currentUser) {
                 showToast('Пожалуйста, сначала войдите через Google!', 'error');
                 window.loginGoogle();
                 return;
             }
 
-            // Проверяем, забанен ли пользователь
             const userBan = allUsersData[window.currentUser.uid]?.ban;
             if (userBan && userBan.banned) {
                 if (Date.now() < userBan.unbanTime) {
@@ -982,12 +977,12 @@
             document.getElementById('createModal').classList.add('flex');
         }
 
-        function closeCreateModal() {
+        window.closeCreateModal = function() {
             document.getElementById('createModal').classList.remove('flex');
             document.getElementById('createModal').classList.add('hidden');
         }
 
-        function editListing(id) {
+        window.editListing = function(id) {
             const item = allListings[id];
             if (!item) return;
 
@@ -1009,7 +1004,7 @@
             document.getElementById('createModal').classList.add('flex');
         }
 
-        function saveListing(event) {
+        window.saveListing = function(event) {
             event.preventDefault();
             if (!window.currentUser) return;
 
@@ -1055,7 +1050,7 @@
             }
         }
 
-        function openMySlotsModal() {
+        window.openMySlotsModal = function() {
             if (!window.currentUser) {
                 showToast('Войдите через Google!', 'error');
                 window.loginGoogle();
@@ -1106,19 +1101,19 @@
             document.getElementById('mySlotsModal').classList.add('flex');
         }
 
-        function closeMySlotsModal() {
+        window.closeMySlotsModal = function() {
             document.getElementById('mySlotsModal').classList.remove('flex');
             document.getElementById('mySlotsModal').classList.add('hidden');
         }
 
-        function deleteListing(id) {
+        window.deleteListing = function(id) {
             window.remove(window.ref(window.db, `listings/${id}`)).then(() => {
                 showToast('Слот удален с продажи!', 'info');
                 openMySlotsModal();
             });
         }
 
-        function openDetail(id) {
+        window.openDetail = function(id) {
             const item = allListings[id];
             if (!item || !item.approved) return;
             activeChatId = id;
@@ -1203,7 +1198,7 @@
             loadReviews(id);
         }
 
-        function closeDetailModal() {
+        window.closeDetailModal = function() {
             document.getElementById('detailModal').classList.remove('flex');
             document.getElementById('detailModal').classList.add('hidden');
             activeChatId = null;
@@ -1290,7 +1285,7 @@
             });
         }
 
-        function sendMessage(event, listingId) {
+        window.sendMessage = function(event, listingId) {
             event.preventDefault();
             if (!window.currentUser) {
                 showToast('Войдите через Google!', 'error');
@@ -1354,7 +1349,7 @@
             });
         }
 
-        function addReview(event, listingId) {
+        window.addReview = function(event, listingId) {
             event.preventDefault();
             if (!window.currentUser) {
                 showToast('Войдите через Google!', 'error');
@@ -1378,7 +1373,7 @@
             });
         }
 
-        function openPurchasesModal() {
+        window.openPurchasesModal = function() {
             if (!window.currentUser) {
                 showToast('Войдите через Google!', 'error');
                 window.loginGoogle();
@@ -1417,7 +1412,7 @@
             document.getElementById('purchasesModal').classList.add('flex');
         }
 
-        function closePurchasesModal() {
+        window.closePurchasesModal = function() {
             document.getElementById('purchasesModal').classList.remove('hidden');
             document.getElementById('purchasesModal').classList.add('hidden');
             document.getElementById('purchasesModal').classList.remove('flex');
