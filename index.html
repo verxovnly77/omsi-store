@@ -67,7 +67,7 @@
         window.update = update;
         window.auth = auth;
 
-        window.userBalance = 1000; // Стартовый тестовый баланс для проверки покупок
+        window.userBalance = 1000;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -75,9 +75,10 @@
                 document.getElementById('headerProfileName').innerText = user.displayName || 'Мастер';
                 document.getElementById('authActionBtn').innerHTML = `<i class="fa-solid fa-right-from-bracket text-red-400 mr-1"></i> Выйти`;
                 document.getElementById('authActionBtn').onclick = logoutGoogle;
+                console.log("Авторизован:", user.email);
             } else {
                 window.currentUser = null;
-                document.getElementById('headerProfileName').innerText = 'Войти через Google';
+                document.getElementById('headerProfileName').innerText = 'Вход';
                 document.getElementById('authActionBtn').innerHTML = `<i class="fa-brands fa-google text-amber-500 mr-1"></i> Вход`;
                 document.getElementById('authActionBtn').onclick = loginGoogle;
             }
@@ -194,6 +195,7 @@
                 <h3 class="font-teko text-3xl font-bold text-white tracking-wide">ВЫСТАВИТЬ МОД НА ПРОДАЖУ</h3>
                 <button onclick="closeCreateModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
+            <!-- Важно: форма имеет onsubmit -->
             <form onsubmit="saveListing(event)" class="space-y-4">
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1">Название мода / тюнинга</label>
@@ -307,7 +309,7 @@
 
         function openCreateModal() {
             if (!window.currentUser) {
-                alert('Пожалуйста, войдите через Google, чтобы выставить товар на продажу!');
+                alert('Пожалуйста, сначала войдите через Google в правом верхнем углу!');
                 window.loginGoogle();
                 return;
             }
@@ -322,19 +324,28 @@
 
         function saveListing(event) {
             event.preventDefault();
+            
             if (!window.currentUser) {
                 alert('Ошибка: Вы не вошли через Google!');
+                window.loginGoogle();
                 return;
             }
 
+            const title = document.getElementById('itemTitle').value;
+            const category = document.getElementById('itemCategory').value;
+            const price = Number(document.getElementById('itemPrice').value);
+            const image = document.getElementById('itemImage').value;
+            const fileLink = document.getElementById('itemFileLink').value;
+            const description = document.getElementById('itemDescription').value;
+
             const newRef = window.push(window.ref(window.db, 'listings'));
             window.set(newRef, {
-                title: document.getElementById('itemTitle').value,
-                category: document.getElementById('itemCategory').value,
-                price: Number(document.getElementById('itemPrice').value),
-                image: document.getElementById('itemImage').value,
-                fileLink: document.getElementById('itemFileLink').value,
-                description: document.getElementById('itemDescription').value,
+                title,
+                category,
+                price,
+                image,
+                fileLink,
+                description,
                 authorUid: window.currentUser.uid,
                 authorName: window.currentUser.displayName || 'Мастер',
                 sold: false,
