@@ -42,10 +42,8 @@
 </head>
 <body class="min-h-screen flex flex-col selection:bg-amber-500 selection:text-black relative">
 
-    <!-- Аккуратный тост-контейнер для внутренних уведомлений -->
     <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
 
-    <!-- Подключение Firebase SDK и логика авторизации -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -113,7 +111,6 @@
         };
     </script>
 
-    <!-- Функция аккуратных всплывающих уведомлений -->
     <script>
         function showToast(message, type = 'success') {
             const container = document.getElementById('toastContainer');
@@ -196,10 +193,10 @@
             <div>
                 <div class="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full text-amber-400 text-xs font-semibold mb-3">
                     <i class="fa-solid fa-shield-halved text-amber-500"></i>
-                    <span>Эскроу защита + Чаты + Профили</span>
+                    <span>Мультизагрузка фото с устройства</span>
                 </div>
                 <h1 class="text-3xl sm:text-4xl font-teko font-bold text-white tracking-wide">БАЗА ПЕРЕДЕЛОК И ТЮНИНГА OMSI 2</h1>
-                <p class="text-gray-400 text-sm max-w-2xl mt-1">Покупайте и продавайте моды безопасно, общайтесь в чатах сделок и оставляйте честные отзывы авторам.</p>
+                <p class="text-gray-400 text-sm max-w-2xl mt-1">Добавляйте любое количество скриншотов прямо с ПК или телефона при создании слотов.</p>
             </div>
             <div class="flex items-center gap-4 bg-darkbg/80 border border-darkborder p-4 rounded-xl text-center">
                 <div>
@@ -228,10 +225,10 @@
         </div>
     </main>
 
-    <!-- Модальное окно: Просмотр товара, чат и отзывы -->
+    <!-- Модальное окно: Просмотр товара, галерея скриншотов, чат и отзывы -->
     <div id="detailModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
             <div id="detailModalContent"></div>
         </div>
     </div>
@@ -273,8 +270,8 @@
                 <div class="flex items-center space-x-4">
                     <img id="profilePreviewImg" src="" class="w-16 h-16 rounded-full object-cover border-2 border-amber-500">
                     <div>
-                        <span class="text-xs text-gray-400 block mb-1">Загрузить аватарку с устройства:</span>
-                        <input type="file" id="avatarFileInput" accept="image/*" onchange="previewAvatar(event)" class="text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-500 file:text-black hover:file:bg-amber-600 cursor-pointer">
+                        <span class="text-xs text-gray-400 block mb-1">Аватарка с устройства:</span>
+                        <input type="file" id="avatarFileInput" accept="image/*" onchange="previewAvatar(event)" class="text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-500 file:text-black hover:file:bg-amber-600 cursor-pointer">
                     </div>
                 </div>
                 <div>
@@ -290,7 +287,7 @@
         </div>
     </div>
 
-    <!-- Модальное окно: Выставить / Редактировать товар -->
+    <!-- Модальное окно: Выставить / Редактировать товар с мультизагрузкой фото -->
     <div id="createModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
         <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative">
             <div class="flex items-center justify-between mb-6">
@@ -320,8 +317,10 @@
                     </div>
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Прямая ссылка на скриншот (URL)</label>
-                    <input type="url" id="itemImage" required placeholder="Вставьте ссылку на скриншот" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <label class="block text-xs font-medium text-gray-400 mb-1">Скриншоты мода (можно выбрать сразу несколько фото с устройства)</label>
+                    <input type="file" id="listingImagesInput" accept="image/*" multiple onchange="handleListingImages(event)" class="w-full text-xs text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-500 file:text-black hover:file:bg-amber-600 cursor-pointer bg-darkbg border border-darkborder rounded-xl p-2">
+                    <!-- Превью загруженных фото -->
+                    <div id="listingImagesPreview" class="flex flex-wrap gap-2 mt-3"></div>
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-gray-400 mb-1">Скрытая ссылка на скачивание (Яндекс Диск / Google Drive)</label>
@@ -342,6 +341,7 @@
         let allListings = {};
         let activeChatId = null;
         let tempAvatarBase64 = '';
+        let tempListingImages = []; // Массив для хранения выбранных картинок слота
 
         window.addEventListener('DOMContentLoaded', () => {
             const checkDb = setInterval(() => {
@@ -385,11 +385,17 @@
                 if (currentCategory !== 'all' && item.category !== currentCategory) return;
                 if (search && !item.title.toLowerCase().includes(search)) return;
 
+                // Берем первую картинку для превью в каталоге
+                const mainImage = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : (item.image || 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80');
+
                 html += `
                     <div class="bg-cardbg border border-darkborder rounded-2xl overflow-hidden flex flex-col justify-between hover:border-amber-500/50 transition-all">
                         <div>
                             <div class="relative h-48 overflow-hidden bg-darkbg cursor-pointer" onclick="openDetail('${id}')">
-                                <img src="${item.image}" class="w-full h-full object-cover">
+                                <img src="${mainImage}" class="w-full h-full object-cover">
+                                <div class="absolute top-3 left-3 bg-darkbg/80 backdrop-blur text-amber-400 text-[10px] px-2 py-1 rounded-md font-mono">
+                                    <i class="fa-solid fa-images mr-1"></i> ${Array.isArray(item.images) ? item.images.length : 1} фото
+                                </div>
                                 <div class="absolute bottom-3 right-3 bg-amber-500 text-black text-xs px-3 py-1.5 rounded-lg font-bold font-mono">
                                     ${item.price} ₽
                                 </div>
@@ -412,6 +418,42 @@
                 `;
             });
             grid.innerHTML = html || '<div class="col-span-full py-16 text-center text-gray-500">Ничего не найдено</div>';
+        }
+
+        // Обработка мультизагрузки фото для слота
+        function handleListingImages(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            for (let i = 0; i < files.length; i++) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempListingImages.push(e.target.result);
+                    renderListingImagesPreview();
+                };
+                reader.readAsDataURL(files[i]);
+            }
+        }
+
+        function renderListingImagesPreview() {
+            const container = document.getElementById('listingImagesPreview');
+            let html = '';
+            tempListingImages.forEach((imgSrc, index) => {
+                html += `
+                    <div class="relative w-16 h-16 rounded-xl overflow-hidden border border-amber-500/50 group">
+                        <img src="${imgSrc}" class="w-full h-full object-cover">
+                        <button type="button" onclick="removeListingImage(${index})" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-red-400">
+                            <i class="fa-solid fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function removeListingImage(index) {
+            tempListingImages.splice(index, 1);
+            renderListingImagesPreview();
         }
 
         function previewAvatar(event) {
@@ -445,8 +487,9 @@
         }
 
         function closeProfileModal() {
-            document.getElementById('profileModal').classList.remove('flex');
+            document.getElementById('profileModal').classList.remove('hidden');
             document.getElementById('profileModal').classList.add('hidden');
+            document.getElementById('profileModal').classList.remove('flex');
         }
 
         function saveProfile() {
@@ -476,9 +519,11 @@
             document.getElementById('submitBtnText').innerText = 'Опубликовать слот';
             document.getElementById('itemTitle').value = '';
             document.getElementById('itemPrice').value = '';
-            document.getElementById('itemImage').value = '';
             document.getElementById('itemFileLink').value = '';
             document.getElementById('itemDescription').value = '';
+            document.getElementById('listingImagesInput').value = '';
+            tempListingImages = [];
+            document.getElementById('listingImagesPreview').innerHTML = '';
 
             document.getElementById('createModal').classList.remove('hidden');
             document.getElementById('createModal').classList.add('flex');
@@ -500,9 +545,11 @@
             document.getElementById('itemTitle').value = item.title;
             document.getElementById('itemCategory').value = item.category;
             document.getElementById('itemPrice').value = item.price;
-            document.getElementById('itemImage').value = item.image;
             document.getElementById('itemFileLink').value = item.fileLink;
             document.getElementById('itemDescription').value = item.description;
+
+            tempListingImages = Array.isArray(item.images) ? [...item.images] : (item.image ? [item.image] : []);
+            renderListingImagesPreview();
 
             closeMySlotsModal();
             document.getElementById('createModal').classList.remove('hidden');
@@ -516,6 +563,11 @@
                 return;
             }
 
+            if (tempListingImages.length === 0) {
+                showToast('Добавьте хотя бы одно фото мода!', 'error');
+                return;
+            }
+
             const editId = document.getElementById('editListingId').value;
             const savedProfile = JSON.parse(localStorage.getItem(`profile_${window.currentUser.uid}`) || '{}');
             const authorName = savedProfile.name || window.currentUser.displayName || 'Мастер';
@@ -525,7 +577,8 @@
                 title: document.getElementById('itemTitle').value,
                 category: document.getElementById('itemCategory').value,
                 price: Number(document.getElementById('itemPrice').value),
-                image: document.getElementById('itemImage').value,
+                images: tempListingImages, // Сохраняем массив картинок
+                image: tempListingImages[0], // Для совместимости основная картинка
                 fileLink: document.getElementById('itemFileLink').value,
                 description: document.getElementById('itemDescription').value,
                 authorUid: window.currentUser.uid,
@@ -564,10 +617,11 @@
                 const item = allListings[id];
                 if (item.authorUid === window.currentUser.uid) {
                     count++;
+                    const previewImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image;
                     html += `
                         <div class="bg-darkbg border border-darkborder p-4 rounded-xl flex items-center justify-between gap-4">
                             <div class="flex items-center space-x-3">
-                                <img src="${item.image}" class="w-14 h-14 object-cover rounded-lg">
+                                <img src="${previewImg}" class="w-14 h-14 object-cover rounded-lg">
                                 <div>
                                     <h4 class="font-teko text-xl font-bold text-white">${item.title}</h4>
                                     <p class="text-xs text-amber-400 font-mono">${item.price} ₽</p>
@@ -610,9 +664,22 @@
             activeChatId = id;
             const content = document.getElementById('detailModalContent');
             
+            const imagesList = Array.isArray(item.images) && item.images.length > 0 ? item.images : [item.image || 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80'];
+
             content.innerHTML = `
                 <div class="space-y-4">
-                    <img src="${item.image}" class="w-full h-56 object-cover rounded-xl">
+                    <!-- Галерея фото -->
+                    <div class="relative h-72 rounded-xl overflow-hidden bg-darkbg border border-darkborder">
+                        <img id="mainDetailImage" src="${imagesList[0]}" class="w-full h-full object-cover">
+                    </div>
+                    ${imagesList.length > 1 ? `
+                        <div class="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                            ${imagesList.map((img, idx) => `
+                                <img src="${img}" onclick="document.getElementById('mainDetailImage').src='${img}'" class="w-16 h-16 rounded-lg object-cover cursor-pointer border-2 border-transparent hover:border-amber-500 transition-all">
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
                     <div class="flex items-center justify-between">
                         <h2 class="font-teko text-3xl font-bold text-white">${item.title}</h2>
                         <span class="text-xl font-bold text-amber-500 font-mono">${item.price} ₽</span>
