@@ -1,1442 +1,253 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OMSI-STORE — Гараж переделок и тюнинга OMSI 2</title>
-    <!-- Tailwind CSS -->
+    <title>VP-OPENOMSI | Главная</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        darkbg: '#090A0D',
-                        cardbg: '#12141C',
-                        accent: '#F59E0B',
-                        accenthover: '#D97706',
-                        darkborder: '#1F2430'
+                        brand: {
+                            400: '#facc15', // yellow-400
+                            500: '#eab308', // yellow-500
+                            600: '#ca8a04', // yellow-600
+                        }
                     }
                 }
             }
         }
     </script>
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #090A0D; color: #F3F4F6; }
-        .font-teko { font-family: 'Teko', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #090A0D; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1F2430; border-radius: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #F59E0B; }
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        body {
+            background-color: #0f172a; /* slate-900 */
+            color: #f8fafc; /* slate-50 */
         }
-        .toast-animate { animation: fadeInDown 0.3s ease-out forwards; }
+        .glow-text {
+            text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+        }
+        .glow-box {
+            box-shadow: 0 0 15px rgba(250, 204, 21, 0.2);
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-amber-500 selection:text-black relative">
+<body class="antialiased min-h-screen flex flex-col">
 
-    <div id="toastContainer" class="fixed top-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyACvB3zaAY4ZcFZC5NgCcqezs7jtLlOLWQ",
-            authDomain: "omsistore-877c2.firebaseapp.com",
-            databaseURL: "https://omsistore-877c2-default-rtdb.firebaseio.com",
-            projectId: "omsistore-877c2",
-            storageBucket: "omsistore-877c2.firebasestorage.app",
-            messagingSenderId: "679716166974",
-            appId: "1:679716166974:web:8cc361a50ad428cefe606f"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-
-        window.db = db;
-        window.ref = ref;
-        window.set = set;
-        window.push = push;
-        window.onValue = onValue;
-        window.remove = remove;
-        window.update = update;
-        window.auth = auth;
-
-        window.userBalance = 1000;
-        
-        // Ваш административный email
-        window.ADMIN_EMAILS = ["nikitaguzman065@gmail.com", "verxonlyprod@gmail.com"]; 
-
-        window.loginGoogle = function() {
-            signInWithPopup(auth, provider).then((result) => {
-                showToast(`Добро пожаловать, ${result.user.displayName}!`, 'success');
-            }).catch((error) => {
-                console.error("Ошибка входа:", error);
-                showToast('Ошибка входа через Google.', 'error');
-            });
-        };
-
-        window.logoutGoogle = function() {
-            signOut(auth).then(() => {
-                showToast('Вы вышли из аккаунта', 'info');
-            });
-        };
-
-        onAuthStateChanged(auth, (user) => {
-            const profileBtn = document.getElementById('profileBtn');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const loginBtn = document.getElementById('loginBtn');
-            const adminBtn = document.getElementById('adminBtn');
-
-            if (user) {
-                window.currentUser = user;
-                const isAdmin = window.ADMIN_EMAILS.includes(user.email) || user.email === "nikitaguzman065@gmail.com";
-                window.isAdmin = isAdmin;
-
-                const savedProfile = JSON.parse(localStorage.getItem(`profile_${user.uid}`) || '{}');
-                const displayName = savedProfile.name || user.displayName || 'Профиль';
-                const avatarUrl = savedProfile.avatar || user.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80';
-
-                const nameContainer = document.getElementById('headerProfileName');
-                if (isAdmin) {
-                    nameContainer.innerHTML = `<span class="text-red-500 font-bold">${displayName}</span> <span class="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">[Админ]</span>`;
-                } else {
-                    nameContainer.innerText = displayName;
-                }
-
-                document.getElementById('headerAvatar').src = avatarUrl;
-                
-                profileBtn.classList.remove('hidden');
-                logoutBtn.classList.remove('hidden');
-                loginBtn.classList.add('hidden');
-
-                if (isAdmin) {
-                    adminBtn.classList.remove('hidden');
-                } else {
-                    adminBtn.classList.add('hidden');
-                }
-
-                checkSellerNotifications(user.uid);
-            } else {
-                window.currentUser = null;
-                window.isAdmin = false;
-                profileBtn.classList.add('hidden');
-                logoutBtn.classList.add('hidden');
-                adminBtn.classList.add('hidden');
-                loginBtn.classList.remove('hidden');
-            }
-        });
-
-        function checkSellerNotifications(uid) {
-            window.onValue(window.ref(window.db, `users/${uid}/notifications`), (snapshot) => {
-                const notifs = snapshot.val() || {};
-                Object.keys(notifs).forEach(key => {
-                    if (!notifs[key].read) {
-                        showToast(`🔔 Уведомление: ${notifs[key].text}`, 'info');
-                        window.update(window.ref(window.db, `users/${uid}/notifications/${key}`), { read: true });
-                    }
-                });
-            });
-        }
-    </script>
-
-    <script>
-        function showToast(message, type = 'success') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            
-            let bgColors = 'bg-cardbg border-amber-500/50 text-white';
-            let icon = '<i class="fa-solid fa-circle-check text-amber-500 mr-2 text-base"></i>';
-            
-            if (type === 'error') {
-                bgColors = 'bg-cardbg border-red-500/50 text-white';
-                icon = '<i class="fa-solid fa-circle-exclamation text-red-500 mr-2 text-base"></i>';
-            } else if (type === 'info') {
-                bgColors = 'bg-cardbg border-blue-500/50 text-white';
-                icon = '<i class="fa-solid fa-circle-info text-blue-400 mr-2 text-base"></i>';
-            }
-
-            toast.className = `pointer-events-auto toast-animate flex items-center px-4 py-3 rounded-2xl border ${bgColors} shadow-2xl backdrop-blur text-xs font-medium`;
-            toast.innerHTML = `${icon}<span>${message}</span>`;
-            
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateY(-10px)';
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
-        }
-    </script>
-
-    <!-- Шапка сайта -->
-    <header class="bg-cardbg border-b border-darkborder sticky top-0 z-40 backdrop-blur bg-opacity-90">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-            <div class="flex items-center space-x-3 cursor-pointer" onclick="location.reload()">
-                <div class="w-12 h-12 bg-amber-500 rounded-lg flex items-center justify-center shadow-lg shadow-amber-500/20">
-                    <i class="fa-solid fa-bus text-black text-2xl"></i>
+    <!-- Навигация -->
+    <header class="fixed w-full z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl font-bold text-brand-400 glow-text">VP-OPENOMSI</span>
                 </div>
-                <div>
-                    <span class="font-teko text-3xl font-bold tracking-wider text-white">OMSI<span class="text-amber-500">-STORE</span></span>
-                    <span class="block text-[10px] text-gray-400 uppercase tracking-widest font-mono -mt-1">Маркетплейс безопасных сделок</span>
+                <!-- Меню ПК -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="#hero" class="text-slate-300 hover:text-brand-400 transition-colors">Главная</a>
+                    <a href="#news" class="text-slate-300 hover:text-brand-400 transition-colors">Новости</a>
+                    <a href="#dev" class="text-slate-300 hover:text-brand-400 transition-colors">Разработка</a>
+                </nav>
+                <div class="hidden md:flex">
+                    <button onclick="openLoginModal()" class="px-5 py-2 rounded-lg border-2 border-brand-500 text-brand-400 hover:bg-brand-500 hover:text-slate-900 transition-all font-semibold">
+                        Войти
+                    </button>
+                </div>
+                <!-- Кнопка мобильного меню -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-btn" class="text-slate-300 hover:text-white p-2">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
-
-            <!-- Поиск -->
-            <div class="hidden md:flex flex-1 max-w-md mx-8">
-                <div class="relative w-full">
-                    <input type="text" id="searchInput" oninput="filterListings()" placeholder="Поиск по переделкам и сборкам..." class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 pl-11 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-amber-500 transition-colors">
-                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-gray-500 text-sm"></i>
-                </div>
-            </div>
-
-            <!-- Кнопки управления -->
-            <div class="flex items-center space-x-2 sm:space-x-3">
-                <!-- Админ-панель -->
-                <button id="adminBtn" onclick="openAdminModal()" class="hidden bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 px-3 py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-1 shadow-lg shadow-red-500/10" title="Модерация слотов">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <span class="hidden lg:inline">Админка</span>
-                </button>
-
-                <button onclick="openMySlotsModal()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-amber-500 px-3 py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-1" title="Мои слоты">
-                    <i class="fa-solid fa-box-archive"></i>
-                    <span class="hidden lg:inline">Мои слоты</span>
-                </button>
-                <button onclick="openPurchasesModal()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-1" title="Мои покупки">
-                    <i class="fa-solid fa-bag-shopping text-amber-500"></i>
-                    <span class="hidden lg:inline">Покупки</span>
-                </button>
-                <div class="hidden sm:flex items-center space-x-1 bg-darkbg border border-darkborder px-3 py-2 rounded-xl text-xs font-mono">
-                    <i class="fa-solid fa-wallet text-amber-500"></i>
-                    <strong id="userWalletBalance" class="text-white">1000 ₽</strong>
-                </div>
-                <button onclick="openCreateModal()" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-3.5 py-2.5 rounded-xl text-xs sm:text-sm flex items-center space-x-1 shadow-lg shadow-amber-500/20">
-                    <i class="fa-solid fa-plus"></i>
-                    <span class="hidden sm:inline">Продать мод</span>
-                </button>
-
-                <!-- Профиль -->
-                <button id="profileBtn" onclick="openProfileModal()" class="hidden bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 px-3 py-2 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-2">
-                    <img id="headerAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80" class="w-6 h-6 rounded-full object-cover">
-                    <span id="headerProfileName" class="hidden sm:inline">Профиль</span>
-                </button>
-
-                <!-- Выйти -->
-                <button id="logoutBtn" onclick="logoutGoogle()" class="hidden bg-darkbg hover:bg-darkborder border border-darkborder text-red-400 px-3 py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-1" title="Выйти">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
-
-                <!-- Вход -->
-                <button id="loginBtn" onclick="loginGoogle()" class="bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm transition-colors flex items-center space-x-2">
-                    <i class="fa-brands fa-google text-amber-500"></i>
-                    <span>Вход</span>
-                </button>
+        </div>
+        <!-- Мобильное меню -->
+        <div id="mobile-menu" class="hidden md:hidden bg-slate-800 border-b border-slate-700">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
+                <a href="#hero" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Главная</a>
+                <a href="#news" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Новости</a>
+                <a href="#dev" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Разработка</a>
+                <button onclick="openLoginModal()" class="mt-2 w-full text-left px-3 py-2 text-brand-400 font-bold">Войти</button>
             </div>
         </div>
     </header>
 
-    <!-- Основной контент -->
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="bg-gradient-to-r from-cardbg to-[#1a1408] border border-amber-500/30 rounded-2xl p-6 mb-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-                <div class="inline-flex items-center space-x-2 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full text-amber-400 text-xs font-semibold mb-3">
-                    <i class="fa-solid fa-shield-halved text-amber-500"></i>
-                    <span>Безопасные сделки + Права администратора</span>
+    <!-- Главный экран -->
+    <main class="flex-grow pt-20">
+        <section id="hero" class="relative py-20 lg:py-32 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6">
+                    Будущее симуляторов с <span class="text-brand-400 glow-text block mt-2">openOMSI</span>
+                </h1>
+                <p class="mt-4 text-xl text-slate-400 max-w-3xl mx-auto mb-10">
+                    Присоединяйтесь к открытой разработке, скачивайте последние билды и следите за развитием нового поколения автобусных симуляторов от VP-OPENOMSI.
+                </p>
+                <div class="flex flex-col sm:flex-row justify-center gap-4">
+                    <a href="#download" class="px-8 py-4 rounded-lg bg-brand-500 text-slate-900 font-bold text-lg hover:bg-brand-400 transition-all shadow-[0_0_20px_rgba(250,204,21,0.4)] hover:scale-105">
+                        Скачать последнюю версию
+                    </a>
+                    <a href="https://github.com/openOMSI-org" target="_blank" class="px-8 py-4 rounded-lg bg-slate-800 text-white font-bold text-lg border border-slate-700 hover:border-brand-500 hover:text-brand-400 transition-all">
+                        Исходный код
+                    </a>
                 </div>
-                <h1 class="text-3xl sm:text-4xl font-teko font-bold text-white tracking-wide">БАЗА ПЕРЕДЕЛОК И ТЮНИНГА OMSI 2</h1>
-                <p class="text-gray-400 text-sm max-w-2xl mt-1">Покупайте и продавайте моды, администраторы могут управлять контентом и блокировать пользователей.</p>
             </div>
-            <div class="flex items-center gap-4 bg-darkbg/80 border border-darkborder p-4 rounded-xl text-center">
-                <div>
-                    <span id="statListings" class="block font-teko text-3xl text-amber-500 font-bold">0</span>
-                    <span class="text-[11px] text-gray-400 uppercase tracking-wider">Активных лотов</span>
+            <!-- Фоновые декорации -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-500/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+        </section>
+
+        <!-- Новости (Telegram) -->
+        <section id="news" class="py-16 bg-slate-900/50">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold mb-8 text-center border-b border-slate-800 pb-4">Следите за новостями</h2>
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-2xl glow-box flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-2">Telegram Канал</h3>
+                        <p class="text-slate-400">Самые свежие обновления, патчноуты и инсайды с разработки.</p>
+                        <p class="text-brand-400 font-mono mt-2 text-lg">@verxonlyprodopomsi</p>
+                    </div>
+                    <a href="https://t.me/verxonlyprodopomsi" target="_blank" class="px-6 py-3 bg-brand-500 text-slate-900 font-bold rounded-lg hover:bg-brand-400 transition-colors shrink-0">
+                        Подписаться
+                    </a>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Категории -->
-        <div class="flex items-center space-x-2 overflow-x-auto pb-4 mb-6 custom-scrollbar">
-            <button onclick="setCategory('all')" id="cat-all" class="category-btn whitespace-nowrap bg-amber-500 text-black font-medium px-4 py-2 rounded-xl text-sm transition-all shadow-md">Все работы</button>
-            <button onclick="setCategory('bus')" id="cat-bus" class="category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all">Автобусы</button>
-            <button onclick="setCategory('tuning')" id="cat-tuning" class="category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all">Тюнинг и Колхоз</button>
-            <button onclick="setCategory('private')" id="cat-private" class="category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all">Приватные сборки</button>
-            <button onclick="setCategory('details')" id="cat-details" class="category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all">3D-Детали</button>
-            <button onclick="setCategory('sound')" id="cat-sound" class="category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all">Звуки</button>
-        </div>
-
-        <!-- Сетка товаров -->
-        <div id="listingsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div class="col-span-full py-16 text-center text-gray-500">
-                <i class="fa-solid fa-spinner fa-spin text-3xl mb-3 text-amber-500"></i>
-                <p>Загрузка каталога...</p>
+        <!-- Разработка -->
+        <section id="dev" class="py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold mb-10 text-center">Наши Репозитории</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- openOMSI -->
+                    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-brand-500 transition-all group">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-2xl font-bold text-brand-400 group-hover:glow-text">openOMSI</h3>
+                            <span class="px-3 py-1 bg-slate-900 text-xs rounded-full border border-slate-600">Core</span>
+                        </div>
+                        <p class="text-slate-400 mb-6">Главный движок и ядро симулятора. Открытый исходный код для создания реалистичной физики и графики.</p>
+                        <a href="https://github.com/openOMSI-org/openOMSI" target="_blank" class="text-white hover:text-brand-400 inline-flex items-center gap-2">
+                            Смотреть на GitHub &rarr;
+                        </a>
+                    </div>
+                    <!-- openMapper -->
+                    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-brand-500 transition-all group">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-2xl font-bold text-brand-400 group-hover:glow-text">openMapper</h3>
+                            <span class="px-3 py-1 bg-slate-900 text-xs rounded-full border border-slate-600">Tools</span>
+                        </div>
+                        <p class="text-slate-400 mb-6">Инструментарий для создания, редактирования и конвертации карт и маршрутов для симулятора.</p>
+                        <a href="https://github.com/openOMSI-org/openMapper" target="_blank" class="text-white hover:text-brand-400 inline-flex items-center gap-2">
+                            Смотреть на GitHub &rarr;
+                        </a>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
     </main>
 
-    <!-- Модальное окно: Админ-панель -->
-    <div id="adminModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-4xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <button onclick="closeAdminModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="font-teko text-3xl font-bold text-white tracking-wide"><i class="fa-solid fa-shield-halved text-red-500 mr-2"></i> СЛОТЫ, ОЖИДАЮЩИЕ ПОДТВЕРЖДЕНИЯ</h3>
-            </div>
-            <div id="adminPendingList" class="space-y-4">
-                <p class="text-gray-500 text-sm text-center py-8">Загрузка...</p>
-            </div>
+    <!-- Подвал -->
+    <footer class="bg-slate-950 py-8 border-t border-slate-800 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-slate-500">
+            <p>&copy; 2026 VP-OPENOMSI. Verxonly Prod.</p>
         </div>
-    </div>
+    </footer>
 
-    <!-- Модальное окно: Полное описание (админ) -->
-    <div id="adminItemDetailModal" class="fixed inset-0 bg-black/85 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <button onclick="document.getElementById('adminItemDetailModal').classList.add('hidden'); document.getElementById('adminItemDetailModal').classList.remove('flex');" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <div id="adminItemDetailContent"></div>
-        </div>
-    </div>
-
-    <!-- Модальное окно: Просмотр товара -->
-    <div id="detailModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <button onclick="closeDetailModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <div id="detailModalContent"></div>
-        </div>
-    </div>
-
-    <!-- Модальное окно: Профиль продавца -->
-    <div id="sellerModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <button onclick="closeSellerModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <div id="sellerModalContent"></div>
-        </div>
-    </div>
-
-    <!-- Модальное окно: Мои слоты -->
-    <div id="mySlotsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="font-teko text-3xl font-bold text-white tracking-wide">МОИ СЛОТЫ НА ПРОДАЖУ</h3>
-                <button onclick="closeMySlotsModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div id="mySlotsList" class="space-y-4">
-                <p class="text-gray-500 text-sm text-center py-8">Войдите через Google.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Модальное окно: Мои покупки -->
-    <div id="purchasesModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="font-teko text-3xl font-bold text-white tracking-wide">МОИ ПОКУПКИ И ЧАТЫ СДЕЛОК</h3>
-                <button onclick="closePurchasesModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div id="purchasesList" class="space-y-4">
-                <p class="text-gray-500 text-sm text-center py-8">Войдите через Google.</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Модальное окно: Настройка профиля -->
-    <div id="profileModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="font-teko text-3xl font-bold text-white tracking-wide">НАСТРОЙКА ПРОФИЛЯ</h3>
-                <button onclick="closeProfileModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <div class="space-y-4">
-                <div class="flex flex-col items-center justify-center space-y-3 bg-darkbg p-4 rounded-2xl border border-darkborder">
-                    <div class="relative w-24 h-24 rounded-full overflow-hidden border-2 border-amber-500 shadow-xl bg-black flex items-center justify-center">
-                        <canvas id="avatarCanvas" width="150" height="150" class="w-full h-full object-cover cursor-grab"></canvas>
-                    </div>
-                    <div class="w-full space-y-1">
-                        <div class="flex justify-between text-[11px] text-gray-400">
-                            <span>Масштаб / Размер</span>
-                            <span id="scaleValue">100%</span>
-                        </div>
-                        <input type="range" id="avatarZoomRange" min="1" max="3" step="0.05" value="1" oninput="updateAvatarTransform()" class="w-full accent-amber-500 cursor-pointer">
-                    </div>
-                    <input type="file" id="avatarFileInput" accept="image/*" onchange="initAvatarCropper(event)" class="text-xs text-gray-400 file:mr-2 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-500 file:text-black hover:file:bg-amber-600 cursor-pointer">
-                </div>
-
+    <!-- МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ -->
+    <div id="login-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(250,204,21,0.15)] relative transform scale-95 transition-transform duration-300" id="modal-content">
+            <!-- Кнопка закрытия -->
+            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            
+            <h2 class="text-2xl font-bold text-center text-white mb-2">Авторизация</h2>
+            <p class="text-center text-slate-400 mb-6">Войдите в аккаунт VP-OPENOMSI</p>
+            
+            <form id="login-form" class="space-y-4" onsubmit="handleLogin(event)">
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Никнейм мастера</label>
-                    <input type="text" id="profileNameInput" placeholder="Напр: Verxonly Prod" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Логин / Email</label>
+                    <input type="text" id="login" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="Введите логин">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Контакт для связи (Telegram / VK)</label>
-                    <input type="text" id="profileContactInput" placeholder="Напр: @verxonlyprodopomsi" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Пароль</label>
+                    <input type="password" id="password" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="••••••••">
                 </div>
-                <button onclick="saveProfile()" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold py-3 rounded-xl text-sm shadow-lg shadow-amber-500/25">Сохранить профиль</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Модальное окно: Выставить / Редактировать слот -->
-    <div id="createModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-y-auto">
-        <div class="bg-cardbg border border-darkborder rounded-2xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative">
-            <div class="flex items-center justify-between mb-6">
-                <h3 id="modalTitleText" class="font-teko text-3xl font-bold text-white tracking-wide">ВЫСТАВИТЬ МОД НА ПРОДАЖУ (СЛОТ)</h3>
-                <button onclick="closeCreateModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            </div>
-            <form onsubmit="saveListing(event)" class="space-y-4">
-                <input type="hidden" id="editListingId">
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Название мода / тюнинга</label>
-                    <input type="text" id="itemTitle" required placeholder="Напр: ЛиАЗ-5292 [Приватный салон]" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
+                <div class="flex items-center justify-between mt-2">
+                    <label class="flex items-center text-sm text-slate-400">
+                        <input type="checkbox" class="mr-2 rounded bg-slate-800 border-slate-600 text-brand-500 focus:ring-brand-500">
+                        Запомнить меня
+                    </label>
+                    <a href="#" class="text-sm text-brand-400 hover:underline">Забыли пароль?</a>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Категория</label>
-                        <select id="itemCategory" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                            <option value="bus">Автобусы</option>
-                            <option value="tuning">Тюнинг и Колхоз</option>
-                            <option value="private">Приватные сборки</option>
-                            <option value="details">3D-Детали</option>
-                            <option value="sound">Звуки</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Цена (в рублях)</label>
-                        <input type="number" id="itemPrice" required placeholder="Напр: 350" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Скриншоты мода (выберите фото с устройства)</label>
-                    <input type="file" id="listingImagesInput" accept="image/*" multiple onchange="handleListingImages(event)" class="w-full text-xs text-gray-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-amber-500 file:text-black hover:file:bg-amber-600 cursor-pointer bg-darkbg border border-darkborder rounded-xl p-2">
-                    <div id="listingImagesPreview" class="flex flex-wrap gap-2 mt-3"></div>
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Скрытая ссылка на скачивание (Яндекс Диск / Google Drive)</label>
-                    <input type="url" id="itemFileLink" required placeholder="Покупатель получит её после оплаты" class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-400 mb-1">Описание</label>
-                    <textarea id="itemDescription" rows="3" required placeholder="Опишите товар..." class="w-full bg-darkbg border border-darkborder rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500"></textarea>
-                </div>
-                <button type="submit" id="submitBtnText" class="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold py-3 rounded-xl text-sm shadow-lg shadow-amber-500/20">Опубликовать на модерацию</button>
+                <button type="submit" class="w-full mt-4 bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400 transition-colors">
+                    Войти
+                </button>
             </form>
+            <div class="mt-6 text-center text-slate-400 text-sm">
+                Нет аккаунта? <a href="#" class="text-brand-400 hover:underline">Зарегистрироваться</a>
+            </div>
         </div>
     </div>
 
-    <!-- Основная логика приложения -->
+    <!-- Скрипты -->
     <script>
-        let currentCategory = 'all';
-        let allListings = {};
-        let allReviews = {};
-        let allUsersData = {};
-        let activeChatId = null;
-        let tempListingImages = [];
-
-        let avatarImgObj = new Image();
-        let avatarScale = 1;
-        let avatarOffsetX = 0;
-        let avatarOffsetY = 0;
-        let isDraggingAvatar = false;
-        let startDragX = 0;
-        let startDragY = 0;
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const checkDb = setInterval(() => {
-                if (window.db) {
-                    clearInterval(checkDb);
-                    loadData();
-                }
-            }, 200);
-
-            initAvatarCanvasEvents();
+        // Мобильное меню
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
         });
 
-        function loadData() {
-            window.onValue(window.ref(window.db, 'listings'), (snapshot) => {
-                allListings = snapshot.val() || {};
-                renderListings();
-                
-                let activeCount = 0;
-                Object.values(allListings).forEach(item => {
-                    if (item.approved === true) activeCount++;
-                });
-                document.getElementById('statListings').innerText = activeCount;
-            });
+        // Модальное окно авторизации
+        const modal = document.getElementById('login-modal');
+        const modalContent = document.getElementById('modal-content');
 
-            window.onValue(window.ref(window.db, 'reviews'), (snapshot) => {
-                allReviews = snapshot.val() || {};
-            });
-
-            window.onValue(window.ref(window.db, 'users'), (snapshot) => {
-                allUsersData = snapshot.val() || {};
-            });
+        function openLoginModal() {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            // Небольшая задержка для анимации
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
         }
 
-        window.setCategory = function(cat) {
-            currentCategory = cat;
-            document.querySelectorAll('.category-btn').forEach(btn => btn.className = "category-btn whitespace-nowrap bg-cardbg hover:bg-darkborder border border-darkborder text-gray-300 font-medium px-4 py-2 rounded-xl text-sm transition-all");
-            document.getElementById(`cat-${cat}`).className = "category-btn whitespace-nowrap bg-amber-500 text-black font-medium px-4 py-2 rounded-xl text-sm transition-all shadow-md";
-            renderListings();
+        function closeLoginModal() {
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300); // время совпадает с duration-300 в Tailwind
         }
 
-        window.filterListings = function() { renderListings(); }
+        // Закрытие по клику вне окна
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                closeLoginModal();
+            }
+        });
 
-        function renderListings() {
-            const grid = document.getElementById('listingsGrid');
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            let html = '';
-            const keys = Object.keys(allListings).reverse();
-
-            let visibleCount = 0;
-            keys.forEach(id => {
-                const item = allListings[id];
-                if (!item.approved) return; 
-                if (currentCategory !== 'all' && item.category !== currentCategory) return;
-                if (search && !item.title.toLowerCase().includes(search)) return;
-
-                visibleCount++;
-                const mainImage = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : (item.image || 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80');
-
-                const isAuthorAdmin = window.ADMIN_EMAILS.includes(item.authorEmail) || item.authorEmail === "nikitaguzman065@gmail.com";
-                const authorNameDisplay = isAuthorAdmin 
-                    ? `<span class="text-red-500 font-bold">${item.authorName || 'Продавец'}</span> <span class="text-[9px] bg-red-500/20 text-red-400 px-1 rounded">[Админ]</span>` 
-                    : (item.authorName || 'Продавец');
-
-                // Кнопка удаления для админа прямо на карточке
-                const adminDeleteBtn = window.isAdmin 
-                    ? `<button onclick="event.stopPropagation(); adminDeleteListing('${id}')" class="bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 px-2 py-2 rounded-xl text-xs transition-colors" title="Удалить слот (Админ)"><i class="fa-solid fa-trash"></i></button>`
-                    : '';
-
-                html += `
-                    <div class="bg-cardbg border border-darkborder rounded-2xl overflow-hidden flex flex-col justify-between hover:border-amber-500/50 transition-all">
-                        <div>
-                            <div class="relative h-48 overflow-hidden bg-darkbg cursor-pointer" onclick="openDetail('${id}')">
-                                <img src="${mainImage}" class="w-full h-full object-cover">
-                                <div class="absolute top-3 left-3 bg-darkbg/80 backdrop-blur text-amber-400 text-[10px] px-2 py-1 rounded-md font-mono">
-                                    <i class="fa-solid fa-images mr-1"></i> ${Array.isArray(item.images) ? item.images.length : 1} фото
-                                </div>
-                                <div class="absolute bottom-3 right-3 bg-amber-500 text-black text-xs px-3 py-1.5 rounded-lg font-bold font-mono">
-                                    ${item.price} ₽
-                                </div>
-                            </div>
-                            <div class="p-5">
-                                <h3 onclick="openDetail('${id}')" class="font-teko text-2xl font-bold text-white tracking-wide hover:text-amber-400 cursor-pointer line-clamp-1">${item.title}</h3>
-                                <p class="text-gray-400 text-xs line-clamp-2 mt-2">${item.description}</p>
-                            </div>
-                        </div>
-                        <div class="p-5 pt-0 flex items-center justify-between border-t border-darkborder/50 mt-4">
-                            <div class="flex items-center space-x-2 cursor-pointer group" onclick="openSellerProfile('${item.authorUid}')">
-                                <img src="${item.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}" class="w-6 h-6 rounded-full object-cover border border-amber-500/50 group-hover:scale-105 transition-transform">
-                                <span class="text-xs text-gray-300 group-hover:text-amber-400 transition-colors">${authorNameDisplay}</span>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                ${adminDeleteBtn}
-                                <button onclick="openDetail('${id}')" class="bg-darkbg hover:bg-darkborder border border-darkborder text-amber-500 px-3 py-2 rounded-xl text-xs transition-colors" title="Открыть чат">
-                                    <i class="fa-solid fa-comments"></i>
-                                </button>
-                                <button onclick="buyAndOpenChat('${id}')" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-4 py-2 rounded-xl text-xs transition-colors shadow-md">
-                                    Купить
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            grid.innerHTML = visibleCount > 0 ? html : `<div class="col-span-full py-16 text-center text-gray-500">Нет одобренных товаров в продаже</div>`;
-        }
-
-        window.adminDeleteListing = function(id) {
-            if (!window.isAdmin) return;
-            window.remove(window.ref(window.db, `listings/${id}`)).then(() => {
-                showToast('Слот успешно удален администратором!', 'info');
-            });
-        }
-
-        window.openAdminModal = function() {
-            if (!window.currentUser || !window.isAdmin) return;
-            const container = document.getElementById('adminPendingList');
-            container.innerHTML = `<p class="text-gray-500 text-sm text-center py-4">Загрузка слотов...</p>`;
-
-            let html = '';
-            let pendingCount = 0;
-
-            Object.keys(allListings).forEach(id => {
-                const item = allListings[id];
-                if (!item.approved) {
-                    pendingCount++;
-                    const previewImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image;
-                    html += `
-                        <div class="bg-darkbg border border-darkborder p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <div class="flex items-center space-x-3 w-full sm:w-auto">
-                                <img src="${previewImg}" class="w-16 h-16 rounded-xl object-cover cursor-pointer" onclick="openAdminItemDetail('${id}')">
-                                <div>
-                                    <h4 class="font-teko text-xl font-bold text-white cursor-pointer hover:text-amber-400" onclick="openAdminItemDetail('${id}')">${item.title}</h4>
-                                    <p class="text-xs text-gray-400">Продавец: <span class="text-amber-400 cursor-pointer underline" onclick="openSellerProfile('${item.authorUid}')">${item.authorName}</span> • Цена: <span class="font-mono">${item.price} ₽</span></p>
-                                    <p class="text-[11px] text-gray-500 mt-1 line-clamp-1">Категория: ${item.category} • Описание: ${item.description}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
-                                <button onclick="openAdminItemDetail('${id}')" class="bg-darkbg hover:bg-darkborder border border-darkborder text-gray-300 px-3 py-2 rounded-xl text-xs transition-colors" title="Посмотреть полное описание">
-                                    <i class="fa-solid fa-eye"></i> Описание
-                                </button>
-                                <button onclick="approveListing('${id}')" class="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-3 py-2 rounded-xl text-xs transition-colors font-semibold">
-                                    <i class="fa-solid fa-check mr-1"></i> Одобрить
-                                </button>
-                                <button onclick="rejectListing('${id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-2 rounded-xl text-xs transition-colors font-semibold">
-                                    <i class="fa-solid fa-xmark mr-1"></i> Отклонить
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
-
-            container.innerHTML = pendingCount > 0 ? html : `<div class="text-center py-12 text-gray-500">Нет слотов, ожидающих подтверждения.</div>`;
-            document.getElementById('adminModal').classList.remove('hidden');
-            document.getElementById('adminModal').classList.add('flex');
-        }
-
-        window.closeAdminModal = function() {
-            document.getElementById('adminModal').classList.remove('flex');
-            document.getElementById('adminModal').classList.add('hidden');
-        }
-
-        window.openAdminItemDetail = function(id) {
-            const item = allListings[id];
-            if (!item) return;
-            const content = document.getElementById('adminItemDetailContent');
-            const imagesList = Array.isArray(item.images) && item.images.length > 0 ? item.images : [item.image];
-
-            content.innerHTML = `
-                <div class="space-y-4">
-                    <div class="relative h-64 rounded-xl overflow-hidden bg-darkbg border border-darkborder">
-                        <img id="adminMainImg" src="${imagesList[0]}" class="w-full h-full object-cover">
-                    </div>
-                    ${imagesList.length > 1 ? `
-                        <div class="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
-                            ${imagesList.map(img => `<img src="${img}" onclick="document.getElementById('adminMainImg').src='${img}'" class="w-14 h-14 rounded-lg object-cover cursor-pointer border border-darkborder hover:border-amber-500">`).join('')}
-                        </div>
-                    ` : ''}
-                    <div class="flex items-center justify-between">
-                        <h2 class="font-teko text-3xl font-bold text-white">${item.title}</h2>
-                        <span class="text-xl font-bold text-amber-500 font-mono">${item.price} ₽</span>
-                    </div>
-                    <div class="text-xs text-gray-400 space-y-1">
-                        <p>Категория: <strong class="text-white">${item.category}</strong></p>
-                        <p>Автор: <strong class="text-amber-400 cursor-pointer underline" onclick="openSellerProfile('${item.authorUid}')">${item.authorName}</strong></p>
-                        <p>Ссылка на файл: <a href="${item.fileLink}" target="_blank" class="text-emerald-400 underline break-all">${item.fileLink}</a></p>
-                    </div>
-                    <div class="bg-darkbg p-4 rounded-xl border border-darkborder">
-                        <span class="text-xs text-gray-400 block mb-1">Полное описание:</span>
-                        <p class="text-sm text-gray-200 whitespace-pre-line">${item.description}</p>
-                    </div>
-                    <div class="flex gap-3 pt-2">
-                        <button onclick="approveListing('${id}'); document.getElementById('adminItemDetailModal').classList.add('hidden');" class="flex-1 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold py-2.5 rounded-xl text-xs">Одобрить слот</button>
-                        <button onclick="rejectListing('${id}'); document.getElementById('adminItemDetailModal').classList.add('hidden');" class="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 font-semibold py-2.5 rounded-xl text-xs">Отклонить</button>
-                    </div>
-                </div>
-            `;
-            document.getElementById('adminItemDetailModal').classList.remove('hidden');
-            document.getElementById('adminItemDetailModal').classList.add('flex');
-        }
-
-        window.approveListing = function(id) {
-            window.update(window.ref(window.db, `listings/${id}`), { approved: true }).then(() => {
-                showToast('Слот подтвержден и опубликован!', 'success');
-                openAdminModal();
-            });
-        }
-
-        window.rejectListing = function(id) {
-            window.remove(window.ref(window.db, `listings/${id}`)).then(() => {
-                showToast('Слот отклонен.', 'info');
-                openAdminModal();
-            });
-        }
-
-        window.banUser = function(sellerUid, sellerName) {
-            if (!window.isAdmin) return;
-            const daysInput = document.getElementById(`banDays_${sellerUid}`);
-            const reasonInput = document.getElementById(`banReason_${sellerUid}`);
+        // Обработка отправки формы
+        function handleLogin(e) {
+            e.preventDefault();
+            const loginVal = document.getElementById('login').value;
+            const passVal = document.getElementById('password').value;
             
-            const days = parseInt(daysInput.value) || 7;
-            const reason = reasonInput.value.trim() || 'Нарушение правил площадки';
-            const unbanTimestamp = Date.now() + (days * 24 * 60 * 60 * 1000);
-
-            window.set(window.ref(window.db, `users/${sellerUid}/ban`), {
-                banned: true,
-                reason: reason,
-                unbanTime: unbanTimestamp,
-                days: days
-            }).then(() => {
-                showToast(`Пользователь ${sellerName} забанен на ${days} дн.`, 'error');
-                openSellerProfile(sellerUid);
-            });
-        }
-
-        window.unbanUser = function(sellerUid, sellerName) {
-            if (!window.isAdmin) return;
-            window.remove(window.ref(window.db, `users/${sellerUid}/ban`)).then(() => {
-                showToast(`Пользователь ${sellerName} разблокирован.`, 'success');
-                openSellerProfile(sellerUid);
-            });
-        }
-
-        window.initAvatarCropper = function(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                avatarImgObj.onload = function() {
-                    avatarScale = 1;
-                    avatarOffsetX = 0;
-                    avatarOffsetY = 0;
-                    document.getElementById('avatarZoomRange').value = 1;
-                    document.getElementById('scaleValue').innerText = '100%';
-                    drawAvatarCanvas();
-                };
-                avatarImgObj.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function drawAvatarCanvas() {
-            const canvas = document.getElementById('avatarCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            if (!avatarImgObj.src) return;
-            ctx.save();
-            ctx.translate(canvas.width / 2 + avatarOffsetX, canvas.height / 2 + avatarOffsetY);
-            ctx.scale(avatarScale, avatarScale);
-            ctx.drawImage(avatarImgObj, -avatarImgObj.width / 2, -avatarImgObj.height / 2);
-            ctx.restore();
-        }
-
-        window.updateAvatarTransform = function() {
-            avatarScale = parseFloat(document.getElementById('avatarZoomRange').value);
-            document.getElementById('scaleValue').innerText = Math.round(avatarScale * 100) + '%';
-            drawAvatarCanvas();
-        }
-
-        function initAvatarCanvasEvents() {
-            const canvas = document.getElementById('avatarCanvas');
-            if(!canvas) return;
-            canvas.addEventListener('mousedown', (e) => {
-                isDraggingAvatar = true;
-                startDragX = e.clientX - avatarOffsetX;
-                startDragY = e.clientY - avatarOffsetY;
-            });
-            window.addEventListener('mousemove', (e) => {
-                if (!isDraggingAvatar) return;
-                avatarOffsetX = e.clientX - startDragX;
-                avatarOffsetY = e.clientY - startDragY;
-                drawAvatarCanvas();
-            });
-            window.addEventListener('mouseup', () => { isDraggingAvatar = false; });
-        }
-
-        window.openProfileModal = function() {
-            if (!window.currentUser) {
-                showToast('Войдите через Google!', 'error');
-                window.loginGoogle();
-                return;
-            }
-            const savedProfile = JSON.parse(localStorage.getItem(`profile_${window.currentUser.uid}`) || '{}');
-            document.getElementById('profileNameInput').value = savedProfile.name || window.currentUser.displayName || '';
-            document.getElementById('profileContactInput').value = savedProfile.contact || '';
+            // Здесь должна быть реальная логика запроса к серверу/базе данных.
+            // Сейчас просто показываем уведомление об успехе.
             
-            const currentAvatar = savedProfile.avatar || window.currentUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80';
+            alert(`Успешный вход! Добро пожаловать, ${loginVal}`);
+            closeLoginModal();
             
-            avatarImgObj.onload = function() {
-                avatarScale = 1;
-                avatarOffsetX = 0;
-                avatarOffsetY = 0;
-                document.getElementById('avatarZoomRange').value = 1;
-                document.getElementById('scaleValue').innerText = '100%';
-                drawAvatarCanvas();
-            };
-            avatarImgObj.src = currentAvatar;
-            document.getElementById('avatarFileInput').value = '';
-
-            document.getElementById('profileModal').classList.remove('hidden');
-            document.getElementById('profileModal').classList.add('flex');
-        }
-
-        window.closeProfileModal = function() {
-            document.getElementById('profileModal').classList.remove('flex');
-            document.getElementById('profileModal').classList.add('hidden');
-        }
-
-        window.saveProfile = function() {
-            if (!window.currentUser) return;
-            const canvas = document.getElementById('avatarCanvas');
-            const croppedAvatarUrl = canvas.toDataURL('image/jpeg', 0.9);
-
-            const profile = {
-                name: document.getElementById('profileNameInput').value,
-                avatar: croppedAvatarUrl,
-                contact: document.getElementById('profileContactInput').value
-            };
-            localStorage.setItem(`profile_${window.currentUser.uid}`, JSON.stringify(profile));
-            
-            const displayName = profile.name || window.currentUser.displayName;
-            const nameContainer = document.getElementById('headerProfileName');
-            if (window.isAdmin) {
-                nameContainer.innerHTML = `<span class="text-red-500 font-bold">${displayName}</span> <span class="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">[Админ]</span>`;
-            } else {
-                nameContainer.innerText = displayName;
-            }
-            document.getElementById('headerAvatar').src = profile.avatar;
-
-            const uid = window.currentUser.uid;
-            Object.keys(allListings).forEach(id => {
-                if (allListings[id].authorUid === uid) {
-                    window.update(window.ref(window.db, `listings/${id}`), {
-                        authorName: displayName,
-                        authorAvatar: profile.avatar
-                    });
-                }
-            });
-
-            closeProfileModal();
-            showToast('Профиль сохранен!', 'success');
-        }
-
-        window.openSellerProfile = function(sellerUid) {
-            const sellerModal = document.getElementById('sellerModal');
-            const content = document.getElementById('sellerModalContent');
-
-            let sellerName = 'Продавец';
-            let sellerAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80';
-            let sellerSlots = [];
-            let sellerReviews = [];
-
-            Object.keys(allListings).forEach(id => {
-                const item = allListings[id];
-                if (item.authorUid === sellerUid && item.approved) {
-                    sellerName = item.authorName || sellerName;
-                    sellerAvatar = item.authorAvatar || sellerAvatar;
-                    sellerSlots.push({ id, ...item });
-
-                    if (allReviews[id]) {
-                        Object.keys(allReviews[id]).forEach(rKey => {
-                            sellerReviews.push(allReviews[id][rKey]);
-                        });
-                    }
-                }
-            });
-
-            const sellerData = allUsersData[sellerUid] || {};
-            const banInfo = sellerData.ban || null;
-
-            let totalRating = 0;
-            sellerReviews.forEach(r => totalRating += r.rating);
-            const avgRating = sellerReviews.length > 0 ? (totalRating / sellerReviews.length).toFixed(1) : '5.0';
-
-            const isTargetAdmin = sellerUid === window.currentUser?.uid && window.isAdmin;
-            const displayNameHtml = isTargetAdmin || window.ADMIN_EMAILS.includes(sellerData.email) 
-                ? `<span class="text-red-500 font-bold">${sellerName}</span> <span class="text-[10px] bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">[Администратор]</span>`
-                : sellerName;
-
-            let banPanelHtml = '';
-            if (window.isAdmin) {
-                if (banInfo && banInfo.banned) {
-                    banPanelHtml = `
-                        <div class="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-xs space-y-2">
-                            <div class="text-red-400 font-bold"><i class="fa-solid fa-ban mr-1"></i> Пользователь заблокирован!</div>
-                            <p class="text-gray-300">Причина: ${banInfo.reason}</p>
-                            <p class="text-gray-400">Истекает: ${new Date(banInfo.unbanTime).toLocaleDateString()}</p>
-                            <button onclick="unbanUser('${sellerUid}', '${sellerName}')" class="bg-emerald-500 hover:bg-emerald-600 text-black font-semibold px-4 py-2 rounded-xl">Разблокировать пользователя</button>
-                        </div>
-                    `;
-                } else {
-                    banPanelHtml = `
-                        <div class="bg-darkbg border border-darkborder p-4 rounded-xl text-xs space-y-3">
-                            <span class="font-bold text-red-400 block"><i class="fa-solid fa-shield-halved mr-1"></i> Панель администратора: Управление баном</span>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <input type="number" id="banDays_${sellerUid}" value="7" placeholder="Кол-во дней" class="bg-cardbg border border-darkborder rounded-xl px-3 py-2 text-white">
-                                <input type="text" id="banReason_${sellerUid}" placeholder="Причина бана" class="bg-cardbg border border-darkborder rounded-xl px-3 py-2 text-white">
-                            </div>
-                            <button onclick="banUser('${sellerUid}', '${sellerName}')" class="w-full bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-semibold py-2.5 rounded-xl transition-colors">Заблокировать продавца</button>
-                        </div>
-                    `;
-                }
-            }
-
-            content.innerHTML = `
-                <div class="space-y-6">
-                    <div class="flex items-center space-x-4 bg-darkbg p-6 rounded-2xl border border-darkborder">
-                        <img src="${sellerAvatar}" class="w-20 h-20 rounded-full object-cover border-2 border-amber-500 shadow-lg">
-                        <div>
-                            <h2 class="font-teko text-3xl font-bold text-white">${displayNameHtml}</h2>
-                            <div class="flex items-center space-x-4 mt-1 text-xs text-gray-400 font-mono">
-                                <span><i class="fa-solid fa-box-archive text-amber-500 mr-1"></i> Слотов: ${sellerSlots.length}</span>
-                                <span><i class="fa-solid fa-star text-amber-500 mr-1"></i> Рейтинг: ${avgRating} (${sellerReviews.length} отзывов)</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    ${banPanelHtml}
-
-                    <div>
-                        <h3 class="font-teko text-2xl font-bold text-white mb-3">Опубликованные слоты</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-60 overflow-y-auto custom-scrollbar pr-2">
-                            ${sellerSlots.length === 0 ? '<p class="text-gray-500 text-xs italic">У продавца нет активных слотов.</p>' : ''}
-                            ${sellerSlots.map(slot => `
-                                <div onclick="closeSellerModal(); closeDetailModal(); openDetail('${slot.id}')" class="bg-darkbg border border-darkborder p-3 rounded-xl flex items-center space-x-3 cursor-pointer hover:border-amber-500 transition-all">
-                                    <img src="${Array.isArray(slot.images) ? slot.images[0] : slot.image}" class="w-12 h-12 rounded-lg object-cover">
-                                    <div class="overflow-hidden">
-                                        <h4 class="font-teko text-lg font-bold text-white truncate">${slot.title}</h4>
-                                        <span class="text-xs text-amber-400 font-mono">${slot.price} ₽</span>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-
-                    <div>
-                        <h3 class="font-teko text-2xl font-bold text-white mb-3">Отзывы покупателей</h3>
-                        <div class="space-y-2.5 max-h-60 overflow-y-auto custom-scrollbar pr-2">
-                            ${sellerReviews.length === 0 ? '<p class="text-gray-500 text-xs italic">У продавца пока нет отзывов.</p>' : ''}
-                            ${sellerReviews.map(rev => `
-                                <div class="bg-darkbg p-3 rounded-xl border border-darkborder text-xs">
-                                    <div class="flex items-center justify-between mb-1">
-                                        <span class="font-semibold text-amber-400">${rev.authorName}</span>
-                                        <span class="text-[10px] text-amber-500">${'⭐'.repeat(rev.rating)}</span>
-                                    </div>
-                                    <p class="text-gray-300">${rev.text}</p>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            sellerModal.classList.remove('hidden');
-            sellerModal.classList.add('flex');
-        }
-
-        window.closeSellerModal = function() {
-            document.getElementById('sellerModal').classList.remove('flex');
-            document.getElementById('sellerModal').classList.add('hidden');
-        }
-
-        window.handleListingImages = function(event) {
-            const files = event.target.files;
-            if (!files || files.length === 0) return;
-            for (let i = 0; i < files.length; i++) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    tempListingImages.push(e.target.result);
-                    renderListingImagesPreview();
-                };
-                reader.readAsDataURL(files[i]);
-            }
-        }
-
-        function renderListingImagesPreview() {
-            const container = document.getElementById('listingImagesPreview');
-            let html = '';
-            tempListingImages.forEach((imgSrc, index) => {
-                html += `
-                    <div class="relative w-16 h-16 rounded-xl overflow-hidden border border-amber-500/50 group">
-                        <img src="${imgSrc}" class="w-full h-full object-cover">
-                        <button type="button" onclick="removeListingImage(${index})" class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-red-400">
-                            <i class="fa-solid fa-trash text-xs"></i>
-                        </button>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        window.removeListingImage = function(index) {
-            tempListingImages.splice(index, 1);
-            renderListingImagesPreview();
-        }
-
-        window.openCreateModal = function() {
-            if (!window.currentUser) {
-                showToast('Пожалуйста, сначала войдите через Google!', 'error');
-                window.loginGoogle();
-                return;
-            }
-
-            const userBan = allUsersData[window.currentUser.uid]?.ban;
-            if (userBan && userBan.banned) {
-                if (Date.now() < userBan.unbanTime) {
-                    showToast(`Вы заблокированы! Причина: ${userBan.reason}`, 'error');
-                    return;
-                }
-            }
-
-            document.getElementById('editListingId').value = '';
-            document.getElementById('modalTitleText').innerText = 'ВЫСТАВИТЬ МОД НА ПРОДАЖУ (СЛОТ)';
-            document.getElementById('submitBtnText').innerText = 'Опубликовать на модерацию';
-            document.getElementById('itemTitle').value = '';
-            document.getElementById('itemPrice').value = '';
-            document.getElementById('itemFileLink').value = '';
-            document.getElementById('itemDescription').value = '';
-            document.getElementById('listingImagesInput').value = '';
-            tempListingImages = [];
-            document.getElementById('listingImagesPreview').innerHTML = '';
-
-            document.getElementById('createModal').classList.remove('hidden');
-            document.getElementById('createModal').classList.add('flex');
-        }
-
-        window.closeCreateModal = function() {
-            document.getElementById('createModal').classList.remove('flex');
-            document.getElementById('createModal').classList.add('hidden');
-        }
-
-        window.editListing = function(id) {
-            const item = allListings[id];
-            if (!item) return;
-
-            document.getElementById('editListingId').value = id;
-            document.getElementById('modalTitleText').innerText = 'РЕДАКТИРОВАТЬ СЛОТ';
-            document.getElementById('submitBtnText').innerText = 'Сохранить изменения';
-            
-            document.getElementById('itemTitle').value = item.title;
-            document.getElementById('itemCategory').value = item.category;
-            document.getElementById('itemPrice').value = item.price;
-            document.getElementById('itemFileLink').value = item.fileLink;
-            document.getElementById('itemDescription').value = item.description;
-
-            tempListingImages = Array.isArray(item.images) ? [...item.images] : (item.image ? [item.image] : []);
-            renderListingImagesPreview();
-
-            closeMySlotsModal();
-            document.getElementById('createModal').classList.remove('hidden');
-            document.getElementById('createModal').classList.add('flex');
-        }
-
-        window.saveListing = function(event) {
-            event.preventDefault();
-            if (!window.currentUser) return;
-
-            if (tempListingImages.length === 0) {
-                showToast('Добавьте хотя бы одно фото мода!', 'error');
-                return;
-            }
-
-            const editId = document.getElementById('editListingId').value;
-            const savedProfile = JSON.parse(localStorage.getItem(`profile_${window.currentUser.uid}`) || '{}');
-            const authorName = savedProfile.name || window.currentUser.displayName || 'Мастер';
-            const authorAvatar = savedProfile.avatar || window.currentUser.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80';
-
-            const listingData = {
-                title: document.getElementById('itemTitle').value,
-                category: document.getElementById('itemCategory').value,
-                price: Number(document.getElementById('itemPrice').value),
-                images: tempListingImages,
-                image: tempListingImages[0],
-                fileLink: document.getElementById('itemFileLink').value,
-                description: document.getElementById('itemDescription').value,
-                authorUid: window.currentUser.uid,
-                authorName: authorName,
-                authorAvatar: authorAvatar,
-                authorEmail: window.currentUser.email,
-                sold: false,
-                approved: window.isAdmin ? true : false, // Админы публикуют сразу без модерации
-                date: editId && allListings[editId] ? allListings[editId].date : Date.now()
-            };
-
-            if (editId) {
-                listingData.approved = allListings[editId].approved;
-                window.set(window.ref(window.db, `listings/${editId}`), listingData).then(() => {
-                    closeCreateModal();
-                    showToast('Слот успешно обновлен!', 'success');
-                });
-            } else {
-                const newRef = window.push(window.ref(window.db, 'listings'));
-                window.set(newRef, listingData).then(() => {
-                    closeCreateModal();
-                    showToast(window.isAdmin ? 'Слот успешно опубликован!' : 'Слот отправлен на проверку администрации!', 'info');
-                });
-            }
-        }
-
-        window.openMySlotsModal = function() {
-            if (!window.currentUser) {
-                showToast('Войдите через Google!', 'error');
-                window.loginGoogle();
-                return;
-            }
-            const container = document.getElementById('mySlotsList');
-            container.innerHTML = `<p class="text-gray-500 text-sm text-center py-4">Загрузка...</p>`;
-
-            let html = '';
-            let count = 0;
-            Object.keys(allListings).forEach(id => {
-                const item = allListings[id];
-                if (item.authorUid === window.currentUser.uid || window.isAdmin) {
-                    count++;
-                    const previewImg = Array.isArray(item.images) && item.images.length > 0 ? item.images[0] : item.image;
-                    
-                    const statusBadge = item.approved 
-                        ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-1 rounded-md text-[10px] font-semibold"><i class="fa-solid fa-circle-check mr-1"></i> Опубликовано</span>`
-                        : `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2 py-1 rounded-md text-[10px] font-semibold"><i class="fa-solid fa-clock mr-1"></i> Ожидает подтверждения</span>`;
-
-                    html += `
-                        <div class="bg-darkbg border border-darkborder p-4 rounded-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-                            <div class="flex items-center space-x-3 w-full sm:w-auto">
-                                <img src="${previewImg}" class="w-14 h-14 object-cover rounded-lg">
-                                <div>
-                                    <h4 class="font-teko text-xl font-bold text-white">${item.title} ${item.authorUid !== window.currentUser.uid ? '<span class="text-xs text-red-400">(Чужой слот)</span>' : ''}</h4>
-                                    <div class="flex items-center space-x-2 mt-0.5 flex-wrap">
-                                        <span class="text-xs text-amber-400 font-mono">${item.price} ₽</span>
-                                        ${statusBadge}
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
-                                ${item.authorUid === window.currentUser.uid ? `
-                                    <button onclick="editListing('${id}')" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-2 rounded-xl text-xs transition-colors">
-                                        <i class="fa-solid fa-pen mr-1"></i> Редактировать
-                                    </button>
-                                ` : ''}
-                                <button onclick="deleteListing('${id}')" class="bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-3 py-2 rounded-xl text-xs transition-colors">
-                                    <i class="fa-solid fa-trash mr-1"></i> Удалить
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
-
-            container.innerHTML = count > 0 ? html : `<div class="text-center py-8 text-gray-500">У вас пока нет активных слотов.</div>`;
-            document.getElementById('mySlotsModal').classList.remove('hidden');
-            document.getElementById('mySlotsModal').classList.add('flex');
-        }
-
-        window.closeMySlotsModal = function() {
-            document.getElementById('mySlotsModal').classList.remove('flex');
-            document.getElementById('mySlotsModal').classList.add('hidden');
-        }
-
-        window.deleteListing = function(id) {
-            window.remove(window.ref(window.db, `listings/${id}`)).then(() => {
-                showToast('Слот удален с продажи!', 'info');
-                openMySlotsModal();
-            });
-        }
-
-        window.openDetail = function(id) {
-            const item = allListings[id];
-            if (!item || !item.approved) return;
-            activeChatId = id;
-            const content = document.getElementById('detailModalContent');
-            
-            const imagesList = Array.isArray(item.images) && item.images.length > 0 ? item.images : [item.image || 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=800&q=80'];
-            const isAuthorAdmin = window.ADMIN_EMAILS.includes(item.authorEmail) || item.authorEmail === "nikitaguzman065@gmail.com";
-            const authorDisplayName = isAuthorAdmin ? `${item.authorName || 'Мастер'} [Админ]` : (item.authorName || 'Мастер');
-
-            const adminDeleteDetailBtn = window.isAdmin 
-                ? `<button onclick="adminDeleteListing('${id}'); closeDetailModal();" class="w-full mt-2 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 font-semibold py-2.5 rounded-xl text-xs transition-colors"><i class="fa-solid fa-trash mr-1"></i> Удалить слот (Права Администратора)</button>`
-                : '';
-
-            content.innerHTML = `
-                <div class="space-y-4">
-                    <div class="relative h-72 rounded-xl overflow-hidden bg-darkbg border border-darkborder">
-                        <img id="mainDetailImage" src="${imagesList[0]}" class="w-full h-full object-cover">
-                    </div>
-                    ${imagesList.length > 1 ? `
-                        <div class="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
-                            ${imagesList.map((img) => `
-                                <img src="${img}" onclick="document.getElementById('mainDetailImage').src='${img}'" class="w-16 h-16 rounded-lg object-cover cursor-pointer border-2 border-transparent hover:border-amber-500 transition-all">
-                            `).join('')}
-                        </div>
-                    ` : ''}
-
-                    <div class="flex items-center justify-between">
-                        <h2 class="font-teko text-3xl font-bold text-white">${item.title}</h2>
-                        <span class="text-xl font-bold text-amber-500 font-mono">${item.price} ₽</span>
-                    </div>
-                    <p class="text-gray-300 text-sm">${item.description}</p>
-                    <div class="flex items-center space-x-2 text-xs text-gray-400 cursor-pointer group" onclick="closeDetailModal(); openSellerProfile('${item.authorUid}')">
-                        <img src="${item.authorAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}" class="w-6 h-6 rounded-full object-cover border border-amber-500/50 group-hover:scale-105 transition-transform">
-                        <span>Продавец: <strong class="text-gray-200 group-hover:text-amber-400 transition-colors">${authorDisplayName}</strong> (профиль)</span>
-                    </div>
-
-                    <div class="p-4 bg-darkbg rounded-xl border border-darkborder flex items-center justify-between">
-                        <div>
-                            <span class="text-xs text-gray-400 block">Безопасная сделка:</span>
-                            <span class="text-xs text-emerald-400 font-medium">Мгновенный чат и выдача файла</span>
-                        </div>
-                        <button onclick="buyAndOpenChat('${id}')" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-5 py-2.5 rounded-xl text-xs shadow-lg transition-colors">
-                            Купить за ${item.price} ₽
-                        </button>
-                    </div>
-
-                    ${adminDeleteDetailBtn}
-
-                    <!-- Чат -->
-                    <div class="border-t border-darkborder pt-4 mt-4">
-                        <h3 class="font-teko text-2xl font-bold text-white mb-2">Чат сделки</h3>
-                        <div id="chatMessages" class="bg-darkbg border border-darkborder rounded-xl p-4 h-40 overflow-y-auto custom-scrollbar space-y-3 mb-3 text-xs">
-                            <div class="text-center text-gray-500 italic">Загрузка сообщений...</div>
-                        </div>
-                        <form onsubmit="sendMessage(event, '${id}')" class="flex gap-2">
-                            <input type="text" id="chatInput" required placeholder="Написать в чат..." class="flex-1 bg-darkbg border border-darkborder rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                            <button type="submit" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-4 py-2 rounded-xl text-xs">Отправить</button>
-                        </form>
-                    </div>
-
-                    <!-- Отзывы -->
-                    <div class="border-t border-darkborder pt-4 mt-4">
-                        <h3 class="font-teko text-2xl font-bold text-white mb-2">Отзывы о товаре</h3>
-                        <div id="reviewsList" class="space-y-2 mb-4 max-h-36 overflow-y-auto custom-scrollbar text-xs">
-                            <p class="text-gray-500 italic">Загрузка отзывов...</p>
-                        </div>
-                        <form onsubmit="addReview(event, '${id}')" class="space-y-2 bg-darkbg p-3 rounded-xl border border-darkborder">
-                            <div class="flex items-center space-x-2">
-                                <label class="text-xs text-gray-400">Оценка:</label>
-                                <select id="reviewRating" class="bg-cardbg border border-darkborder rounded-lg px-2 py-1 text-xs text-amber-400 font-bold">
-                                    <option value="5">⭐⭐⭐⭐⭐ (5)</option>
-                                    <option value="4">⭐⭐⭐⭐ (4)</option>
-                                    <option value="3">⭐⭐⭐ (3)</option>
-                                    <option value="2">⭐⭐ (2)</option>
-                                    <option value="1">⭐ (1)</option>
-                                </select>
-                            </div>
-                            <input type="text" id="reviewText" required placeholder="Ваш отзыв..." class="w-full bg-cardbg border border-darkborder rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-amber-500">
-                            <button type="submit" class="w-full bg-cardbg hover:bg-darkborder border border-darkborder text-amber-500 font-semibold py-2 rounded-xl text-xs">Опубликовать отзыв</button>
-                        </form>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('detailModal').classList.remove('hidden');
-            document.getElementById('detailModal').classList.add('flex');
-            loadChatMessages(id);
-            loadReviews(id);
-        }
-
-        window.closeDetailModal = function() {
-            document.getElementById('detailModal').classList.remove('flex');
-            document.getElementById('detailModal').classList.add('hidden');
-            activeChatId = null;
-        }
-
-        window.buyAndOpenChat = function(id) {
-            if (!window.currentUser) {
-                showToast('Войдите через Google!', 'error');
-                window.loginGoogle();
-                return;
-            }
-            const item = allListings[id];
-            if (window.userBalance < item.price) {
-                showToast('Недостаточно средств на балансе!', 'error');
-                return;
-            }
-
-            window.userBalance -= item.price;
-            document.getElementById('userWalletBalance').innerText = `${window.userBalance} ₽`;
-
-            const purchaseRef = window.push(window.ref(window.db, `users/${window.currentUser.uid}/purchases`));
-            window.set(purchaseRef, {
-                listingId: id,
-                title: item.title,
-                price: item.price,
-                fileLink: item.fileLink,
-                sellerName: item.authorName || 'Продавец',
-                date: Date.now()
-            });
-
-            const notifRef = window.push(window.ref(window.db, `users/${item.authorUid}/notifications`));
-            window.set(notifRef, {
-                text: `Ваш мод «${item.title}» был успешно куплен за ${item.price} ₽!`,
-                read: false,
-                date: Date.now()
-            });
-
-            const chatRef = window.push(window.ref(window.db, `chats/${id}`));
-            window.set(chatRef, {
-                senderUid: 'system',
-                senderName: '🛡️ Сделка',
-                text: `Оплата прошла! Ссылка на скачивание: ${item.fileLink}`,
-                date: Date.now()
-            });
-
-            showToast('Покупка успешна! Ссылка выдана в чате.', 'success');
-            openDetail(id);
-        };
-
-        function loadChatMessages(listingId) {
-            const chatRef = window.ref(window.db, `chats/${listingId}`);
-            window.onValue(chatRef, (snapshot) => {
-                if (activeChatId !== listingId) return;
-                const msgs = snapshot.val() || {};
-                const chatContainer = document.getElementById('chatMessages');
-                let html = '';
-                const keys = Object.keys(msgs);
-
-                if (keys.length === 0) {
-                    chatContainer.innerHTML = `<div class="text-center text-gray-500 italic">Чат пуст.</div>`;
-                    return;
-                }
-
-                keys.forEach(k => {
-                    const m = msgs[k];
-                    const isSystem = m.senderUid === 'system';
-                    const isMe = window.currentUser && m.senderUid === window.currentUser.uid;
-                    
-                    if (isSystem) {
-                        html += `<div class="p-2 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-400 text-center font-medium">${m.text}</div>`;
-                    } else {
-                        html += `
-                            <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                                <span class="text-[9px] text-gray-500 mb-0.5">${m.senderName}</span>
-                                <div class="max-w-[80%] p-2.5 rounded-xl ${isMe ? 'bg-amber-500 text-black font-medium' : 'bg-cardbg border border-darkborder text-gray-200'}">
-                                    ${m.text}
-                                </div>
-                            </div>
-                        `;
-                    }
-                });
-                chatContainer.innerHTML = html;
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            });
-        }
-
-        window.sendMessage = function(event, listingId) {
-            event.preventDefault();
-            if (!window.currentUser) {
-                showToast('Войдите через Google!', 'error');
-                window.loginGoogle();
-                return;
-            }
-
-            const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text) return;
-
-            const senderName = window.currentUser.displayName || 'Пользователь';
-            const chatRef = window.push(window.ref(window.db, `chats/${listingId}`));
-            window.set(chatRef, {
-                senderUid: window.currentUser.uid,
-                senderName: senderName,
-                text: text,
-                date: Date.now()
-            }).then(() => {
-                input.value = '';
-                const item = allListings[listingId];
-                if (item && item.authorUid !== window.currentUser.uid) {
-                    const notifRef = window.push(window.ref(window.db, `users/${item.authorUid}/notifications`));
-                    window.set(notifRef, {
-                        text: `Новое сообщение по моду «${item.title}»: "${text}"`,
-                        read: false,
-                        date: Date.now()
-                    });
-                }
-            });
-        }
-
-        function loadReviews(listingId) {
-            const revRef = window.ref(window.db, `reviews/${listingId}`);
-            window.onValue(revRef, (snapshot) => {
-                if (activeChatId !== listingId) return;
-                const data = snapshot.val() || {};
-                const container = document.getElementById('reviewsList');
-                let html = '';
-                const keys = Object.keys(data);
-
-                if (keys.length === 0) {
-                    container.innerHTML = `<p class="text-gray-500 italic">Пока нет отзывов.</p>`;
-                    return;
-                }
-
-                keys.forEach(k => {
-                    const r = data[k];
-                    const stars = '⭐'.repeat(r.rating);
-                    html += `
-                        <div class="bg-darkbg p-2.5 rounded-xl border border-darkborder">
-                            <div class="flex items-center justify-between mb-1">
-                                <span class="font-semibold text-amber-400">${r.authorName}</span>
-                                <span class="text-[10px] text-amber-500">${stars}</span>
-                            </div>
-                            <p class="text-gray-300">${r.text}</p>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            });
-        }
-
-        window.addReview = function(event, listingId) {
-            event.preventDefault();
-            if (!window.currentUser) {
-                showToast('Войдите через Google!', 'error');
-                window.loginGoogle();
-                return;
-            }
-
-            const text = document.getElementById('reviewText').value;
-            const rating = Number(document.getElementById('reviewRating').value);
-
-            const revRef = window.push(window.ref(window.db, `reviews/${listingId}`));
-            window.set(revRef, {
-                authorUid: window.currentUser.uid,
-                authorName: window.currentUser.displayName || 'Покупатель',
-                text,
-                rating,
-                date: Date.now()
-            }).then(() => {
-                document.getElementById('reviewText').value = '';
-                showToast('Отзыв опубликован!', 'success');
-            });
-        }
-
-        window.openPurchasesModal = function() {
-            if (!window.currentUser) {
-                showToast('Войдите через Google!', 'error');
-                window.loginGoogle();
-                return;
-            }
-            const container = document.getElementById('purchasesList');
-            container.innerHTML = `<p class="text-gray-500 text-sm text-center py-4">Загрузка...</p>`;
-            
-            window.onValue(window.ref(window.db, `users/${window.currentUser.uid}/purchases`), (snapshot) => {
-                const data = snapshot.val() || {};
-                let html = '';
-                const keys = Object.keys(data);
-
-                if (keys.length === 0) {
-                    container.innerHTML = `<div class="text-center py-8 text-gray-500">У вас нет покупок.</div>`;
-                    return;
-                }
-
-                keys.forEach(k => {
-                    const p = data[k];
-                    html += `
-                        <div class="bg-darkbg border border-darkborder p-4 rounded-xl flex items-center justify-between gap-4">
-                            <div>
-                                <h4 class="font-teko text-xl font-bold text-white">${p.title}</h4>
-                                <p class="text-xs text-gray-400">Продавец: ${p.sellerName} • <span class="text-amber-400 font-mono">${p.price} ₽</span></p>
-                                <a href="${p.fileLink}" target="_blank" class="text-xs text-emerald-400 font-semibold hover:underline mt-1 inline-block"><i class="fa-solid fa-download mr-1"></i> Скачать файл</a>
-                            </div>
-                            <button onclick="closePurchasesModal(); openDetail('${p.listingId}')" class="bg-amber-500 hover:bg-amber-600 text-black font-semibold px-4 py-2 rounded-xl text-xs whitespace-nowrap">Открыть чат</button>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            }, { onlyOnce: true });
-
-            document.getElementById('purchasesModal').classList.remove('hidden');
-            document.getElementById('purchasesModal').classList.add('flex');
-        }
-
-        window.closePurchasesModal = function() {
-            document.getElementById('purchasesModal').classList.remove('hidden');
-            document.getElementById('purchasesModal').classList.add('hidden');
-            document.getElementById('purchasesModal').classList.remove('flex');
+            // Очистка формы
+            e.target.reset();
         }
     </script>
 </body>
