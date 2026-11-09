@@ -29,7 +29,6 @@
         .releases-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
         .releases-content li { margin-bottom: 0.5rem; }
         .releases-content a { color: #fbbf24; text-decoration: underline; }
-        .releases-content code { background-color: rgba(0, 0, 0, 0.3); padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-family: monospace; color: #fbbf24; }
         .chat-scroll::-webkit-scrollbar { width: 6px; }
         .chat-scroll::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
         .chat-scroll::-webkit-scrollbar-thumb { background: #fbbf24; border-radius: 4px; }
@@ -39,17 +38,13 @@
 
     <div id="leaves-container" class="fixed inset-0 pointer-events-none z-40 overflow-hidden"></div>
 
-    <!-- ЭКРАН ТЕХНИЧЕСКИХ РАБОТ (ОБНОВЛЕНИЕ САЙТА) -->
-    <div id="maintenance-screen" class="fixed inset-0 z-[150] hidden items-center justify-center bg-slate-900 flex-col text-center px-4">
+    <!-- ЭКРАН ТЕХНИЧЕСКИХ РАБОТ -->
+    <div id="maintenance-screen" class="fixed inset-0 z-[300] hidden items-center justify-center bg-slate-900 flex-col text-center px-4">
         <div class="absolute inset-0 bg-brand-500/5 blur-[100px] pointer-events-none"></div>
         <svg class="w-24 h-24 text-brand-500 mb-6 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)] relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-        <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4 relative z-10">Сайт обновляется</h1>
-        <p class="text-slate-400 max-w-lg mb-8 relative z-10">Мы устанавливаем свежее обновление VP-OPENOMSI. Портал временно недоступен для пользователей. Пожалуйста, зайдите немного позже!</p>
-        
-        <!-- Скрытая кнопка для входа владельца (замочек) -->
-        <button onclick="openLoginModal()" class="absolute bottom-8 text-slate-700 hover:text-slate-500 transition-colors" title="Вход для администрации">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-        </button>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4 relative z-10">Сайт на обновлении</h1>
+        <p class="text-slate-400 max-w-lg mb-8 relative z-10">Портал временно закрыт на техническое обслуживание. Зайдите позже!</p>
+        <button onclick="openLoginModal()" class="absolute bottom-8 text-slate-700 hover:text-slate-500 transition-colors" title="Вход для администрации"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></button>
     </div>
 
     <!-- Навигация -->
@@ -104,7 +99,6 @@
 
     <!-- Основной контент (SPA) -->
     <main class="flex-grow pt-16 relative z-10">
-        <!-- ГЛАВНАЯ -->
         <div id="view-home" class="page-view block">
             <section class="relative py-20 lg:py-32 overflow-hidden">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
@@ -133,7 +127,6 @@
             </section>
         </div>
 
-        <!-- МОДЫ -->
         <div id="view-mods" class="page-view hidden">
             <section class="py-16">
                 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-30">
@@ -146,7 +139,6 @@
             </section>
         </div>
 
-        <!-- ГАЛЕРЕЯ -->
         <div id="view-gallery" class="page-view hidden">
             <section class="py-16">
                 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-30">
@@ -159,7 +151,6 @@
             </section>
         </div>
 
-        <!-- ПОМОЩЬ -->
         <div id="view-help" class="page-view hidden">
             <section class="py-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-30 h-[calc(100vh-140px)] flex flex-col">
                 <h2 class="text-3xl font-bold text-white mb-2">Техническая поддержка</h2>
@@ -187,17 +178,17 @@
         </div>
     </main>
 
-    <!-- Подвал и Журнал обновлений сайта -->
+    <!-- Подвал -->
     <footer class="bg-slate-950 py-6 border-t border-slate-800 mt-auto relative z-30">
         <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-slate-500 text-sm">
             <p>&copy; 2026 VP-OPENOMSI. Verxonly Prod.</p>
             <button onclick="toggleModal('changelog-modal', 'changelog-modal-content', true)" class="mt-2 md:mt-0 hover:text-brand-400 transition-colors border-b border-transparent hover:border-brand-400">
-                Версия портала: <span class="font-bold text-slate-300">v1.2.5</span> (История обновлений)
+                Версия портала: <span class="font-bold text-slate-300">v1.2.6</span> (История обновлений)
             </button>
         </div>
     </footer>
 
-    <!-- ОКНО ИСТОРИИ ОБНОВЛЕНИЙ ПОРТАЛА (НОВОЕ) -->
+    <!-- Модалки -->
     <div id="changelog-modal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4 py-8">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl shadow-[0_0_40px_rgba(245,158,11,0.2)] relative transform scale-95 transition-transform duration-300 flex flex-col max-h-full" id="changelog-modal-content">
             <button onclick="closeModal('changelog-modal', 'changelog-modal-content')" class="absolute top-4 right-4 z-20 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
@@ -206,54 +197,17 @@
                 <p class="text-slate-400 text-sm mt-1">Как развивался портал VP-OPENOMSI</p>
             </div>
             <div class="p-6 overflow-y-auto chat-scroll flex-grow space-y-6">
-                
                 <div class="relative pl-6 border-l-2 border-brand-500">
                     <div class="absolute w-3 h-3 bg-brand-500 rounded-full -left-[7px] top-1.5 shadow-[0_0_8px_#f59e0b]"></div>
-                    <h3 class="text-lg font-bold text-white">v1.2.5 <span class="text-brand-400 text-xs font-mono ml-2">Текущая версия</span></h3>
+                    <h3 class="text-lg font-bold text-white">v1.2.6 <span class="text-brand-400 text-xs font-mono ml-2">Текущая версия</span></h3>
                     <ul class="mt-2 space-y-1 text-slate-300 text-sm list-disc list-inside">
-                        <li>Добавлен режим «Технических работ» (Доступно только Владельцу).</li>
-                        <li>Добавлен журнал обновлений портала (Changelog).</li>
-                        <li>Улучшено отображение фотографий в детальном просмотре.</li>
-                        <li>Оптимизирована работа модальных окон.</li>
-                    </ul>
-                </div>
-
-                <div class="relative pl-6 border-l-2 border-slate-700">
-                    <div class="absolute w-3 h-3 bg-slate-700 rounded-full -left-[7px] top-1.5"></div>
-                    <h3 class="text-lg font-bold text-white">v1.2.0</h3>
-                    <ul class="mt-2 space-y-1 text-slate-400 text-sm list-disc list-inside">
-                        <li>Внедрена полноценная система ролей (Владелец, Администратор, Тех. спец, Модератор).</li>
-                        <li>Разработана продвинутая Админ-панель для управления контентом и пользователями.</li>
-                        <li>Добавлен онлайн-чат Технической поддержки с возможностью прикреплять файлы.</li>
-                        <li>Разделены логин и отображаемый никнейм.</li>
-                    </ul>
-                </div>
-
-                <div class="relative pl-6 border-l-2 border-slate-700">
-                    <div class="absolute w-3 h-3 bg-slate-700 rounded-full -left-[7px] top-1.5"></div>
-                    <h3 class="text-lg font-bold text-white">v1.1.0</h3>
-                    <ul class="mt-2 space-y-1 text-slate-400 text-sm list-disc list-inside">
-                        <li>Добавлена возможность ставить лайки и писать комментарии.</li>
-                        <li>Появились публичные профили пользователей с полем "О себе" и свечением ролей.</li>
-                        <li>Автоматический перевод патчноутов GitHub на русский язык.</li>
-                    </ul>
-                </div>
-
-                <div class="relative pl-6 border-l-2 border-slate-700">
-                    <div class="absolute w-3 h-3 bg-slate-700 rounded-full -left-[7px] top-1.5"></div>
-                    <h3 class="text-lg font-bold text-white">v1.0.0</h3>
-                    <ul class="mt-2 space-y-1 text-slate-400 text-sm list-disc list-inside">
-                        <li>Запуск базовой версии портала VP-OPENOMSI.</li>
-                        <li>Интеграция с GitHub Releases.</li>
-                        <li>Разделы "Моды" и "Галерея" с базовой загрузкой контента.</li>
-                        <li>Осеннее оформление сайта.</li>
+                        <li>Исправлена синхронизация режима технических работ через Firebase.</li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ОКНО ДЕТАЛЬНОГО ПРОСМОТРА С ЛАЙКАМИ И КОММЕНТАМИ -->
     <div id="item-modal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4 py-8">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-5xl shadow-[0_0_40px_rgba(245,158,11,0.2)] relative transform scale-95 transition-transform duration-300 overflow-hidden flex flex-col max-h-full" id="item-modal-content">
             <button onclick="closeModal('item-modal', 'item-modal-content')" class="absolute top-4 right-4 z-20 bg-black/60 text-slate-300 rounded-full p-2 hover:bg-brand-500 hover:text-slate-900 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
@@ -265,7 +219,6 @@
                 </div>
             </div>
             <div class="p-6 overflow-y-auto chat-scroll flex-grow bg-slate-900 flex flex-col md:flex-row gap-8">
-                <!-- Инфо -->
                 <div class="w-full md:w-1/2 flex flex-col">
                     <div class="flex items-center gap-3 mb-4 pb-4 border-b border-slate-800">
                         <div class="flex items-center gap-3 cursor-pointer group" id="item-modal-author-block">
@@ -286,9 +239,8 @@
                     <div id="item-modal-meta" class="flex flex-wrap gap-2 mb-6 hidden"></div>
                     <a id="item-modal-download" href="#" target="_blank" class="mt-auto block w-full bg-brand-500 text-slate-900 text-center font-bold py-4 rounded-xl hover:bg-brand-400 hidden transition-colors shadow-lg shadow-brand-500/20 text-lg">⬇ Скачать файл</a>
                 </div>
-                <!-- Комментарии -->
                 <div class="w-full md:w-1/2 flex flex-col bg-slate-800/50 rounded-xl p-4 border border-slate-700 shadow-inner">
-                    <h3 class="text-white font-bold mb-4 flex items-center gap-2"><svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg> Обсуждение</h3>
+                    <h3 class="text-white font-bold mb-4 flex items-center gap-2">Обсуждение</h3>
                     <div id="item-modal-comments-list" class="flex-grow overflow-y-auto chat-scroll space-y-3 mb-4 min-h-[150px] pr-2"></div>
                     <form onsubmit="submitComment(event)" class="flex gap-2 mt-auto pt-4 border-t border-slate-700">
                         <input type="text" id="item-comment-input" required class="flex-grow bg-slate-900 border border-slate-600 text-white px-3 py-2 rounded-lg text-sm outline-none focus:border-brand-500" placeholder="Написать комментарий...">
@@ -299,12 +251,10 @@
         </div>
     </div>
 
-    <!-- ПУБЛИЧНЫЙ ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ -->
     <div id="public-profile-modal" class="fixed inset-0 z-[210] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4 py-8">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(245,158,11,0.2)] relative transform scale-95 transition-transform duration-300 flex flex-col" id="public-profile-modal-content">
             <button onclick="closeModal('public-profile-modal', 'public-profile-modal-content')" class="absolute top-4 right-4 z-20 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
             <div class="p-8 text-center border-b border-slate-800 relative overflow-hidden">
-                <div class="absolute inset-0 bg-brand-500/5 blur-3xl pointer-events-none"></div>
                 <img id="pub-avatar" src="" class="w-24 h-24 rounded-full border-4 border-slate-700 object-cover mx-auto mb-4 bg-slate-800 relative z-10">
                 <h2 id="pub-name" class="text-2xl font-bold text-white relative z-10">Никнейм</h2>
                 <div id="pub-role" class="mt-2 inline-block px-4 py-1 rounded-full border text-xs font-bold uppercase tracking-wider text-center relative z-10">Роль</div>
@@ -316,7 +266,6 @@
         </div>
     </div>
 
-    <!-- МОДАЛКИ: АВТОРИЗАЦИЯ И РЕГИСТРАЦИЯ -->
     <div id="login-modal" class="fixed inset-0 z-[250] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
         <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(245,158,11,0.15)] relative transform scale-95 transition-transform duration-300" id="login-modal-content">
             <button onclick="closeModal('login-modal', 'login-modal-content')" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button>
@@ -335,8 +284,8 @@
             <button onclick="closeModal('register-modal', 'register-modal-content')" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button>
             <h2 class="text-2xl font-bold text-center text-white mb-6">Регистрация</h2>
             <form id="register-form" class="space-y-4" onsubmit="handleRegister(event)">
-                <input type="text" id="reg-login" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Придумайте Логин (для входа)">
-                <input type="text" id="reg-nickname" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Отображаемый Никнейм">
+                <input type="text" id="reg-login" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Логин (для входа)">
+                <input type="text" id="reg-nickname" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Никнейм">
                 <input type="password" required minlength="6" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Пароль">
                 <button type="submit" class="w-full bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400">Зарегистрироваться</button>
             </form>
@@ -344,180 +293,173 @@
         </div>
     </div>
 
-    <!-- ПРОФИЛЬ (РЕДАКТИРОВАНИЕ) -->
     <div id="profile-modal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
         <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(245,158,11,0.15)] relative transform scale-95 transition-transform duration-300" id="profile-modal-content">
             <button onclick="closeModal('profile-modal', 'profile-modal-content')" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            <h2 class="text-2xl font-bold text-center text-white mb-6">Настройки профиля</h2>
+            <h2 class="text-2xl font-bold text-center text-white mb-6">Профиль</h2>
             <form onsubmit="saveProfile(event)" class="space-y-4">
                 <div class="flex flex-col items-center gap-4 mb-2">
                     <div class="relative group">
                         <img id="profile-avatar-preview" src="" alt="Preview" class="w-20 h-20 rounded-full border-4 border-slate-700 object-cover group-hover:border-brand-500 bg-slate-800">
                         <label class="absolute inset-0 flex items-center justify-center bg-black/50 text-white opacity-0 group-hover:opacity-100 rounded-full cursor-pointer transition-opacity">
-                            <input type="file" accept="image/*" class="hidden" onchange="handleAvatarChange(event)"><span class="text-xs font-bold drop-shadow">Изменить</span>
+                            <input type="file" accept="image/*" class="hidden" onchange="handleAvatarChange(event)"><span class="text-xs font-bold drop-shadow">Фото</span>
                         </label>
                     </div>
                     <div id="profile-role-badge" class="px-3 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider text-center">Роль</div>
                 </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1 ml-1">Никнейм</label>
-                    <input type="text" id="edit-nickname" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none focus:border-brand-500">
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1 ml-1">О себе</label>
-                    <textarea id="edit-bio" rows="2" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none focus:border-brand-500 chat-scroll" placeholder="Расскажите о себе, своих модах..."></textarea>
-                </div>
+                <div><input type="text" id="edit-nickname" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none"></div>
+                <div><textarea id="edit-bio" rows="2" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none chat-scroll" placeholder="О себе..."></textarea></div>
                 <div class="flex flex-col gap-2 mt-4">
                     <button type="submit" class="w-full bg-brand-500 text-slate-900 font-bold py-2.5 rounded-lg hover:bg-brand-400">Сохранить</button>
-                    <button type="button" onclick="handleLogout()" class="w-full border border-red-500/50 text-red-400 font-semibold py-2.5 rounded-lg hover:bg-red-500/10">Выйти из аккаунта</button>
+                    <button type="button" onclick="handleLogout()" class="w-full border border-red-500/50 text-red-400 font-semibold py-2.5 rounded-lg hover:bg-red-500/10">Выйти</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- МОДАЛКА ПРЕДЛОЖЕНИЯ КОНТЕНТА -->
     <div id="submit-modal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
         <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-lg shadow-[0_0_30px_rgba(245,158,11,0.15)] relative transform scale-95 transition-transform duration-300" id="submit-modal-content">
             <button onclick="closeModal('submit-modal', 'submit-modal-content')" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button>
             <h2 id="submit-title" class="text-2xl font-bold text-center text-white mb-6">Предложить контент</h2>
-            
-            <div id="submit-success" class="hidden bg-green-500/10 border border-green-500 text-green-400 p-4 rounded-lg mb-6 text-center">
-                <p class="font-bold">Ваша заявка успешно отправлена!</p>
-            </div>
-            
+            <div id="submit-success" class="hidden bg-green-500/10 border border-green-500 text-green-400 p-4 rounded-lg mb-6 text-center"><p class="font-bold">Заявка отправлена!</p></div>
             <form id="submit-form" class="space-y-4" onsubmit="handleSubmission(event)">
                 <input type="hidden" id="submit-type">
-                <div><input type="text" id="submit-name" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none focus:border-brand-500" placeholder="Название / Заголовок"></div>
-                <div id="submit-desc-group"><textarea id="submit-desc" rows="3" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none focus:border-brand-500 chat-scroll" placeholder="Подробное описание"></textarea></div>
+                <input type="text" id="submit-name" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none" placeholder="Название">
+                <textarea id="submit-desc" rows="3" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none chat-scroll" placeholder="Описание"></textarea>
                 <div id="submit-photo-fields" class="hidden space-y-4 bg-slate-800/50 p-4 rounded-lg border border-slate-700">
-                    <p class="text-xs text-brand-400 font-bold uppercase tracking-wider mb-2">Детали кадра</p>
-                    <input type="text" id="submit-brand" class="w-full px-4 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white text-sm outline-none focus:border-brand-500" placeholder="Марка и модель (напр. Neoplan Starliner)">
+                    <input type="text" id="submit-brand" class="w-full px-4 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white text-sm outline-none" placeholder="Марка и модель">
                     <div class="flex gap-4">
-                        <input type="text" id="submit-plate" class="w-1/2 px-4 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white text-sm outline-none focus:border-brand-500" placeholder="Гос. номер">
-                        <input type="text" id="submit-route" class="w-1/2 px-4 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white text-sm outline-none focus:border-brand-500" placeholder="Маршрут (напр. 42)">
+                        <input type="text" id="submit-plate" class="w-1/2 px-4 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white text-sm outline-none" placeholder="Гос. номер">
+                        <input type="text" id="submit-route" class="w-1/2 px-4 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white text-sm outline-none" placeholder="Маршрут">
                     </div>
                 </div>
-                <div id="submit-link-group" class="hidden"><input type="url" id="submit-link" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none focus:border-brand-500" placeholder="Ссылка на скачивание (Google Drive, Яндекс.Диск)"></div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1 ml-1">Изображение / Превью (обязательно)</label>
-                    <input type="file" id="submit-img" accept="image/*" required class="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-brand-400 cursor-pointer">
-                </div>
-                <button type="submit" class="w-full mt-4 bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400">Отправить на модерацию</button>
+                <div id="submit-link-group" class="hidden"><input type="url" id="submit-link" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none" placeholder="Ссылка на скачивание"></div>
+                <input type="file" id="submit-img" accept="image/*" required class="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-brand-400">
+                <button type="submit" class="w-full mt-4 bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400">Отправить</button>
             </form>
         </div>
     </div>
 
-    <!-- КАСТОМНЫЙ КОНФИРМ -->
     <div id="confirm-modal" class="fixed inset-0 z-[250] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
         <div class="bg-slate-900 border border-red-500/50 p-6 rounded-2xl w-full max-w-sm shadow-[0_0_30px_rgba(239,68,68,0.2)] relative transform scale-95 transition-transform duration-300 text-center" id="confirm-modal-content">
-            <svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             <h3 class="text-xl font-bold text-white mb-2">Подтвердите действие</h3>
             <p id="confirm-modal-text" class="text-slate-400 mb-6 text-sm">Удалить?</p>
             <div class="flex gap-3">
-                <button id="confirm-modal-cancel" class="flex-1 bg-slate-800 text-white font-bold py-2 rounded-lg hover:bg-slate-700 transition-colors">Отмена</button>
-                <button id="confirm-modal-ok" class="flex-1 bg-red-500 text-white font-bold py-2 rounded-lg hover:bg-red-600 transition-colors">Удалить</button>
+                <button id="confirm-modal-cancel" class="flex-1 bg-slate-800 text-white font-bold py-2 rounded-lg">Отмена</button>
+                <button id="confirm-modal-ok" class="flex-1 bg-red-500 text-white font-bold py-2 rounded-lg">Удалить</button>
             </div>
         </div>
     </div>
 
-    <!-- АДМИН-ПАНЕЛЬ -->
     <div id="admin-modal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
         <div class="bg-slate-900 border border-red-500/50 p-6 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-[0_0_30px_rgba(239,68,68,0.2)] relative transform scale-95 transition-transform duration-300 chat-scroll" id="admin-modal-content">
             <button onclick="closeModal('admin-modal', 'admin-modal-content')" class="absolute top-4 right-4 text-slate-400 hover:text-red-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button>
-            <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                <span class="bg-red-500 text-white text-xs px-2 py-1 rounded">ADMIN</span> Панель управления
-            </h2>
-            
+            <h2 class="text-2xl font-bold text-white mb-4"><span class="bg-red-500 text-white text-xs px-2 py-1 rounded">ADMIN</span> Панель управления</h2>
             <div class="flex border-b border-slate-700 mb-6 overflow-x-auto chat-scroll" id="admin-tabs">
                 <button onclick="switchAdminTab('content')" id="tab-content" class="px-4 py-2 border-b-2 border-brand-500 text-brand-400 font-bold hidden whitespace-nowrap">Контент</button>
                 <button onclick="switchAdminTab('help')" id="tab-help" class="px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-300 font-bold hidden whitespace-nowrap">Тех. поддержка</button>
                 <button onclick="switchAdminTab('users')" id="tab-users" class="px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-300 font-bold hidden whitespace-nowrap">Пользователи</button>
                 <button onclick="switchAdminTab('settings')" id="tab-settings" class="px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-300 font-bold hidden whitespace-nowrap">Система</button>
             </div>
-            
-            <!-- Контент -->
             <div id="admin-content-view" class="hidden">
-                <h3 class="text-brand-400 font-bold mb-3 uppercase tracking-wider text-sm border-b border-slate-700 pb-2">Ожидают модерации</h3>
                 <div id="admin-pending-list" class="space-y-4 mb-8"></div>
-                <h3 class="text-green-400 font-bold mb-3 uppercase tracking-wider text-sm border-b border-slate-700 pb-2">Опубликованный контент (на сайте)</h3>
                 <div id="admin-approved-list" class="space-y-4"></div>
             </div>
-
-            <!-- Тех Поддержка -->
             <div id="admin-help-view" class="hidden"><div id="admin-tickets-list" class="space-y-6"></div></div>
-            <!-- Пользователи -->
             <div id="admin-users-view" class="hidden"><div id="admin-users-list" class="space-y-3"></div></div>
-            
-            <!-- Настройки Системы (ТОЛЬКО ВЛАДЕЛЕЦ) -->
             <div id="admin-settings-view" class="hidden">
-                <h3 class="text-white font-bold mb-4">Управление сайтом</h3>
                 <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex justify-between items-center">
                     <div>
-                        <h4 class="text-white font-bold flex items-center gap-2">
-                            <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                            Режим технических работ
-                        </h4>
-                        <p class="text-slate-400 text-sm mt-1">Включение этого режима закроет доступ к сайту для всех обычных пользователей и персонала, кроме Владельца.</p>
+                        <h4 class="text-white font-bold">Режим технических работ</h4>
+                        <p class="text-slate-400 text-sm">Закрывает доступ к сайту для всех, кроме Владельца.</p>
                     </div>
-                    <button id="maintenance-toggle-btn" onclick="toggleMaintenance()" class="px-6 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-colors whitespace-nowrap ml-4">
-                        Включить
-                    </button>
+                    <button id="maintenance-toggle-btn" onclick="toggleMaintenance()" class="px-6 py-2 bg-red-500 text-white font-bold rounded-lg whitespace-nowrap ml-4">Включить</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Основной скрипт логики (Firebase) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, get, update, remove, onValue, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyACvB3zaAY4ZcFZC5NgCcqezs7jtLlOLWQ",
+            authDomain: "omsistore-877c2.firebaseapp.com",
+            databaseURL: "https://omsistore-877c2-default-rtdb.firebaseio.com",
+            projectId: "omsistore-877c2",
+            storageBucket: "omsistore-877c2.firebasestorage.app",
+            messagingSenderId: "679716166974",
+            appId: "1:679716166974:web:8cc361a50ad428cefe606f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        window.FB = { db, ref, set, get, update, remove, onValue, push };
+
+        // Слушатели базы данных в реальном времени
+        onValue(ref(db, 'users'), (snapshot) => {
+            window.allUsers = snapshot.val() ? Object.values(snapshot.val()) : [];
+            window.checkCurrentSession();
+            window.updateUI();
+        });
+
+        onValue(ref(db, 'items'), (snapshot) => {
+            window.communityItems = snapshot.val() ? Object.values(snapshot.val()) : [];
+            window.communityItems.forEach(i => {
+                if(!i.likes) i.likes = [];
+                if(!i.comments) i.comments = [];
+            });
+            window.renderCommunityContent();
+        });
+
+        onValue(ref(db, 'tickets'), (snapshot) => {
+            window.helpTickets = snapshot.val() ? Object.values(snapshot.val()) : [];
+            window.renderUserChat();
+        });
+
+        onValue(ref(db, 'settings'), (snapshot) => {
+            window.siteSettings = snapshot.val() || { isMaintenance: false };
+            window.checkMaintenance();
+            const btn = document.getElementById('maintenance-toggle-btn');
+            if(btn) {
+                if(window.siteSettings.isMaintenance) {
+                    btn.innerText = 'Выключить';
+                    btn.className = 'px-6 py-2 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-600 transition-colors whitespace-nowrap ml-4';
+                } else {
+                    btn.innerText = 'Включить';
+                    btn.className = 'px-6 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-colors whitespace-nowrap ml-4';
+                }
+            }
+        });
+
+        const savedUser = localStorage.getItem('vp_openomsi_active_user');
+        if (savedUser) {
+            try { window.currentUser = JSON.parse(savedUser); } catch(e) { window.currentUser = null; }
+        }
+        window.updateUI();
+    </script>
+
+    <!-- Логика сайта -->
     <script>
         const CHIEF_ADMIN_LOGIN = 'verxovnly88'; 
         const USER_KEY = 'vp_openomsi_active_user';
-        const ALL_USERS_KEY = 'vp_openomsi_all_users';
-        const ITEMS_KEY = 'vp_openomsi_items';
-        const TICKETS_KEY = 'vp_openomsi_tickets';
-        const SETTINGS_KEY = 'vp_openomsi_settings';
 
-        let currentUser = null; 
-        let allUsers = []; 
-        let communityItems = [];
-        let helpTickets = []; 
-        let siteSettings = { isMaintenance: false };
+        window.currentUser = null; 
+        window.allUsers = []; 
+        window.communityItems = [];
+        window.helpTickets = []; 
+        window.siteSettings = { isMaintenance: false };
         let currentOpenItemId = null; 
 
-        // ЗАГРУЗКА И СОХРАНЕНИЕ ДАННЫХ
-        function syncLoad() {
-            const savedSettings = localStorage.getItem(SETTINGS_KEY);
-            if(savedSettings) { try { siteSettings = JSON.parse(savedSettings); } catch(e){} }
-
-            const savedAllUsers = localStorage.getItem(ALL_USERS_KEY);
-            if(savedAllUsers) { try { allUsers = JSON.parse(savedAllUsers); } catch(e) { allUsers = []; } }
-
-            const savedUser = localStorage.getItem(USER_KEY);
-            if (savedUser) {
-                try {
-                    const parsed = JSON.parse(savedUser);
-                    currentUser = allUsers.find(u => (u.login || u.nickname) === (parsed.login || parsed.nickname)); 
-                    if(!currentUser || currentUser.isBlocked) currentUser = null; 
-                } catch(e) { currentUser = null; }
+        window.checkCurrentSession = function() {
+            if (window.currentUser) {
+                const fresh = window.allUsers.find(u => (u.login || u.nickname) === (window.currentUser.login || window.currentUser.nickname));
+                if (!fresh || fresh.isBlocked) { window.handleLogout(); }
+                else { window.currentUser = fresh; }
             }
-            
-            const savedItems = localStorage.getItem(ITEMS_KEY);
-            if (savedItems) { 
-                try { 
-                    communityItems = JSON.parse(savedItems); 
-                    communityItems.forEach(i => {
-                        if(!i.likes) i.likes = [];
-                        if(!i.comments) i.comments = [];
-                    });
-                } catch(e){ communityItems = []; } 
-            }
-            
-            const savedTickets = localStorage.getItem(TICKETS_KEY);
-            if (savedTickets) { try { helpTickets = JSON.parse(savedTickets); } catch(e) { helpTickets = []; } }
-        }
-
-        function syncSaveUsers() { localStorage.setItem(ALL_USERS_KEY, JSON.stringify(allUsers)); if(currentUser) localStorage.setItem(USER_KEY, JSON.stringify(currentUser)); else localStorage.removeItem(USER_KEY); }
-        function syncSaveItems() { localStorage.setItem(ITEMS_KEY, JSON.stringify(communityItems)); }
-        function syncSaveTickets() { localStorage.setItem(TICKETS_KEY, JSON.stringify(helpTickets)); }
-        function syncSaveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(siteSettings)); }
+        };
 
         function getRoleName(role) {
             if(role === 'chief_admin') return 'Владелец';
@@ -527,7 +469,6 @@
             return 'Пользователь';
         }
 
-        // SPA НАВИГАЦИЯ И MAINTENANCE
         function switchView(viewName) {
             document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
             const targetView = document.getElementById('view-' + viewName);
@@ -541,37 +482,26 @@
             window.scrollTo(0, 0);
         }
 
-        function checkMaintenance() {
+        window.checkMaintenance = function() {
             const mScreen = document.getElementById('maintenance-screen');
-            if(siteSettings.isMaintenance && (!currentUser || currentUser.role !== 'chief_admin')) {
-                mScreen.classList.remove('hidden'); mScreen.classList.add('flex');
+            if(window.siteSettings.isMaintenance && (!window.currentUser || window.currentUser.role !== 'chief_admin')) {
+                if(mScreen) { mScreen.classList.remove('hidden'); mScreen.classList.add('flex'); }
                 document.body.style.overflow = 'hidden';
             } else {
-                mScreen.classList.add('hidden'); mScreen.classList.remove('flex');
+                if(mScreen) { mScreen.classList.add('hidden'); mScreen.classList.remove('flex'); }
                 document.body.style.overflow = '';
             }
-        }
+        };
 
         function toggleMaintenance() {
-            if(currentUser.role !== 'chief_admin') return;
-            siteSettings.isMaintenance = !siteSettings.isMaintenance;
-            syncSaveSettings();
-            
-            const btn = document.getElementById('maintenance-toggle-btn');
-            if(siteSettings.isMaintenance) {
-                btn.innerText = 'Выключить';
-                btn.className = 'px-6 py-2 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-600 transition-colors whitespace-nowrap ml-4';
-            } else {
-                btn.innerText = 'Включить';
-                btn.className = 'px-6 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-colors whitespace-nowrap ml-4';
-            }
-            checkMaintenance();
+            if(!window.currentUser || window.currentUser.role !== 'chief_admin') return;
+            window.siteSettings.isMaintenance = !window.siteSettings.isMaintenance;
+            window.FB.set(window.FB.ref(window.FB.db, 'settings'), window.siteSettings);
         }
 
-        function updateUI() {
-            checkMaintenance();
-            
-            const isAuth = !!currentUser;
+        window.updateUI = function() {
+            window.checkMaintenance();
+            const isAuth = !!window.currentUser;
             document.getElementById('nav-login-btn').classList.toggle('hidden', isAuth);
             document.getElementById('mob-login-btn').classList.toggle('hidden', isAuth);
             
@@ -581,23 +511,23 @@
             if (isAuth) {
                 np.classList.remove('hidden'); np.classList.add('flex');
                 mp.classList.remove('hidden');
-                document.getElementById('nav-user-name').innerText = currentUser.nickname;
-                document.getElementById('nav-user-role').innerText = getRoleName(currentUser.role);
-                document.getElementById('nav-user-avatar').src = currentUser.avatar;
-                document.getElementById('mob-user-name').innerText = currentUser.nickname;
-                document.getElementById('mob-user-role').innerText = getRoleName(currentUser.role);
-                document.getElementById('mob-user-avatar').src = currentUser.avatar;
+                document.getElementById('nav-user-name').innerText = window.currentUser.nickname;
+                document.getElementById('nav-user-role').innerText = getRoleName(window.currentUser.role);
+                document.getElementById('nav-user-avatar').src = window.currentUser.avatar;
+                document.getElementById('mob-user-name').innerText = window.currentUser.nickname;
+                document.getElementById('mob-user-role').innerText = getRoleName(window.currentUser.role);
+                document.getElementById('mob-user-avatar').src = window.currentUser.avatar;
                 
-                document.getElementById('edit-nickname').value = currentUser.nickname;
-                document.getElementById('edit-bio').value = currentUser.bio || '';
-                document.getElementById('profile-avatar-preview').src = currentUser.avatar;
+                document.getElementById('edit-nickname').value = window.currentUser.nickname;
+                document.getElementById('edit-bio').value = window.currentUser.bio || '';
+                document.getElementById('profile-avatar-preview').src = window.currentUser.avatar;
 
                 const roleBadge = document.getElementById('profile-role-badge');
-                roleBadge.innerText = getRoleName(currentUser.role);
+                roleBadge.innerText = getRoleName(window.currentUser.role);
                 roleBadge.className = 'mt-1 px-4 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider text-center';
-                roleBadge.classList.add(`role-glow-${currentUser.role}`);
+                roleBadge.classList.add(`role-glow-${window.currentUser.role}`);
 
-                const canAdmin = ['moderator', 'tech_support', 'admin', 'chief_admin'].includes(currentUser.role);
+                const canAdmin = ['moderator', 'tech_support', 'admin', 'chief_admin'].includes(window.currentUser.role);
                 document.getElementById('nav-admin-btn').classList.toggle('hidden', !canAdmin);
                 document.getElementById('mob-admin-btn').classList.toggle('hidden', !canAdmin);
             } else {
@@ -606,11 +536,10 @@
                 document.getElementById('nav-admin-btn').classList.add('hidden');
                 document.getElementById('mob-admin-btn').classList.add('hidden');
             }
-            renderCommunityContent();
+            window.renderCommunityContent();
             renderUserChat();
-        }
+        };
 
-        // МОДАЛКИ
         function toggleModal(mId, cId, show) {
             const m = document.getElementById(mId), c = document.getElementById(cId);
             if(!m || !c) return;
@@ -639,53 +568,47 @@
             document.getElementById('confirm-modal-ok').onclick = () => { onOk(); m.classList.add('opacity-0'); c.classList.remove('scale-100'); c.classList.add('scale-95'); setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300); };
         }
 
-        // --- ПУБЛИЧНЫЙ ПРОФИЛЬ ---
         function openPublicProfile(nickname) {
-            const user = allUsers.find(u => u.nickname === nickname);
+            const user = window.allUsers.find(u => u.nickname === nickname);
             if(!user) return;
-            
             document.getElementById('pub-avatar').src = user.avatar;
             document.getElementById('pub-name').innerText = user.nickname;
-            
             const rBadge = document.getElementById('pub-role');
             rBadge.innerText = getRoleName(user.role);
             rBadge.className = 'mt-2 inline-block px-4 py-1 rounded-full border text-xs font-bold uppercase tracking-wider text-center';
             rBadge.classList.add(`role-glow-${user.role}`);
-            
             document.getElementById('pub-bio').innerText = user.bio || 'Пользователь не указал информацию о себе.';
             toggleModal('public-profile-modal', 'public-profile-modal-content', true);
         }
 
-        // --- АВТОРИЗАЦИЯ И РЕГИСТРАЦИЯ ---
         function handleLogin(e) {
             e.preventDefault();
             const loginVal = document.getElementById('login').value.trim();
-            const user = allUsers.find(u => (u.login || u.nickname).toLowerCase() === loginVal.toLowerCase());
-            
-            if (!user) { alert("Аккаунт с таким логином не найден. Пожалуйста, зарегистрируйтесь."); return; }
+            const user = window.allUsers.find(u => (u.login || u.nickname).toLowerCase() === loginVal.toLowerCase());
+            if (!user) { alert("Аккаунт не найден."); return; }
             if (user.isBlocked) { alert("Ваш аккаунт заблокирован."); return; }
-            
             if ((user.login || user.nickname).toLowerCase() === CHIEF_ADMIN_LOGIN.toLowerCase()) user.role = 'chief_admin';
-            currentUser = user;
-            syncSaveUsers(); updateUI(); closeModal('login-modal','login-modal-content'); e.target.reset();
+            window.currentUser = user;
+            localStorage.setItem(USER_KEY, JSON.stringify(window.currentUser));
+            window.updateUI(); closeModal('login-modal','login-modal-content'); e.target.reset();
         }
 
         function handleRegister(e) {
             e.preventDefault();
             const loginVal = document.getElementById('reg-login').value.trim();
             let nickVal = document.getElementById('reg-nickname').value.trim();
-            
-            if (allUsers.find(u => (u.login || u.nickname).toLowerCase() === loginVal.toLowerCase())) { alert("Этот логин уже занят!"); return; }
+            if (window.allUsers.find(u => (u.login || u.nickname).toLowerCase() === loginVal.toLowerCase())) { alert("Логин занят!"); return; }
             if(!nickVal) nickVal = loginVal; 
-
             let assignedRole = (loginVal.toLowerCase() === CHIEF_ADMIN_LOGIN.toLowerCase()) ? 'chief_admin' : 'user';
             const newUser = { login: loginVal, nickname: nickVal, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${nickVal}`, role: assignedRole, isBlocked: false, bio: '' };
-            allUsers.push(newUser);
-            currentUser = newUser;
-            syncSaveUsers(); updateUI(); closeModal('register-modal','register-modal-content'); e.target.reset();
+            
+            window.FB.set(window.FB.ref(window.FB.db, 'users/' + loginVal), newUser);
+            window.currentUser = newUser;
+            localStorage.setItem(USER_KEY, JSON.stringify(window.currentUser));
+            window.updateUI(); closeModal('register-modal','register-modal-content'); e.target.reset();
         }
 
-        function handleLogout() { currentUser = null; syncSaveUsers(); updateUI(); closeModal('profile-modal','profile-modal-content'); switchView('home'); }
+        function handleLogout() { window.currentUser = null; localStorage.removeItem(USER_KEY); window.updateUI(); closeModal('profile-modal','profile-modal-content'); switchView('home'); }
         
         let tempAvatarSrc = null;
         function handleAvatarChange(event) {
@@ -696,48 +619,43 @@
         }
         function saveProfile(e) {
             e.preventDefault();
-            if (currentUser) {
+            if (window.currentUser) {
                 const newNick = document.getElementById('edit-nickname').value.trim();
                 const newBio = document.getElementById('edit-bio').value.trim();
-                if(newNick) currentUser.nickname = newNick;
-                currentUser.bio = newBio;
-                if(tempAvatarSrc) currentUser.avatar = tempAvatarSrc;
-                syncSaveUsers();
+                if(newNick) window.currentUser.nickname = newNick;
+                window.currentUser.bio = newBio;
+                if(tempAvatarSrc) window.currentUser.avatar = tempAvatarSrc;
+                window.FB.set(window.FB.ref(window.FB.db, 'users/' + window.currentUser.login), window.currentUser);
+                localStorage.setItem(USER_KEY, JSON.stringify(window.currentUser));
             }
-            updateUI(); closeModal('profile-modal','profile-modal-content');
+            window.updateUI(); closeModal('profile-modal','profile-modal-content');
         }
 
-        // --- ДЕТАЛЬНЫЙ ПРОСМОТР, ЛАЙКИ, КОММЕНТЫ ---
         function openItemDetails(id) {
-            const item = communityItems.find(i => i.id === id);
+            const item = window.communityItems.find(i => i.id === id);
             if(!item) return;
             currentOpenItemId = id;
-            
             document.getElementById('item-modal-img').src = item.img;
             document.getElementById('item-modal-type').innerText = item.type === 'mod' ? 'МОД' : 'ФОТО';
-            document.getElementById('item-modal-type').className = item.type === 'mod' ? 'bg-brand-500 text-slate-900 text-xs font-bold px-2 py-0.5 rounded uppercase' : 'bg-green-500 text-slate-900 text-xs font-bold px-2 py-0.5 rounded uppercase';
             document.getElementById('item-modal-title').innerText = item.title;
-            
-            const avatar = allUsers.find(u => u.nickname === item.author)?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.author}`;
+            const avatar = window.allUsers.find(u => u.nickname === item.author)?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.author}`;
             document.getElementById('item-modal-author-avatar').src = avatar;
             document.getElementById('item-modal-author').innerText = item.author;
             document.getElementById('item-modal-author-block').onclick = () => openPublicProfile(item.author);
-            
             document.getElementById('item-modal-desc').innerText = item.desc || 'Без описания.';
             
             const metaCont = document.getElementById('item-modal-meta'); metaCont.innerHTML = '';
             if (item.type === 'photo') {
                 metaCont.classList.remove('hidden');
                 if(item.brand) metaCont.innerHTML += `<span class="bg-slate-800 border border-slate-600 px-3 py-1 rounded text-sm text-slate-300">Марка: ${item.brand}</span>`;
-                if(item.route) metaCont.innerHTML += `<span class="bg-brand-500/20 text-brand-400 border border-brand-500/30 px-3 py-1 rounded text-sm font-bold">Маршрут: ${item.route}</span>`;
-                if(item.plate) metaCont.innerHTML += `<span class="bg-white text-black px-3 py-1 rounded font-mono text-sm border border-gray-400 font-bold tracking-widest">${item.plate}</span>`;
+                if(item.route) metaCont.innerHTML += `<span class="bg-brand-500/20 text-brand-400 px-3 py-1 rounded text-sm font-bold">Маршрут: ${item.route}</span>`;
+                if(item.plate) metaCont.innerHTML += `<span class="bg-white text-black px-3 py-1 rounded font-mono text-sm font-bold">${item.plate}</span>`;
                 document.getElementById('item-modal-download').classList.add('hidden');
             } else {
                 metaCont.classList.add('hidden');
                 const dlBtn = document.getElementById('item-modal-download');
                 if(item.link) { dlBtn.classList.remove('hidden'); dlBtn.href = item.link; } else { dlBtn.classList.add('hidden'); }
             }
-            
             updateItemSocialUI(item);
             closeAllModals(); toggleModal('item-modal', 'item-modal-content', true);
         }
@@ -746,11 +664,9 @@
             const likeBtn = document.getElementById('item-modal-like-btn');
             const likeIcon = document.getElementById('item-modal-like-icon');
             const likeCount = document.getElementById('item-modal-like-count');
-            
             if(!item.likes) item.likes = [];
             likeCount.innerText = item.likes.length;
-            
-            if (currentUser && item.likes.includes(currentUser.nickname)) {
+            if (window.currentUser && item.likes.includes(window.currentUser.nickname)) {
                 likeIcon.setAttribute('fill', 'currentColor'); likeIcon.classList.add('text-red-500');
             } else {
                 likeIcon.setAttribute('fill', 'none'); likeIcon.classList.remove('text-red-500');
@@ -760,66 +676,50 @@
             const cList = document.getElementById('item-modal-comments-list');
             cList.innerHTML = '';
             if(!item.comments) item.comments = [];
-            if(item.comments.length === 0) {
-                cList.innerHTML = '<p class="text-slate-500 text-sm italic">Пока нет комментариев. Будьте первым!</p>';
-            } else {
+            if(item.comments.length === 0) { cList.innerHTML = '<p class="text-slate-500 text-sm italic">Нет комментариев.</p>'; }
+            else {
                 item.comments.forEach(c => {
-                    const cAvatar = allUsers.find(u => u.nickname === c.author)?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${c.author}`;
-                    cList.innerHTML += `
-                        <div class="flex gap-3 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50">
-                            <img src="${cAvatar}" class="w-8 h-8 rounded-full border border-slate-600 object-cover cursor-pointer hover:border-brand-500 transition-colors" onclick="openPublicProfile('${c.author}')">
-                            <div class="flex-grow">
-                                <span class="text-xs text-brand-400 font-bold cursor-pointer hover:underline" onclick="openPublicProfile('${c.author}')">${c.author}</span>
-                                <p class="text-slate-300 text-sm mt-0.5 break-words">${c.text}</p>
-                            </div>
-                        </div>`;
+                    const cAvatar = window.allUsers.find(u => u.nickname === c.author)?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${c.author}`;
+                    cList.innerHTML += `<div class="flex gap-3 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"><img src="${cAvatar}" class="w-8 h-8 rounded-full border object-cover cursor-pointer" onclick="openPublicProfile('${c.author}')"><div><span class="text-xs text-brand-400 font-bold cursor-pointer hover:underline" onclick="openPublicProfile('${c.author}')">${c.author}</span><p class="text-slate-300 text-sm mt-0.5">${c.text}</p></div></div>`;
                 });
             }
         }
 
         function toggleLike(id) {
-            if(!currentUser) return alert("Войдите в аккаунт, чтобы ставить лайки.");
-            const item = communityItems.find(i => i.id === id);
-            if(!item) return;
+            if(!window.currentUser) return alert("Войдите в аккаунт.");
+            const item = window.communityItems.find(i => i.id === id);
             if(!item.likes) item.likes = [];
-            const idx = item.likes.indexOf(currentUser.nickname);
-            if(idx === -1) item.likes.push(currentUser.nickname); else item.likes.splice(idx, 1);
-            syncSaveItems(); updateItemSocialUI(item); renderCommunityContent(); 
+            const idx = item.likes.indexOf(window.currentUser.nickname);
+            if(idx === -1) item.likes.push(window.currentUser.nickname); else item.likes.splice(idx, 1);
+            window.FB.set(window.FB.ref(window.FB.db, 'items/' + id + '/likes'), item.likes);
         }
 
         function submitComment(e) {
             e.preventDefault();
-            if(!currentUser) return alert("Войдите в аккаунт, чтобы комментировать.");
-            const input = document.getElementById('item-comment-input');
-            const text = input.value.trim();
+            if(!window.currentUser) return alert("Войдите в аккаунт.");
+            const text = document.getElementById('item-comment-input').value.trim();
             if(!text) return;
-            
-            const item = communityItems.find(i => i.id === currentOpenItemId);
+            const item = window.communityItems.find(i => i.id === currentOpenItemId);
             if(item) {
                 if(!item.comments) item.comments = [];
-                item.comments.push({ author: currentUser.nickname, text: text, date: new Date().toISOString() });
-                syncSaveItems(); input.value = ''; updateItemSocialUI(item);
-                const cList = document.getElementById('item-modal-comments-list');
-                setTimeout(() => cList.scrollTop = cList.scrollHeight, 50);
+                item.comments.push({ author: window.currentUser.nickname, text: text });
+                window.FB.set(window.FB.ref(window.FB.db, 'items/' + currentOpenItemId + '/comments'), item.comments);
+                document.getElementById('item-comment-input').value = '';
             }
         }
 
-        // --- ПРЕДЛОЖИТЬ КОНТЕНТ ---
         function openSubmitModal(type) {
-            if(!currentUser) return openLoginModal();
-            if(currentUser.isBlocked) return alert("Ваш аккаунт заблокирован.");
+            if(!window.currentUser) return openLoginModal();
+            if(window.currentUser.isBlocked) return alert("Аккаунт заблокирован.");
             closeAllModals();
             document.getElementById('submit-type').value = type;
             document.getElementById('submit-success').classList.add('hidden');
             document.getElementById('submit-form').classList.remove('hidden');
             document.getElementById('submit-form').reset();
-            
             document.getElementById('submit-title').innerText = type === 'mod' ? 'Предложить мод' : 'Предложить Фотографию';
             document.getElementById('submit-link-group').classList.toggle('hidden', type !== 'mod');
             document.getElementById('submit-link').required = (type === 'mod');
-            
-            const isPhoto = (type === 'photo');
-            document.getElementById('submit-photo-fields').classList.toggle('hidden', !isPhoto);
+            document.getElementById('submit-photo-fields').classList.toggle('hidden', type !== 'photo');
             toggleModal('submit-modal', 'submit-modal-content', true);
         }
 
@@ -831,94 +731,80 @@
                 const newItem = {
                     id: Date.now(), type: type, title: document.getElementById('submit-name').value,
                     desc: document.getElementById('submit-desc').value, link: type === 'mod' ? document.getElementById('submit-link').value : '',
-                    author: currentUser.nickname, status: 'pending', img: evt.target.result, likes: [], comments: []
+                    author: window.currentUser.nickname, status: 'pending', img: evt.target.result, likes: [], comments: []
                 };
                 if (type === 'photo') {
                     newItem.brand = document.getElementById('submit-brand').value;
                     newItem.plate = document.getElementById('submit-plate').value;
                     newItem.route = document.getElementById('submit-route').value;
                 }
-                communityItems.push(newItem); syncSaveItems(); 
+                window.FB.set(window.FB.ref(window.FB.db, 'items/' + newItem.id), newItem);
                 document.getElementById('submit-form').classList.add('hidden'); document.getElementById('submit-success').classList.remove('hidden');
                 setTimeout(() => closeModal('submit-modal', 'submit-modal-content'), 2000);
             };
             r.readAsDataURL(document.getElementById('submit-img').files[0]);
         }
 
-        // --- ЧАТ / ТИКЕТЫ ---
         function previewHelpFile() {
             const input = document.getElementById('help-file-input');
-            const preview = document.getElementById('help-file-preview-container');
-            const nameEl = document.getElementById('help-file-name');
-            if(input.files[0]) { nameEl.innerText = input.files[0].name; preview.classList.remove('hidden'); } else { preview.classList.add('hidden'); }
+            if(input.files[0]) {
+                document.getElementById('help-file-name').innerText = input.files[0].name;
+                document.getElementById('help-file-preview-container').classList.remove('hidden');
+            }
         }
         function clearHelpFile() { document.getElementById('help-file-input').value = ""; document.getElementById('help-file-preview-container').classList.add('hidden'); }
 
         function renderUserChat() {
             const authWarn = document.getElementById('help-auth-warning'), chatCont = document.getElementById('help-chat-container'), msgList = document.getElementById('help-messages');
-            if(!currentUser) { authWarn.classList.remove('hidden'); chatCont.classList.add('hidden'); return; }
+            if(!authWarn) return;
+            if(!window.currentUser) { authWarn.classList.remove('hidden'); chatCont.classList.add('hidden'); return; }
             authWarn.classList.add('hidden'); chatCont.classList.remove('hidden'); chatCont.classList.add('flex');
-            const myTickets = helpTickets.filter(t => t.author === currentUser.nickname);
+            const myTickets = window.helpTickets.filter(t => t.author === window.currentUser.nickname);
             msgList.innerHTML = '';
-            if(myTickets.length === 0) { msgList.innerHTML = '<div class="text-center text-slate-500 mt-10">Опишите вашу проблему, чтобы начать чат!</div>'; } 
+            if(myTickets.length === 0) { msgList.innerHTML = '<div class="text-center text-slate-500 mt-10">Нет обращений.</div>'; } 
             else {
                 myTickets.forEach(t => {
-                    let attachHtml = t.attachment ? `<a href="${t.attachment}" target="_blank"><img src="${t.attachment}" class="mt-2 rounded-lg max-w-full h-auto max-h-48 border border-slate-700 cursor-pointer hover:border-brand-500"></a>` : '';
-                    msgList.innerHTML += `<div class="flex flex-col items-end mb-4"><span class="text-[10px] text-slate-500 mb-1">Вы</span><div class="bg-brand-500 text-slate-900 px-4 py-2 rounded-2xl rounded-tr-sm max-w-[85%] break-words shadow">${t.text}${attachHtml}</div></div>`;
-                    t.replies.forEach(r => {
-                        const avatar = allUsers.find(u => u.nickname === r.author)?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${r.author}`;
-                        msgList.innerHTML += `
-                            <div class="flex items-end gap-2 mb-4">
-                                <img src="${avatar}" class="w-6 h-6 rounded-full border border-slate-600 object-cover cursor-pointer hover:border-brand-500" onclick="openPublicProfile('${r.author}')">
-                                <div class="flex flex-col items-start max-w-[85%]">
-                                    <span class="text-[10px] text-brand-400 mb-1 font-bold cursor-pointer hover:underline" onclick="openPublicProfile('${r.author}')">Поддержка (${r.author})</span>
-                                    <div class="bg-slate-700 text-white px-4 py-2 rounded-2xl rounded-tl-sm shadow">${r.text}</div>
-                                </div>
-                            </div>`;
-                    });
+                    let attachHtml = t.attachment ? `<a href="${t.attachment}" target="_blank"><img src="${t.attachment}" class="mt-2 rounded-lg max-h-48 border"></a>` : '';
+                    msgList.innerHTML += `<div class="flex flex-col items-end mb-4"><div class="bg-brand-500 text-slate-900 px-4 py-2 rounded-2xl max-w-[85%]" style="overflow-wrap: anywhere;">${t.text}${attachHtml}</div></div>`;
+                    if(t.replies) {
+                        t.replies.forEach(r => {
+                            msgList.innerHTML += `<div class="flex items-end gap-2 mb-4"><div class="bg-slate-700 text-white px-4 py-2 rounded-2xl max-w-[85%]" style="overflow-wrap: anywhere;"><span class="text-xs text-brand-400 font-bold">${r.author}:</span> ${r.text}</div></div>`;
+                        });
+                    }
                 });
                 msgList.scrollTop = msgList.scrollHeight;
             }
         }
+
         function submitHelpTicket(e) {
             e.preventDefault();
             const input = document.getElementById('help-input'), fileInput = document.getElementById('help-file-input'), text = input.value.trim();
-            if((!text && !fileInput.files.length) || !currentUser || currentUser.isBlocked) return;
-            const addTicket = (fileData) => { helpTickets.push({ id: Date.now(), author: currentUser.nickname, text: text, attachment: fileData, status: 'open', replies: [] }); syncSaveTickets(); input.value = ''; clearHelpFile(); renderUserChat(); };
-            if(fileInput.files[0]) { const r = new FileReader(); r.onload = (evt) => addTicket(evt.target.result); r.readAsDataURL(fileInput.files[0]); } else { addTicket(null); }
+            if((!text && !fileInput.files.length) || !window.currentUser) return;
+            const addTicket = (fileData) => {
+                const newTicket = { id: Date.now(), author: window.currentUser.nickname, text: text, attachment: fileData, replies: [] };
+                window.FB.set(window.FB.ref(window.FB.db, 'tickets/' + newTicket.id), newTicket);
+                input.value = ''; clearHelpFile();
+            };
+            if(fileInput.files[0]) {
+                const r = new FileReader(); r.onload = (evt) => addTicket(evt.target.result); r.readAsDataURL(fileInput.files[0]);
+            } else { addTicket(null); }
         }
 
-        // --- АДМИН ПАНЕЛЬ ---
         function openAdminModal() {
-            if(!currentUser) return;
-            const r = currentUser.role;
-            if(r === 'user') return;
+            if(!window.currentUser || window.currentUser.role === 'user') return;
             closeAllModals();
-            
             const tCont = document.getElementById('tab-content'), tHelp = document.getElementById('tab-help'), tUsers = document.getElementById('tab-users'), tSett = document.getElementById('tab-settings');
+            const r = window.currentUser.role;
             tCont.classList.toggle('hidden', !['moderator', 'admin', 'chief_admin'].includes(r));
             tHelp.classList.toggle('hidden', !['tech_support', 'chief_admin'].includes(r));
             tUsers.classList.toggle('hidden', !['admin', 'chief_admin'].includes(r));
             tSett.classList.toggle('hidden', r !== 'chief_admin');
-
-            let defaultTab = 'content';
-            if (r === 'tech_support') defaultTab = 'help';
-            
-            // Настройка кнопки Обслуживания (если шеф)
-            if(r === 'chief_admin') {
-                const btn = document.getElementById('maintenance-toggle-btn');
-                if(siteSettings.isMaintenance) { btn.innerText = 'Выключить'; btn.className = 'px-6 py-2 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-600 transition-colors whitespace-nowrap ml-4'; }
-                else { btn.innerText = 'Включить'; btn.className = 'px-6 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-colors whitespace-nowrap ml-4'; }
-            }
-
-            switchAdminTab(defaultTab);
+            switchAdminTab(r === 'tech_support' ? 'help' : 'content');
             toggleModal('admin-modal', 'admin-modal-content', true);
-            hideMenu();
         }
 
         function switchAdminTab(tab) {
-            const aCls = "px-4 py-2 border-b-2 border-brand-500 text-brand-400 font-bold whitespace-nowrap", iCls = "px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-300 font-bold whitespace-nowrap";
-            
+            const aCls = "px-4 py-2 border-b-2 border-brand-500 text-brand-400 font-bold whitespace-nowrap", iCls = "px-4 py-2 border-b-2 border-transparent text-slate-400 font-bold whitespace-nowrap";
             document.getElementById('tab-content').className = tab === 'content' ? aCls : iCls;
             document.getElementById('tab-help').className = tab === 'help' ? aCls : iCls;
             document.getElementById('tab-users').className = tab === 'users' ? aCls : iCls;
@@ -929,258 +815,113 @@
             document.getElementById('admin-users-view').classList.toggle('hidden', tab !== 'users');
             document.getElementById('admin-settings-view').classList.toggle('hidden', tab !== 'settings');
 
-            if(tab === 'content') renderAdminContent(); if(tab === 'help') renderAdminHelp(); if(tab === 'users') renderAdminUsers();
+            if(tab === 'content') renderAdminContent(); 
+            if(tab === 'help') renderAdminHelp(); 
+            if(tab === 'users') renderAdminUsers();
         }
 
-        function generateAdminItemHTML(item, isPending) {
-            const isMod = item.type === 'mod';
-            let photoMetaHtml = '';
-            if(!isMod && (item.brand || item.route || item.plate)) {
-                photoMetaHtml = `<div class="text-xs text-brand-400 mt-2 flex flex-wrap gap-2">
-                    ${item.brand ? `<span class="bg-slate-900 px-2 py-1 rounded">Марка: ${item.brand}</span>` : ''}
-                    ${item.route ? `<span class="bg-slate-900 px-2 py-1 rounded">Маршрут: ${item.route}</span>` : ''}
-                    ${item.plate ? `<span class="bg-slate-900 px-2 py-1 rounded font-mono border border-slate-600">Гос: ${item.plate}</span>` : ''}
-                </div>`;
-            }
-            const buttonsHtml = isPending 
-                ? `<button onclick="moderateItem(${item.id}, 'approved')" class="bg-green-500/20 text-green-400 hover:bg-green-500 hover:text-white px-4 py-2 rounded-lg text-sm font-bold">Одобрить</button><button onclick="requestDelete(${item.id})" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg text-sm font-bold">Отклонить</button>`
-                : `<button onclick="requestDelete(${item.id})" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg text-sm font-bold w-full md:w-auto">Безвозвратно Удалить</button>`;
-
-            return `
-                <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex flex-col md:flex-row gap-4">
-                    <img src="${item.img}" class="w-full md:w-32 h-24 object-cover rounded-lg cursor-pointer hover:border-brand-500 transition-colors" onclick="openItemDetails(${item.id})">
-                    <div class="flex-grow">
-                        <span class="bg-brand-500/20 text-brand-400 text-xs px-2 py-0.5 rounded font-bold">${isMod ? 'МОД' : 'ФОТО'}</span>
-                        <h4 class="text-white font-bold inline-block ml-2 cursor-pointer hover:text-brand-400" onclick="openItemDetails(${item.id})">${item.title}</h4>
-                        <p class="text-sm text-slate-400 mt-1 line-clamp-2">${item.desc}</p>
-                        ${photoMetaHtml}
-                        <p class="text-xs text-slate-500 mt-2 flex items-center gap-1">Автор: <span class="text-brand-400 cursor-pointer hover:underline" onclick="openPublicProfile('${item.author}')">${item.author}</span> ${item.link ? ` | <a href="${item.link}" target="_blank" class="text-brand-400 underline ml-1">Ссылка</a>` : ''}</p>
-                    </div>
-                    <div class="flex flex-col gap-2 justify-center">${buttonsHtml}</div>
-                </div>`;
-        }
-
-        function renderAdminContent() {
+        window.renderAdminContent = function() {
             const pList = document.getElementById('admin-pending-list'), aList = document.getElementById('admin-approved-list');
+            if(!pList) return;
             pList.innerHTML = ''; aList.innerHTML = '';
-            const pending = communityItems.filter(i => i.status === 'pending'), approved = communityItems.filter(i => i.status === 'approved');
+            const pending = window.communityItems.filter(i => i.status === 'pending'), approved = window.communityItems.filter(i => i.status === 'approved');
             
-            if(pending.length === 0) pList.innerHTML = '<p class="text-slate-500 italic">Нет заявок на модерацию.</p>'; else pending.forEach(item => pList.innerHTML += generateAdminItemHTML(item, true));
-            if(approved.length === 0) aList.innerHTML = '<p class="text-slate-500 italic">На сайте пусто.</p>'; else approved.forEach(item => aList.innerHTML += generateAdminItemHTML(item, false));
-        }
+            pending.forEach(item => {
+                pList.innerHTML += `<div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center"><span class="text-white">${item.title} (${item.author})</span><div class="flex gap-2"><button onclick="moderateItem(${item.id}, 'approved')" class="bg-green-500/20 text-green-400 px-3 py-1 rounded">Одобрить</button><button onclick="deleteItem(${item.id})" class="bg-red-500/20 text-red-400 px-3 py-1 rounded">Отклонить</button></div></div>`;
+            });
+            approved.forEach(item => {
+                aList.innerHTML += `<div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center"><span class="text-white">${item.title}</span><button onclick="deleteItem(${item.id})" class="bg-red-500/20 text-red-400 px-3 py-1 rounded">Удалить</button></div>`;
+            });
+        };
 
         function moderateItem(id, status) {
-            const idx = communityItems.findIndex(i => i.id === id);
-            if(idx !== -1) { communityItems[idx].status = status; syncSaveItems(); renderAdminContent(); renderCommunityContent(); }
+            window.FB.update(window.FB.ref(window.FB.db, 'items/' + id), { status: status });
         }
-        function requestDelete(id) {
-            customConfirm("Вы уверены, что хотите удалить этот контент?", () => { communityItems = communityItems.filter(i => i.id !== id); syncSaveItems(); renderAdminContent(); renderCommunityContent(); });
+        function deleteItem(id) {
+            customConfirm("Удалить контент?", () => { window.FB.remove(window.FB.ref(window.FB.db, 'items/' + id)); });
         }
 
-        function renderAdminHelp() {
-            const list = document.getElementById('admin-tickets-list'); list.innerHTML = '';
-            if(helpTickets.length === 0) { list.innerHTML = '<p class="text-slate-500 italic">Нет сообщений от пользователей.</p>'; return; }
-            [...helpTickets].reverse().forEach(t => {
-                let repliesHtml = '';
-                t.replies.forEach(r => { repliesHtml += `<div class="bg-slate-900/50 p-2 rounded text-sm mt-2 border-l-2 border-brand-500"><span class="text-brand-400 text-xs font-bold cursor-pointer hover:underline" onclick="openPublicProfile('${r.author}')">${r.author}:</span> ${r.text}</div>`; });
-                let attachHtml = t.attachment ? `<div class="mt-2"><a href="${t.attachment}" target="_blank"><img src="${t.attachment}" class="max-h-32 rounded border border-slate-600 cursor-pointer hover:border-brand-500"></a></div>` : '';
-
-                list.innerHTML += `
-                    <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl">
-                        <div class="flex justify-between items-start mb-2"><h4 class="text-white font-bold text-sm">Пользователь: <span class="text-brand-400 cursor-pointer hover:underline" onclick="openPublicProfile('${t.author}')">${t.author}</span></h4></div>
-                        <div class="bg-slate-900 p-3 rounded-lg text-slate-300 text-sm mb-3 border border-slate-700 shadow-inner">${t.text} ${attachHtml}</div>
-                        <div class="mb-3">${repliesHtml}</div>
-                        <div class="flex gap-2 mt-2">
-                            <input type="text" id="reply-input-${t.id}" class="flex-grow px-3 py-2 rounded bg-slate-900 border border-slate-600 text-white outline-none focus:border-brand-500" placeholder="Ответить...">
-                            <button onclick="adminReplyTicket(${t.id})" class="px-4 py-2 bg-brand-500 text-slate-900 text-sm font-bold rounded hover:bg-brand-400 transition-colors">Отправить</button>
-                        </div>
-                    </div>`;
+        window.renderAdminHelp = function() {
+            const list = document.getElementById('admin-tickets-list'); if(!list) return;
+            list.innerHTML = '';
+            window.helpTickets.forEach(t => {
+                list.innerHTML += `<div class="bg-slate-800 p-4 rounded-xl"><p class="text-brand-400 font-bold">${t.author}: ${t.text}</p><div class="flex gap-2 mt-2"><input type="text" id="reply-${t.id}" class="bg-slate-900 text-white px-2 py-1 rounded flex-grow"><button onclick="adminReply(${t.id})" class="bg-brand-500 text-slate-900 px-3 py-1 rounded font-bold">Ответить</button></div></div>`;
             });
-        }
-        function adminReplyTicket(ticketId) {
-            const text = document.getElementById(`reply-input-${ticketId}`).value.trim();
+        };
+        function adminReply(id) {
+            const text = document.getElementById(`reply-${id}`).value.trim();
             if(!text) return;
-            const t = helpTickets.find(x => x.id === ticketId);
-            if(t) { t.replies.push({ author: currentUser.nickname, text: text }); syncSaveTickets(); renderAdminHelp(); }
+            const t = window.helpTickets.find(x => x.id === id);
+            if(t) {
+                if(!t.replies) t.replies = [];
+                t.replies.push({ author: window.currentUser.nickname, text: text });
+                window.FB.set(window.FB.ref(window.FB.db, 'tickets/' + id), t);
+            }
         }
 
-        function renderAdminUsers() {
-            const list = document.getElementById('admin-users-list'); list.innerHTML = '';
-            const otherUsers = allUsers.filter(u => (u.login || u.nickname) !== (currentUser.login || currentUser.nickname));
-            if(otherUsers.length === 0) { list.innerHTML = '<p class="text-slate-500">Нет других пользователей.</p>'; return; }
-            
-            otherUsers.forEach(u => {
-                const canModify = !(currentUser.role === 'admin' && u.role === 'chief_admin');
-                const userLoginOrNick = u.login || u.nickname;
-                let controlsHtml = '';
-                if(canModify) {
-                    const btnClass = u.isBlocked ? "bg-green-500/20 text-green-400 hover:bg-green-500" : "bg-red-500/20 text-red-400 hover:bg-red-500";
-                    controlsHtml += `<button onclick="toggleUserBlock('${userLoginOrNick}')" class="px-3 py-1.5 rounded-lg text-xs font-bold hover:text-white ${btnClass}">${u.isBlocked ? "Разблокировать" : "Заблокировать"}</button>`;
-                    if (currentUser.role === 'chief_admin') {
-                        controlsHtml += `
-                            <select onchange="changeUserRole('${userLoginOrNick}', this.value)" class="bg-slate-700 border border-slate-600 text-white text-xs rounded-lg px-2 py-1.5 outline-none ml-2">
-                                <option value="user" ${u.role==='user'?'selected':''}>Пользователь</option>
-                                <option value="moderator" ${u.role==='moderator'?'selected':''}>Модератор</option>
-                                <option value="tech_support" ${u.role==='tech_support'?'selected':''}>Тех. Специалист</option>
-                                <option value="admin" ${u.role==='admin'?'selected':''}>Администратор</option>
-                            </select>`;
-                    }
-                }
-                list.innerHTML += `
-                    <div class="flex items-center justify-between bg-slate-800 border border-slate-700 p-3 rounded-lg overflow-x-auto">
-                        <div class="flex items-center gap-3 cursor-pointer group" onclick="openPublicProfile('${u.nickname}')">
-                            <img src="${u.avatar}" class="w-8 h-8 rounded-full border border-slate-600 flex-shrink-0 object-cover group-hover:border-brand-500">
-                            <div>
-                                <span class="text-white font-bold block leading-tight group-hover:text-brand-400 ${u.isBlocked ? 'line-through opacity-50' : ''}">${u.nickname}</span>
-                                <span class="text-[10px] text-slate-500 block leading-tight">Логин: ${userLoginOrNick}</span>
-                                <span class="text-[10px] text-brand-400 uppercase">${getRoleName(u.role)} ${u.isBlocked ? '(BANNED)' : ''}</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center whitespace-nowrap ml-2">${controlsHtml}</div>
-                    </div>`;
+        window.renderAdminUsers = function() {
+            const list = document.getElementById('admin-users-list'); if(!list) return;
+            list.innerHTML = '';
+            window.allUsers.forEach(u => {
+                if(u.login === window.currentUser.login) return;
+                list.innerHTML += `<div class="bg-slate-800 p-3 rounded flex justify-between items-center"><span class="text-white">${u.nickname} (${u.role})</span><button onclick="toggleBlock('${u.login}')" class="bg-red-500/20 text-red-400 px-3 py-1 rounded text-xs">${u.isBlocked ? 'Разбан' : 'Бан'}</button></div>`;
             });
+        };
+        function toggleBlock(login) {
+            const u = window.allUsers.find(x => x.login === login);
+            if(u) {
+                u.isBlocked = !u.isBlocked;
+                window.FB.set(window.FB.ref(window.FB.db, 'users/' + login), u);
+            }
         }
-        function toggleUserBlock(loginStr) { const u = allUsers.find(x => (x.login || x.nickname) === loginStr); if(u) { u.isBlocked = !u.isBlocked; syncSaveUsers(); renderAdminUsers(); } }
-        function changeUserRole(loginStr, role) { const u = allUsers.find(x => (x.login || x.nickname) === loginStr); if(u) { u.role = role; syncSaveUsers(); renderAdminUsers(); } }
 
-        // --- ВЫВОД ОДОБРЕННОГО КОНТЕНТА И СВЕЖИХ ПУБЛИКАЦИЙ ---
         function renderRecentActivity() {
             const container = document.getElementById('recent-activity-container'); if(!container) return;
-            const approved = communityItems.filter(i => i.status === 'approved').sort((a, b) => b.id - a.id);
-            const latest = approved.slice(0, 3); 
-            if(latest.length === 0) { container.innerHTML = '<p class="text-slate-500 italic col-span-full text-center">Здесь будут появляться свежие моды и фотографии.</p>'; return; }
+            const approved = window.communityItems.filter(i => i.status === 'approved').reverse().slice(0, 3);
             container.innerHTML = '';
-            latest.forEach(item => {
-                const isMod = item.type === 'mod';
-                const actionText = isMod ? 'добавил(а) новый мод' : 'добавил(а) новую фотографию';
-                const avatar = allUsers.find(u => u.nickname === item.author)?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.author}`;
-                container.innerHTML += `
-                    <div onclick="openItemDetails(${item.id})" class="bg-slate-800 border border-slate-700 rounded-xl p-4 flex gap-4 items-center cursor-pointer hover:border-brand-500 transition-colors shadow-lg hover:shadow-brand-500/20 group">
-                        <img src="${item.img}" class="w-20 h-20 object-cover rounded-lg flex-shrink-0">
-                        <div class="flex-grow min-w-0">
-                            <div class="flex items-center gap-2 mb-1" onclick="event.stopPropagation(); openPublicProfile('${item.author}')">
-                                <img src="${avatar}" class="w-5 h-5 rounded-full object-cover">
-                                <span class="text-xs text-brand-400 font-bold truncate hover:underline">${item.author}</span>
-                            </div>
-                            <p class="text-xs text-slate-400 mb-1 truncate">${actionText}</p>
-                            <h4 class="text-white font-bold text-sm truncate group-hover:text-brand-400 transition-colors">${item.title}</h4>
-                        </div>
-                    </div>`;
+            approved.forEach(item => {
+                container.innerHTML += `<div onclick="openItemDetails(${item.id})" class="bg-slate-800 p-4 rounded-xl flex gap-4 items-center cursor-pointer hover:border-brand-500 border border-slate-700"><img src="${item.img}" class="w-16 h-16 object-cover rounded"><div><h4 class="text-white font-bold text-sm">${item.title}</h4><span class="text-xs text-brand-400">Автор: ${item.author}</span></div></div>`;
             });
         }
 
-        function renderCommunityContent() {
+        window.renderCommunityContent = function() {
             const modsGrid = document.getElementById('mods-grid'), photosGrid = document.getElementById('photos-grid');
             if(modsGrid) modsGrid.innerHTML = ''; if(photosGrid) photosGrid.innerHTML = '';
             
-            const mods = communityItems.filter(i => i.type === 'mod' && i.status === 'approved');
-            const photos = communityItems.filter(i => i.type === 'photo' && i.status === 'approved');
-            
-            if(modsGrid && mods.length === 0) modsGrid.innerHTML = '<p class="text-slate-500 col-span-full text-center">Нет одобренных модов.</p>';
-            mods.forEach(m => {
-                const likeCount = m.likes ? m.likes.length : 0;
-                if(modsGrid) modsGrid.innerHTML += `
-                    <div onclick="openItemDetails(${m.id})" class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-brand-500 transition-colors group cursor-pointer shadow-lg hover:shadow-brand-500/20 flex flex-col h-full">
-                        <img src="${m.img}" class="w-full h-48 object-cover flex-shrink-0">
-                        <div class="p-5 flex flex-col flex-grow">
-                            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-brand-400 transition-colors">${m.title}</h3>
-                            <p class="text-sm text-slate-400 mb-4 line-clamp-2 flex-grow">${m.desc || 'Нет описания'}</p>
-                            <div class="flex justify-between items-center border-t border-slate-700 pt-3">
-                                <div class="flex items-center gap-2" onclick="event.stopPropagation(); openPublicProfile('${m.author}')">
-                                    <img src="${allUsers.find(u => u.nickname === m.author)?.avatar || ''}" class="w-6 h-6 rounded-full bg-slate-900 border border-slate-600 object-cover">
-                                    <span class="text-xs text-brand-400 hover:underline">${m.author}</span>
-                                </div>
-                                <div class="flex items-center gap-1 text-slate-400 text-xs font-bold">
-                                    <svg class="w-4 h-4 ${likeCount > 0 ? 'text-red-500' : ''}" fill="${likeCount > 0 ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                                    ${likeCount}
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
-            });
-
-            if(photosGrid && photos.length === 0) photosGrid.innerHTML = '<p class="text-slate-500 col-span-full text-center">Нет одобренных фотографий.</p>';
-            photos.forEach(p => {
-                const likeCount = p.likes ? p.likes.length : 0;
-                if(photosGrid) {
-                    let tags = '';
-                    if(p.route) tags += `<span class="bg-brand-500 text-slate-900 text-[10px] font-bold px-2 py-0.5 rounded mr-1 shadow">Маршрут: ${p.route}</span>`;
-                    if(p.plate) tags += `<span class="bg-white text-black text-[10px] font-bold px-2 py-0.5 rounded border border-gray-400 font-mono shadow">${p.plate}</span>`;
-
-                    photosGrid.innerHTML += `
-                        <div onclick="openItemDetails(${p.id})" class="relative rounded-xl overflow-hidden group border border-slate-700 hover:border-brand-500 h-64 cursor-pointer shadow-lg hover:shadow-brand-500/20">
-                            <img src="${p.img}" class="w-full h-full object-cover">
-                            <div class="absolute top-2 left-2 flex flex-col items-start gap-1">${tags}</div>
-                            <div class="absolute top-2 right-2 bg-slate-900/80 px-2 py-1 rounded flex items-center gap-1 text-xs font-bold text-slate-300 backdrop-blur-sm">
-                                <svg class="w-4 h-4 ${likeCount > 0 ? 'text-red-500' : ''}" fill="${likeCount > 0 ? 'currentColor' : 'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                                ${likeCount}
-                            </div>
-                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-0 group-hover:opacity-100 flex flex-col justify-end p-4 transition-opacity">
-                                <h3 class="text-white font-bold">${p.title} ${p.brand ? `<span class="text-slate-300 font-normal text-xs ml-1 block">${p.brand}</span>` : ''}</h3>
-                                <span class="text-xs text-brand-400 mt-1 block hover:underline" onclick="event.stopPropagation(); openPublicProfile('${p.author}')">Фото от: ${p.author}</span>
-                            </div>
-                        </div>`;
+            window.communityItems.filter(i => i.status === 'approved').forEach(item => {
+                const likeCount = item.likes ? item.likes.length : 0;
+                if(item.type === 'mod' && modsGrid) {
+                    modsGrid.innerHTML += `<div onclick="openItemDetails(${item.id})" class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 cursor-pointer"><img src="${item.img}" class="w-full h-48 object-cover"><div class="p-5"><h3 class="text-xl font-bold text-white">${item.title}</h3><span class="text-xs text-brand-400">❤️ ${likeCount} | Автор: ${item.author}</span></div></div>`;
+                } else if(item.type === 'photo' && photosGrid) {
+                    photosGrid.innerHTML += `<div onclick="openItemDetails(${item.id})" class="relative rounded-xl overflow-hidden border border-slate-700 h-64 cursor-pointer"><img src="${item.img}" class="w-full h-full object-cover"><div class="absolute bottom-0 bg-gradient-to-t from-slate-900 p-4 w-full"><h3 class="text-white font-bold">${item.title}</h3><span class="text-xs text-brand-400">❤️ ${likeCount} | ${item.author}</span></div></div>`;
                 }
             });
+            renderRecentActivity();
+        };
 
-            renderRecentActivity(); 
-        }
-
-        // --- GITHUB RELEASES ---
         async function fetchGitHubReleases() {
             const container = document.getElementById('releases-container'); if(!container) return;
+            container.innerHTML = '<div class="text-center text-slate-400">Загрузка обновлений с GitHub...</div>';
             try {
                 const res = await fetch('https://api.github.com/repos/openOMSI-org/openOMSI/releases');
-                if (!res.ok) throw new Error();
                 const releases = await res.json();
-                if (releases.length === 0) throw new Error('Релизов пока нет');
-                const top = releases.slice(0, 2);
-                for (let r of top) {
-                    if (r.body) {
-                        try {
-                            const trRes = await fetch("https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=ru&dt=t", { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ q: r.body }) });
-                            const data = await trRes.json();
-                            let t = '';
-                            if (data && data[0]) data[0].forEach(i => { if (i[0]) t += i[0]; });
-                            r.translatedBody = t || r.body;
-                        } catch(e) { r.translatedBody = r.body; }
-                    }
-                }
-                renderReleases(top);
-            } catch (e) {
-                renderReleases([{ name: "openOMSI v0.4.0", tag_name: "v0.4.0", published_at: new Date().toISOString(), html_url: "#", translatedBody: "## Что нового\n* Демонстрационные данные загружены" }], true);
-            }
-        }
-        function renderReleases(releases, isMock) {
-            const c = document.getElementById('releases-container'); if(!c) return;
-            let html = isMock ? '<div class="text-brand-500 bg-brand-500/10 border border-brand-500/20 text-sm text-center py-2 px-4 rounded-lg mb-6">Офлайн режим (лимит GitHub API)</div>' : '';
-            releases.forEach(r => {
-                const date = new Date(r.published_at).toLocaleDateString('ru-RU');
-                const body = r.translatedBody || r.body || '*Нет описания*';
-                const parsed = typeof marked !== 'undefined' ? marked.parse(body) : `<pre>${body}</pre>`;
-                html += `
-                    <div class="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 hover:border-brand-500 mb-6 transition-colors">
-                        <div class="flex flex-col sm:flex-row justify-between mb-4 gap-4">
-                            <div><h3 class="text-xl font-bold text-white">${r.name || r.tag_name} <span class="text-brand-400 text-xs font-mono ml-2">${r.tag_name}</span></h3><span class="text-slate-400 text-sm">${date}</span></div>
-                            <a href="${r.html_url}" target="_blank" class="px-5 py-2 bg-slate-700 hover:bg-brand-500 hover:text-slate-900 text-white font-bold rounded-lg text-sm transition-colors">GitHub</a>
-                        </div>
-                        <div class="releases-content text-slate-300 text-sm">${parsed}</div>
-                    </div>`;
-            });
-            c.innerHTML = html;
+                container.innerHTML = '';
+                releases.slice(0, 2).forEach(r => {
+                    container.innerHTML += `<div class="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 mb-4"><h3 class="text-xl font-bold text-white">${r.name || r.tag_name}</h3><a href="${r.html_url}" target="_blank" class="text-brand-400 underline text-sm">Смотреть на GitHub</a></div>`;
+                });
+            } catch(e) { container.innerHTML = '<div class="text-center text-slate-500">Не удалось загрузить релизы GitHub.</div>'; }
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            syncLoad(); updateUI(); switchView('home'); fetchGitHubReleases();
+            fetchGitHubReleases();
             document.getElementById('mobile-menu-btn').addEventListener('click', () => { document.getElementById('mobile-menu').classList.toggle('hidden'); });
             
             const cont = document.getElementById('leaves-container');
             const lvs = ['🍁', '🍂', '🍃'];
-            for (let i=0; i<20; i++) {
+            for (let i=0; i<15; i++) {
                 const el = document.createElement('div');
                 el.className = 'leaf'; el.innerText = lvs[Math.floor(Math.random() * lvs.length)];
                 el.style.left = `${Math.random() * 100}vw`; el.style.animationDuration = `${Math.random() * 10 + 8}s`;
-                el.style.animationDelay = `${Math.random() * 15}s`; el.style.fontSize = `${Math.random() * 1.2 + 0.8}rem`;
                 cont.appendChild(el);
             }
         });
