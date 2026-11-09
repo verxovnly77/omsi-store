@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VP-OPENOMSI | Главная</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Marked.js для парсинга Markdown из релизов GitHub -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -34,6 +37,7 @@
             box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
         }
         
+        /* Анимация листьев */
         @keyframes fall {
             0% { transform: translateY(-10vh) rotate(0deg) translateX(0); opacity: 1; }
             100% { transform: translateY(110vh) rotate(360deg) translateX(50px); opacity: 0; }
@@ -46,10 +50,41 @@
             animation: fall linear infinite;
             filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.3));
         }
+
+        /* Стили для сгенерированного Markdown контента */
+        .releases-content h1, .releases-content h2, .releases-content h3 {
+            color: white;
+            font-weight: 700;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .releases-content ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .releases-content li {
+            margin-bottom: 0.25rem;
+        }
+        .releases-content a {
+            color: #fbbf24;
+            text-decoration: underline;
+        }
+        .releases-content a:hover {
+            color: #f59e0b;
+        }
+        .releases-content code {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+            font-family: monospace;
+            color: #fbbf24;
+        }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col relative">
 
+    <!-- Листья -->
     <div id="leaves-container" class="fixed inset-0 pointer-events-none z-40 overflow-hidden"></div>
 
     <!-- Навигация -->
@@ -62,6 +97,7 @@
                 <!-- Меню ПК -->
                 <nav class="hidden md:flex space-x-8">
                     <a href="#hero" class="text-slate-300 hover:text-brand-400 transition-colors">Главная</a>
+                    <a href="#updates" class="text-slate-300 hover:text-brand-400 transition-colors">Обновления</a>
                     <a href="#news" class="text-slate-300 hover:text-brand-400 transition-colors">Новости</a>
                     <a href="#dev" class="text-slate-300 hover:text-brand-400 transition-colors">Разработка</a>
                 </nav>
@@ -71,7 +107,7 @@
                     <button id="nav-login-btn" onclick="openLoginModal()" class="px-5 py-2 rounded-lg border-2 border-slate-700 text-slate-300 hover:border-brand-500 hover:text-brand-400 transition-all font-semibold">
                         Войти
                     </button>
-                    <!-- Профиль пользователя (скрыт по умолчанию) -->
+                    <!-- Профиль -->
                     <div id="nav-user-profile" class="hidden items-center gap-3 cursor-pointer group" onclick="openProfileModal()">
                         <span id="nav-user-name" class="font-medium text-slate-200 group-hover:text-brand-400 transition-colors">Имя</span>
                         <img id="nav-user-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Player" alt="Аватар" class="w-10 h-10 rounded-full border-2 border-brand-500 object-cover">
@@ -92,13 +128,12 @@
         <div id="mobile-menu" class="hidden md:hidden bg-slate-800 border-b border-slate-700">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col relative z-50">
                 <a href="#hero" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Главная</a>
+                <a href="#updates" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Обновления</a>
                 <a href="#news" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Новости</a>
                 <a href="#dev" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Разработка</a>
                 
-                <!-- Моб. авторизация -->
                 <button id="mob-login-btn" onclick="openLoginModal()" class="mt-2 w-full text-left px-3 py-2 text-brand-400 font-bold">Войти</button>
                 
-                <!-- Моб. профиль -->
                 <div id="mob-user-profile" class="hidden mt-2 px-3 py-2 flex flex-col gap-2 border-t border-slate-700 pt-3">
                     <div class="flex items-center gap-3 cursor-pointer" onclick="openProfileModal()">
                         <img id="mob-user-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Player" alt="Аватар" class="w-8 h-8 rounded-full border border-brand-500 object-cover">
@@ -110,8 +145,10 @@
         </div>
     </header>
 
-    <!-- Главный экран -->
+    <!-- Основной контент -->
     <main class="flex-grow pt-20 relative z-10">
+        
+        <!-- Главный экран -->
         <section id="hero" class="relative py-20 lg:py-32 overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
                 <div class="inline-block mb-4 px-4 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-sm font-medium">
@@ -124,15 +161,40 @@
                     Присоединяйтесь к открытой разработке, скачивайте последние билды и следите за развитием нового поколения автобусных симуляторов от VP-OPENOMSI.
                 </p>
                 <div class="flex flex-col sm:flex-row justify-center gap-4 relative z-50">
-                    <a href="#download" class="px-8 py-4 rounded-lg bg-brand-500 text-slate-900 font-bold text-lg hover:bg-brand-400 transition-all shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:scale-105 inline-block">
-                        Скачать последнюю версию
+                    <a href="#updates" class="px-8 py-4 rounded-lg bg-brand-500 text-slate-900 font-bold text-lg hover:bg-brand-400 transition-all shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:scale-105 inline-block">
+                        Последние версии
                     </a>
-                    <a href="https://github.com/openOMSI-org" target="_blank" class="px-8 py-4 rounded-lg bg-slate-800 text-white font-bold text-lg border border-slate-700 hover:border-brand-500 hover:text-brand-400 transition-all inline-block">
+                    <a href="https://github.com/openOMSI-org/openOMSI" target="_blank" class="px-8 py-4 rounded-lg bg-slate-800 text-white font-bold text-lg border border-slate-700 hover:border-brand-500 hover:text-brand-400 transition-all inline-block">
                         Исходный код
                     </a>
                 </div>
             </div>
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-600/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+        </section>
+
+        <!-- БЛОК ОБНОВЛЕНИЙ ИЗ GITHUB -->
+        <section id="updates" class="py-16">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-30">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-bold mb-4 text-white">Журнал обновлений</h2>
+                    <p class="text-slate-400">Автоматически синхронизируется с GitHub репозиторием <span class="text-brand-400 font-mono">openOMSI-org/openOMSI</span></p>
+                </div>
+                
+                <!-- Контейнер для релизов -->
+                <div id="releases-container" class="space-y-6">
+                    <!-- Заглушка на время загрузки -->
+                    <div class="flex justify-center py-10">
+                        <svg class="animate-spin h-10 w-10 text-brand-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <a href="https://github.com/openOMSI-org/openOMSI/releases" target="_blank" class="text-brand-400 hover:text-brand-300 font-medium hover:underline">Посмотреть все обновления на GitHub &rarr;</a>
+                </div>
+            </div>
         </section>
 
         <!-- Новости (Telegram) -->
@@ -148,6 +210,31 @@
                     <a href="https://t.me/verxonlyprodopomsi" target="_blank" class="px-6 py-3 bg-brand-500 text-slate-900 font-bold rounded-lg hover:bg-brand-400 transition-colors shrink-0">
                         Подписаться
                     </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Разработка -->
+        <section id="dev" class="py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-30">
+                <h2 class="text-3xl font-bold mb-10 text-center">Наши Репозитории</h2>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-brand-500 transition-all group">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-2xl font-bold text-brand-400 group-hover:glow-text">openOMSI</h3>
+                            <span class="px-3 py-1 bg-slate-900 text-xs rounded-full border border-slate-600 text-slate-300">Core</span>
+                        </div>
+                        <p class="text-slate-400 mb-6">Главный движок и ядро симулятора. Открытый исходный код для создания реалистичной физики и графики.</p>
+                        <a href="https://github.com/openOMSI-org/openOMSI" target="_blank" class="text-white hover:text-brand-400 inline-flex items-center gap-2">Смотреть на GitHub &rarr;</a>
+                    </div>
+                    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-brand-500 transition-all group">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-2xl font-bold text-brand-400 group-hover:glow-text">openMapper</h3>
+                            <span class="px-3 py-1 bg-slate-900 text-xs rounded-full border border-slate-600 text-slate-300">Tools</span>
+                        </div>
+                        <p class="text-slate-400 mb-6">Инструментарий для создания, редактирования и конвертации карт и маршрутов для симулятора.</p>
+                        <a href="https://github.com/openOMSI-org/openMapper" target="_blank" class="text-white hover:text-brand-400 inline-flex items-center gap-2">Смотреть на GitHub &rarr;</a>
+                    </div>
                 </div>
             </div>
         </section>
@@ -168,10 +255,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
-            
             <h2 class="text-2xl font-bold text-center text-white mb-2">Авторизация</h2>
             <p class="text-center text-slate-400 mb-6">Войдите в аккаунт VP-OPENOMSI</p>
-            
             <form id="login-form" class="space-y-4" onsubmit="handleLogin(event)">
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1">Логин / Email</label>
@@ -181,9 +266,7 @@
                     <label class="block text-sm font-medium text-slate-300 mb-1">Пароль</label>
                     <input type="password" id="password" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="••••••••">
                 </div>
-                <button type="submit" class="w-full mt-4 bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400 transition-colors">
-                    Войти
-                </button>
+                <button type="submit" class="w-full mt-4 bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400 transition-colors">Войти</button>
             </form>
             <div class="mt-6 text-center text-slate-400 text-sm">
                 У вас еще нет аккаунта? <button onclick="switchToRegister()" class="text-brand-400 hover:underline font-medium">Хотите зарегистрироваться?</button>
@@ -199,10 +282,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
-            
             <h2 class="text-2xl font-bold text-center text-white mb-2">Регистрация</h2>
             <p class="text-center text-slate-400 mb-6">Создайте новый аккаунт</p>
-            
             <form id="register-form" class="space-y-4" onsubmit="handleRegister(event)">
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1">Никнейм</label>
@@ -216,9 +297,7 @@
                     <label class="block text-sm font-medium text-slate-300 mb-1">Пароль</label>
                     <input type="password" id="reg-password" required minlength="6" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="••••••••">
                 </div>
-                <button type="submit" class="w-full mt-4 bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400 transition-colors">
-                    Зарегистрироваться и войти
-                </button>
+                <button type="submit" class="w-full mt-4 bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400 transition-colors">Зарегистрироваться и войти</button>
             </form>
             <div class="mt-6 text-center text-slate-400 text-sm">
                 Уже есть аккаунт? <button onclick="switchToLogin()" class="text-brand-400 hover:underline font-medium">Войти</button>
@@ -234,11 +313,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </button>
-            
             <h2 class="text-2xl font-bold text-center text-white mb-6">Настройки профиля</h2>
-            
             <form id="profile-form" onsubmit="saveProfile(event)" class="space-y-6">
-                <!-- Редактирование аватарки -->
                 <div class="flex flex-col items-center gap-4">
                     <div class="relative group">
                         <img id="profile-avatar-preview" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Player" alt="Preview" class="w-24 h-24 rounded-full border-4 border-slate-700 object-cover group-hover:border-brand-500 transition-colors">
@@ -249,32 +325,93 @@
                     </div>
                     <span class="text-sm text-slate-400">Нажмите на фото, чтобы изменить</span>
                 </div>
-
-                <!-- Редактирование ника -->
                 <div>
                     <label class="block text-sm font-medium text-slate-300 mb-1">Ваш никнейм</label>
                     <input type="text" id="edit-nickname" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors">
                 </div>
-
                 <div class="flex flex-col gap-3 mt-6">
-                    <button type="submit" class="w-full bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400 transition-colors">
-                        Сохранить изменения
-                    </button>
-                    <button type="button" onclick="handleLogout()" class="w-full border border-red-500/50 text-red-400 font-semibold py-3 rounded-lg hover:bg-red-500/10 transition-colors">
-                        Выйти из аккаунта
-                    </button>
+                    <button type="submit" class="w-full bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400 transition-colors">Сохранить изменения</button>
+                    <button type="button" onclick="handleLogout()" class="w-full border border-red-500/50 text-red-400 font-semibold py-3 rounded-lg hover:bg-red-500/10 transition-colors">Выйти из аккаунта</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Скрипты -->
     <script>
-        // Состояние пользователя
-        let currentUser = null; 
-        // Пример структуры: { nickname: 'Игрок', avatar: 'url' }
+        /* ИНТЕГРАЦИЯ GITHUB РЕЛИЗОВ */
+        async function fetchGitHubReleases() {
+            const container = document.getElementById('releases-container');
+            const repoUrl = 'https://api.github.com/repos/openOMSI-org/openOMSI/releases';
+            
+            try {
+                const response = await fetch(repoUrl);
+                if (!response.ok) throw new Error('Сетевая ошибка');
+                const releases = await response.json();
+                
+                if (releases.length === 0) {
+                    container.innerHTML = '<p class="text-slate-400 text-center bg-slate-800/50 p-6 rounded-2xl border border-slate-700">Релизов пока нет. Следите за обновлениями!</p>';
+                    return;
+                }
 
-        // Обновление интерфейса в зависимости от авторизации
+                // Отображаем 3 последних релиза
+                const latestReleases = releases.slice(0, 3);
+                let htmlContent = '';
+
+                latestReleases.forEach(release => {
+                    // Форматируем дату на русский
+                    const date = new Date(release.published_at).toLocaleDateString('ru-RU', {
+                        year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                    
+                    // Перевод частых английских терминов в Markdown на русский
+                    let bodyText = release.body || '*Описание отсутствует*';
+                    bodyText = bodyText
+                        .replace(/## What's Changed/gi, '## Что нового')
+                        .replace(/### Added/gi, '### Добавлено')
+                        .replace(/### Fixed/gi, '### Исправлено')
+                        .replace(/### Changed/gi, '### Изменено')
+                        .replace(/### Removed/gi, '### Удалено')
+                        .replace(/**Full Changelog**/gi, '**Полный список изменений**');
+
+                    // Превращаем Markdown в HTML
+                    const htmlBody = marked.parse(bodyText);
+
+                    htmlContent += `
+                        <div class="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 relative overflow-hidden group hover:border-brand-500 transition-colors">
+                            <div class="flex flex-col sm:flex-row justify-between items-start mb-6 gap-4">
+                                <div>
+                                    <h3 class="text-2xl font-bold text-white group-hover:text-brand-400 transition-colors">
+                                        ${release.name || release.tag_name}
+                                    </h3>
+                                    <div class="flex items-center gap-3 mt-2">
+                                        <span class="px-3 py-1 bg-brand-500/10 text-brand-400 text-sm rounded-full border border-brand-500/20 font-mono">
+                                            ${release.tag_name}
+                                        </span>
+                                        <span class="text-slate-400 text-sm">${date}</span>
+                                    </div>
+                                </div>
+                                <a href="${release.html_url}" target="_blank" class="px-5 py-2 bg-slate-700 hover:bg-brand-500 hover:text-slate-900 text-white font-bold rounded-lg transition-all shrink-0">
+                                    Скачать с GitHub
+                                </a>
+                            </div>
+                            <div class="releases-content text-slate-300 text-sm">
+                                ${htmlBody}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = htmlContent;
+                
+            } catch (error) {
+                container.innerHTML = '<p class="text-red-400 text-center bg-slate-800/50 p-6 rounded-2xl border border-red-500/30">Не удалось загрузить данные с GitHub. Проверьте подключение к интернету.</p>';
+                console.error('Ошибка загрузки релизов GitHub:', error);
+            }
+        }
+
+        // Авторизация и профиль
+        let currentUser = null; 
+
         function updateUI() {
             const navLoginBtn = document.getElementById('nav-login-btn');
             const navUserProfile = document.getElementById('nav-user-profile');
@@ -282,7 +419,6 @@
             const mobUserProfile = document.getElementById('mob-user-profile');
 
             if (currentUser) {
-                // Прячем кнопки "Войти", показываем профиль
                 navLoginBtn.classList.add('hidden');
                 navUserProfile.classList.remove('hidden');
                 navUserProfile.classList.add('flex');
@@ -294,11 +430,9 @@
                 document.getElementById('mob-user-name').innerText = currentUser.nickname;
                 document.getElementById('mob-user-avatar').src = currentUser.avatar;
 
-                // Заполняем данные в модальном окне редактирования
                 document.getElementById('edit-nickname').value = currentUser.nickname;
                 document.getElementById('profile-avatar-preview').src = currentUser.avatar;
             } else {
-                // Показываем кнопки "Войти", прячем профиль
                 navLoginBtn.classList.remove('hidden');
                 navUserProfile.classList.add('hidden');
                 navUserProfile.classList.remove('flex');
@@ -308,7 +442,7 @@
             }
         }
 
-        // Генерация листьев
+        // Осенние листья
         function createLeaves() {
             const container = document.getElementById('leaves-container');
             const leaves = ['🍁', '🍂', '🍃'];
@@ -323,14 +457,18 @@
                 container.appendChild(leaf);
             }
         }
-        window.addEventListener('DOMContentLoaded', createLeaves);
 
-        // Мобильное меню
+        window.addEventListener('DOMContentLoaded', () => {
+            createLeaves();
+            fetchGitHubReleases();
+        });
+
+        // Меню
         const btn = document.getElementById('mobile-menu-btn');
         const menu = document.getElementById('mobile-menu');
         btn.addEventListener('click', () => menu.classList.toggle('hidden'));
 
-        // Управление модальными окнами
+        // Модальные окна
         function toggleModal(modalId, contentId, show) {
             const modal = document.getElementById(modalId);
             const content = document.getElementById(contentId);
@@ -366,56 +504,40 @@
 
         function openLoginModal() { closeAllModalsInstantly(); toggleModal('login-modal', 'login-modal-content', true); if(menu) menu.classList.add('hidden'); }
         function closeLoginModal() { toggleModal('login-modal', 'login-modal-content', false); }
-        
         function openRegisterModal() { closeAllModalsInstantly(); toggleModal('register-modal', 'register-modal-content', true); if(menu) menu.classList.add('hidden'); }
         function closeRegisterModal() { toggleModal('register-modal', 'register-modal-content', false); }
-
         function openProfileModal() { toggleModal('profile-modal', 'profile-modal-content', true); if(menu) menu.classList.add('hidden'); }
         function closeProfileModal() { toggleModal('profile-modal', 'profile-modal-content', false); }
-
         function switchToRegister() { openRegisterModal(); }
         function switchToLogin() { openLoginModal(); }
 
-        // Закрытие по клику вне окон
         window.addEventListener('click', (e) => {
             if (e.target.id === 'login-modal') closeLoginModal();
             if (e.target.id === 'register-modal') closeRegisterModal();
             if (e.target.id === 'profile-modal') closeProfileModal();
         });
 
-        // Логика Входа
+        // Авторизация
         function handleLogin(e) {
             e.preventDefault();
             const loginVal = document.getElementById('login').value;
-            // Устанавливаем пользователя
-            currentUser = {
-                nickname: loginVal,
-                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${loginVal}`
-            };
+            currentUser = { nickname: loginVal, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${loginVal}` };
             updateUI();
             closeLoginModal();
             e.target.reset();
         }
 
-        // Логика Регистрации (Автоматический вход)
         function handleRegister(e) {
             e.preventDefault();
             const loginVal = document.getElementById('reg-login').value;
-            
-            // Сразу авторизуем после регистрации
-            currentUser = {
-                nickname: loginVal,
-                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${loginVal}`
-            };
-            
+            currentUser = { nickname: loginVal, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${loginVal}` };
             updateUI();
             closeRegisterModal();
             e.target.reset();
         }
 
-        // Логика Профиля
+        // Профиль
         let tempAvatarSrc = null;
-
         function handleAvatarChange(event) {
             const file = event.target.files[0];
             if (file) {
@@ -430,15 +552,10 @@
 
         function saveProfile(e) {
             e.preventDefault();
-            const newName = document.getElementById('edit-nickname').value;
-            
             if (currentUser) {
-                currentUser.nickname = newName;
-                if (tempAvatarSrc) {
-                    currentUser.avatar = tempAvatarSrc;
-                }
+                currentUser.nickname = document.getElementById('edit-nickname').value;
+                if (tempAvatarSrc) currentUser.avatar = tempAvatarSrc;
             }
-            
             updateUI();
             closeProfileModal();
         }
