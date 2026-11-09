@@ -41,7 +41,6 @@
     <!-- ЭКРАН ТЕХНИЧЕСКИХ РАБОТ -->
     <div id="maintenance-screen" class="fixed inset-0 z-[300] hidden items-center justify-center bg-slate-900 flex-col text-center px-4">
         <div class="absolute inset-0 bg-brand-500/5 blur-[100px] pointer-events-none"></div>
-        <svg class="w-24 h-24 text-brand-500 mb-6 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)] relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
         <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4 relative z-10">Сайт на обновлении</h1>
         <p class="text-slate-400 max-w-lg mb-8 relative z-10">Портал временно закрыт на техническое обслуживание. Зайдите позже!</p>
         <button onclick="openLoginModal()" class="absolute bottom-8 text-slate-700 hover:text-slate-500 transition-colors" title="Вход для администрации"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></button>
@@ -379,7 +378,7 @@
         </div>
     </div>
 
-    <!-- Основной скрипт логики (Firebase) -->
+    <!-- Firebase модуль -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, get, update, remove, onValue, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -398,7 +397,6 @@
         const db = getDatabase(app);
         window.FB = { db, ref, set, get, update, remove, onValue, push };
 
-        // Слушатели базы данных в реальном времени
         onValue(ref(db, 'users'), (snapshot) => {
             window.allUsers = snapshot.val() ? Object.values(snapshot.val()) : [];
             window.checkCurrentSession();
@@ -417,6 +415,9 @@
         onValue(ref(db, 'tickets'), (snapshot) => {
             window.helpTickets = snapshot.val() ? Object.values(snapshot.val()) : [];
             window.renderUserChat();
+            if(window.currentUser && ['tech_support', 'chief_admin'].includes(window.currentUser.role)) {
+                window.renderAdminHelp();
+            }
         });
 
         onValue(ref(db, 'settings'), (snapshot) => {
@@ -441,7 +442,7 @@
         window.updateUI();
     </script>
 
-    <!-- Логика сайта -->
+    <!-- Основная логика -->
     <script>
         const CHIEF_ADMIN_LOGIN = 'verxovnly88'; 
         const USER_KEY = 'vp_openomsi_active_user';
