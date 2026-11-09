@@ -23,8 +23,8 @@
     </script>
     <style>
         body {
-            background-color: #0f172a; /* slate-900 */
-            color: #f8fafc; /* slate-50 */
+            background-color: #0f172a;
+            color: #f8fafc;
         }
         .glow-text {
             text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
@@ -49,9 +49,12 @@
                     <a href="#news" class="text-slate-300 hover:text-brand-400 transition-colors">Новости</a>
                     <a href="#dev" class="text-slate-300 hover:text-brand-400 transition-colors">Разработка</a>
                 </nav>
-                <div class="hidden md:flex">
-                    <button onclick="openLoginModal()" class="px-5 py-2 rounded-lg border-2 border-brand-500 text-brand-400 hover:bg-brand-500 hover:text-slate-900 transition-all font-semibold">
+                <div class="hidden md:flex space-x-4">
+                    <button onclick="openLoginModal()" class="px-5 py-2 rounded-lg border-2 border-slate-700 text-slate-300 hover:border-brand-500 hover:text-brand-400 transition-all font-semibold">
                         Войти
+                    </button>
+                    <button onclick="openRegisterModal()" class="px-5 py-2 rounded-lg border-2 border-brand-500 bg-brand-500 text-slate-900 hover:bg-brand-400 hover:border-brand-400 transition-all font-semibold">
+                        Регистрация
                     </button>
                 </div>
                 <!-- Кнопка мобильного меню -->
@@ -70,7 +73,8 @@
                 <a href="#hero" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Главная</a>
                 <a href="#news" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Новости</a>
                 <a href="#dev" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Разработка</a>
-                <button onclick="openLoginModal()" class="mt-2 w-full text-left px-3 py-2 text-brand-400 font-bold">Войти</button>
+                <button onclick="openLoginModal()" class="mt-2 w-full text-left px-3 py-2 text-slate-300 hover:text-brand-400 font-bold">Войти</button>
+                <button onclick="openRegisterModal()" class="w-full text-left px-3 py-2 text-brand-400 font-bold">Регистрация</button>
             </div>
         </div>
     </header>
@@ -94,7 +98,6 @@
                     </a>
                 </div>
             </div>
-            <!-- Фоновые декорации -->
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-500/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
         </section>
 
@@ -156,8 +159,7 @@
 
     <!-- МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ -->
     <div id="login-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(250,204,21,0.15)] relative transform scale-95 transition-transform duration-300" id="modal-content">
-            <!-- Кнопка закрытия -->
+        <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(250,204,21,0.15)] relative transform scale-95 transition-transform duration-300" id="login-modal-content">
             <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -188,7 +190,46 @@
                 </button>
             </form>
             <div class="mt-6 text-center text-slate-400 text-sm">
-                Нет аккаунта? <a href="#" class="text-brand-400 hover:underline">Зарегистрироваться</a>
+                Нет аккаунта? <button onclick="switchToRegister()" class="text-brand-400 hover:underline font-medium">Зарегистрироваться</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ -->
+    <div id="register-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(250,204,21,0.15)] relative transform scale-95 transition-transform duration-300" id="register-modal-content">
+            <button onclick="closeRegisterModal()" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            
+            <h2 class="text-2xl font-bold text-center text-white mb-2">Регистрация</h2>
+            <p class="text-center text-slate-400 mb-6">Создайте новый аккаунт</p>
+            
+            <form id="register-form" class="space-y-4" onsubmit="handleRegister(event)">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Никнейм</label>
+                    <input type="text" id="reg-login" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="Придумайте логин">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Email</label>
+                    <input type="email" id="reg-email" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="your@email.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Пароль</label>
+                    <input type="password" id="reg-password" required minlength="6" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="••••••••">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Повторите пароль</label>
+                    <input type="password" id="reg-password-confirm" required minlength="6" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="••••••••">
+                </div>
+                <button type="submit" class="w-full mt-4 bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400 transition-colors">
+                    Зарегистрироваться
+                </button>
+            </form>
+            <div class="mt-6 text-center text-slate-400 text-sm">
+                Уже есть аккаунт? <button onclick="switchToLogin()" class="text-brand-400 hover:underline font-medium">Войти</button>
             </div>
         </div>
     </div>
@@ -202,52 +243,114 @@
             menu.classList.toggle('hidden');
         });
 
-        // Модальное окно авторизации
-        const modal = document.getElementById('login-modal');
-        const modalContent = document.getElementById('modal-content');
+        // Элементы модальных окон
+        const loginModal = document.getElementById('login-modal');
+        const loginContent = document.getElementById('login-modal-content');
+        
+        const registerModal = document.getElementById('register-modal');
+        const registerContent = document.getElementById('register-modal-content');
 
+        // Логика окна Входа
         function openLoginModal() {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            // Небольшая задержка для анимации
+            closeRegisterModalInstantly();
+            loginModal.classList.remove('hidden');
+            loginModal.classList.add('flex');
             setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modalContent.classList.remove('scale-95');
-                modalContent.classList.add('scale-100');
+                loginModal.classList.remove('opacity-0');
+                loginContent.classList.remove('scale-95');
+                loginContent.classList.add('scale-100');
             }, 10);
+            if(menu) menu.classList.add('hidden'); // Закрываем мобильное меню при открытии окна
         }
 
         function closeLoginModal() {
-            modal.classList.add('opacity-0');
-            modalContent.classList.remove('scale-100');
-            modalContent.classList.add('scale-95');
+            loginModal.classList.add('opacity-0');
+            loginContent.classList.remove('scale-100');
+            loginContent.classList.add('scale-95');
             setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            }, 300); // время совпадает с duration-300 в Tailwind
+                loginModal.classList.add('hidden');
+                loginModal.classList.remove('flex');
+            }, 300);
         }
 
-        // Закрытие по клику вне окна
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeLoginModal();
-            }
+        function closeLoginModalInstantly() {
+            loginModal.classList.add('hidden');
+            loginModal.classList.remove('flex', 'opacity-0');
+            loginContent.classList.remove('scale-100');
+            loginContent.classList.add('scale-95');
+        }
+
+        // Логика окна Регистрации
+        function openRegisterModal() {
+            closeLoginModalInstantly();
+            registerModal.classList.remove('hidden');
+            registerModal.classList.add('flex');
+            setTimeout(() => {
+                registerModal.classList.remove('opacity-0');
+                registerContent.classList.remove('scale-95');
+                registerContent.classList.add('scale-100');
+            }, 10);
+            if(menu) menu.classList.add('hidden');
+        }
+
+        function closeRegisterModal() {
+            registerModal.classList.add('opacity-0');
+            registerContent.classList.remove('scale-100');
+            registerContent.classList.add('scale-95');
+            setTimeout(() => {
+                registerModal.classList.add('hidden');
+                registerModal.classList.remove('flex');
+            }, 300);
+        }
+
+        function closeRegisterModalInstantly() {
+            registerModal.classList.add('hidden');
+            registerModal.classList.remove('flex', 'opacity-0');
+            registerContent.classList.remove('scale-100');
+            registerContent.classList.add('scale-95');
+        }
+
+        // Переключение между окнами
+        function switchToRegister() {
+            openRegisterModal();
+        }
+
+        function switchToLogin() {
+            openLoginModal();
+        }
+
+        // Закрытие по клику вне окон
+        loginModal.addEventListener('click', (e) => {
+            if (e.target === loginModal) closeLoginModal();
+        });
+        registerModal.addEventListener('click', (e) => {
+            if (e.target === registerModal) closeRegisterModal();
         });
 
-        // Обработка отправки формы
+        // Обработка формы Входа
         function handleLogin(e) {
             e.preventDefault();
             const loginVal = document.getElementById('login').value;
-            const passVal = document.getElementById('password').value;
-            
-            // Здесь должна быть реальная логика запроса к серверу/базе данных.
-            // Сейчас просто показываем уведомление об успехе.
-            
             alert(`Успешный вход! Добро пожаловать, ${loginVal}`);
             closeLoginModal();
-            
-            // Очистка формы
             e.target.reset();
+        }
+
+        // Обработка формы Регистрации
+        function handleRegister(e) {
+            e.preventDefault();
+            const loginVal = document.getElementById('reg-login').value;
+            const passVal = document.getElementById('reg-password').value;
+            const confirmPassVal = document.getElementById('reg-password-confirm').value;
+            
+            if(passVal !== confirmPassVal) {
+                alert("Пароли не совпадают!");
+                return;
+            }
+            
+            alert(`Аккаунт ${loginVal} успешно создан! Теперь вы можете войти.`);
+            e.target.reset();
+            switchToLogin();
         }
     </script>
 </body>
