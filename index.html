@@ -26,7 +26,6 @@
         }
         .leaf { position: absolute; top: -10vh; pointer-events: none; user-select: none; animation: fall linear infinite; filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.3)); }
         
-        /* Свечение ролей для профиля */
         .role-glow-chief_admin { box-shadow: 0 0 15px rgba(239, 68, 68, 0.8); border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.1); }
         .role-glow-admin { box-shadow: 0 0 15px rgba(249, 115, 22, 0.8); border-color: #f97316; color: #f97316; background: rgba(249, 115, 22, 0.1); }
         .role-glow-tech_support { box-shadow: 0 0 15px rgba(59, 130, 246, 0.8); border-color: #3b82f6; color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
@@ -204,23 +203,24 @@
         <div class="max-w-7xl mx-auto px-4 text-center text-slate-500"><p>&copy; 2026 VP-OPENOMSI. Verxonly Prod.</p></div>
     </footer>
 
-    <!-- ОКНО ДЕТАЛЬНОГО ПРОСМОТРА МОДА/ФОТО -->
-    <div id="item-modal" class="fixed inset-0 z-[110] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl shadow-[0_0_40px_rgba(245,158,11,0.2)] relative transform scale-95 transition-transform duration-300 overflow-hidden flex flex-col max-h-[90vh]" id="item-modal-content">
+    <!-- ОКНО ДЕТАЛЬНОГО ПРОСМОТРА МОДА/ФОТО (УЛУЧШЕНО ОТОБРАЖЕНИЕ ФОТО) -->
+    <div id="item-modal" class="fixed inset-0 z-[110] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4 py-8">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-4xl shadow-[0_0_40px_rgba(245,158,11,0.2)] relative transform scale-95 transition-transform duration-300 overflow-hidden flex flex-col max-h-full" id="item-modal-content">
             
             <button onclick="closeModal('item-modal', 'item-modal-content')" class="absolute top-4 right-4 z-20 bg-black/60 text-slate-300 rounded-full p-2 hover:bg-brand-500 hover:text-slate-900 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </button>
             
-            <div class="w-full h-64 md:h-80 bg-slate-800 relative flex-shrink-0">
-                <img id="item-modal-img" src="" class="w-full h-full object-cover">
+            <!-- Картинка теперь отображается целиком, не обрезаясь (contain вместо cover) -->
+            <div class="w-full bg-slate-950 relative flex-shrink-0 flex items-center justify-center min-h-[40vh] max-h-[60vh]">
+                <img id="item-modal-img" src="" class="w-full h-full object-contain max-h-[60vh]">
                 <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-slate-900 to-transparent p-6 pt-16">
                     <span id="item-modal-type" class="bg-brand-500 text-slate-900 text-xs font-bold px-2 py-0.5 rounded uppercase">ТИП</span>
                     <h2 id="item-modal-title" class="text-3xl font-bold text-white mt-2 leading-tight">Название</h2>
                 </div>
             </div>
             
-            <div class="p-6 overflow-y-auto chat-scroll flex-grow">
+            <div class="p-6 overflow-y-auto chat-scroll flex-grow bg-slate-900">
                 <div class="flex items-center gap-3 mb-6 border-b border-slate-800 pb-4">
                     <img id="item-modal-author-avatar" src="" class="w-10 h-10 rounded-full border border-slate-600 object-cover">
                     <div>
@@ -243,6 +243,7 @@
             <button onclick="closeModal('login-modal', 'login-modal-content')" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button>
             <h2 class="text-2xl font-bold text-center text-white mb-6">Вход</h2>
             <form id="login-form" class="space-y-4" onsubmit="handleLogin(event)">
+                <!-- Подсказка убрана -->
                 <input type="text" id="login" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Логин">
                 <input type="password" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Пароль">
                 <button type="submit" class="w-full bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400">Войти</button>
@@ -332,6 +333,19 @@
         </div>
     </div>
 
+    <!-- КАСТОМНОЕ ОКНО ПОДТВЕРЖДЕНИЯ (НОВОЕ) -->
+    <div id="confirm-modal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
+        <div class="bg-slate-900 border border-red-500/50 p-6 rounded-2xl w-full max-w-sm shadow-[0_0_30px_rgba(239,68,68,0.2)] relative transform scale-95 transition-transform duration-300 text-center" id="confirm-modal-content">
+            <svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <h3 class="text-xl font-bold text-white mb-2">Подтвердите действие</h3>
+            <p id="confirm-modal-text" class="text-slate-400 mb-6 text-sm">Вы уверены, что хотите удалить этот контент с сайта?</p>
+            <div class="flex gap-3">
+                <button id="confirm-modal-cancel" class="flex-1 bg-slate-800 text-white font-bold py-2 rounded-lg hover:bg-slate-700 transition-colors">Отмена</button>
+                <button id="confirm-modal-ok" class="flex-1 bg-red-500 text-white font-bold py-2 rounded-lg hover:bg-red-600 transition-colors">Удалить</button>
+            </div>
+        </div>
+    </div>
+
     <!-- АДМИН-ПАНЕЛЬ -->
     <div id="admin-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
         <div class="bg-slate-900 border border-red-500/50 p-6 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-[0_0_30px_rgba(239,68,68,0.2)] relative transform scale-95 transition-transform duration-300 chat-scroll" id="admin-modal-content">
@@ -373,9 +387,7 @@
         // ЗАГРУЗКА И СОХРАНЕНИЕ ДАННЫХ
         function syncLoad() {
             const savedAllUsers = localStorage.getItem(ALL_USERS_KEY);
-            if(savedAllUsers) {
-                try { allUsers = JSON.parse(savedAllUsers); } catch(e) { allUsers = []; }
-            }
+            if(savedAllUsers) { try { allUsers = JSON.parse(savedAllUsers); } catch(e) { allUsers = []; } }
 
             const savedUser = localStorage.getItem(USER_KEY);
             if (savedUser) {
@@ -465,7 +477,7 @@
             else { m.classList.add('opacity-0'); c.classList.remove('scale-100'); c.classList.add('scale-95'); setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300); }
         }
         function closeAllModals() {
-            ['login-modal','register-modal','profile-modal','submit-modal','admin-modal', 'item-modal'].forEach(id => {
+            ['login-modal','register-modal','profile-modal','submit-modal','admin-modal', 'item-modal', 'confirm-modal'].forEach(id => {
                 const m = document.getElementById(id), c = document.getElementById(id+'-content');
                 if(m && c) { m.classList.add('hidden','opacity-0'); m.classList.remove('flex'); c.classList.add('scale-95'); c.classList.remove('scale-100'); }
             });
@@ -476,6 +488,27 @@
         function closeModal(mId, cId) { toggleModal(mId, cId, false); }
         function switchToRegister() { openRegisterModal(); }
         function switchToLogin() { openLoginModal(); }
+
+        // --- КАСТОМНЫЙ КОНФИРМ (НОВОЕ) ---
+        function customConfirm(text, onOk) {
+            const m = document.getElementById('confirm-modal');
+            const c = document.getElementById('confirm-modal-content');
+            document.getElementById('confirm-modal-text').innerText = text;
+            
+            m.classList.remove('hidden'); m.classList.add('flex');
+            setTimeout(() => { m.classList.remove('opacity-0'); c.classList.remove('scale-95'); c.classList.add('scale-100'); }, 10);
+
+            document.getElementById('confirm-modal-cancel').onclick = () => {
+                m.classList.add('opacity-0'); c.classList.remove('scale-100'); c.classList.add('scale-95');
+                setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300);
+            };
+
+            document.getElementById('confirm-modal-ok').onclick = () => {
+                onOk();
+                m.classList.add('opacity-0'); c.classList.remove('scale-100'); c.classList.add('scale-95');
+                setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300);
+            };
+        }
 
         // --- АВТОРИЗАЦИЯ И РЕГИСТРАЦИЯ ---
         function handleLogin(e) {
@@ -653,7 +686,7 @@
                     
                     t.replies.forEach(r => {
                         const avatar = allUsers.find(u => u.nickname === r.author)?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${r.author}`;
-                        msgList.innerHTML += `<div class="flex items-end gap-2 mb-4"><img src="${avatar}" class="w-6 h-6 rounded-full"><div class="flex flex-col items-start max-w-[85%]"><span class="text-[10px] text-brand-400 mb-1 font-bold">Поддержка (${r.author})</span><div class="bg-slate-700 text-white px-4 py-2 rounded-2xl rounded-tl-sm">${r.text}</div></div></div>`;
+                        msgList.innerHTML += `<div class="flex items-end gap-2 mb-4"><img src="${avatar}" class="w-6 h-6 rounded-full border border-slate-600 object-cover"><div class="flex flex-col items-start max-w-[85%]"><span class="text-[10px] text-brand-400 mb-1 font-bold">Поддержка (${r.author})</span><div class="bg-slate-700 text-white px-4 py-2 rounded-2xl rounded-tl-sm">${r.text}</div></div></div>`;
                     });
                 });
                 msgList.scrollTop = msgList.scrollHeight;
@@ -730,8 +763,8 @@
 
             const buttonsHtml = isPending 
                 ? `<button onclick="moderateItem(${item.id}, 'approved')" class="bg-green-500/20 text-green-400 hover:bg-green-500 hover:text-white px-4 py-2 rounded-lg text-sm font-bold">Одобрить</button>
-                   <button onclick="deleteItem(${item.id})" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg text-sm font-bold">Отклонить</button>`
-                : `<button onclick="deleteItem(${item.id})" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg text-sm font-bold w-full md:w-auto">Безвозвратно Удалить</button>`;
+                   <button onclick="requestDelete(${item.id})" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg text-sm font-bold">Отклонить</button>`
+                : `<button onclick="requestDelete(${item.id})" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg text-sm font-bold w-full md:w-auto">Безвозвратно Удалить</button>`;
 
             return `
                 <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex flex-col md:flex-row gap-4">
@@ -767,11 +800,11 @@
             if(idx !== -1) { communityItems[idx].status = status; syncSaveItems(); renderAdminContent(); renderCommunityContent(); }
         }
 
-        function deleteItem(id) {
-            if(confirm("Вы уверены, что хотите удалить этот контент с сайта?")) {
+        function requestDelete(id) {
+            customConfirm("Вы уверены, что хотите удалить этот контент?", () => {
                 communityItems = communityItems.filter(i => i.id !== id);
                 syncSaveItems(); renderAdminContent(); renderCommunityContent();
-            }
+            });
         }
 
         function renderAdminHelp() {
@@ -850,7 +883,7 @@
             if(!container) return;
 
             const approved = communityItems.filter(i => i.status === 'approved').sort((a, b) => b.id - a.id);
-            const latest = approved.slice(0, 3); // Выводим 3 последних
+            const latest = approved.slice(0, 3); 
 
             if(latest.length === 0) {
                 container.innerHTML = '<p class="text-slate-500 italic col-span-full text-center">Здесь будут появляться свежие моды и фотографии.</p>';
@@ -874,8 +907,7 @@
                             <p class="text-xs text-slate-400 mb-1 truncate">${actionText}</p>
                             <h4 class="text-white font-bold text-sm truncate group-hover:text-brand-400 transition-colors">${item.title}</h4>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
         }
 
@@ -926,7 +958,7 @@
                 }
             });
 
-            renderRecentActivity(); // Обновляем блок свежих публикаций на Главной
+            renderRecentActivity(); 
         }
 
         // --- GITHUB RELEASES ---
