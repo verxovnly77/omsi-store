@@ -12,9 +12,9 @@
                 extend: {
                     colors: {
                         brand: {
-                            400: '#facc15', // yellow-400
-                            500: '#eab308', // yellow-500
-                            600: '#ca8a04', // yellow-600
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
                         }
                     }
                 }
@@ -25,16 +25,32 @@
         body {
             background-color: #0f172a;
             color: #f8fafc;
+            overflow-x: hidden;
         }
         .glow-text {
-            text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
         }
         .glow-box {
-            box-shadow: 0 0 15px rgba(250, 204, 21, 0.2);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
+        }
+        
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg) translateX(0); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg) translateX(50px); opacity: 0; }
+        }
+        .leaf {
+            position: absolute;
+            top: -10vh;
+            pointer-events: none;
+            user-select: none;
+            animation: fall linear infinite;
+            filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.3));
         }
     </style>
 </head>
-<body class="antialiased min-h-screen flex flex-col">
+<body class="antialiased min-h-screen flex flex-col relative">
+
+    <div id="leaves-container" class="fixed inset-0 pointer-events-none z-40 overflow-hidden"></div>
 
     <!-- Навигация -->
     <header class="fixed w-full z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
@@ -49,17 +65,22 @@
                     <a href="#news" class="text-slate-300 hover:text-brand-400 transition-colors">Новости</a>
                     <a href="#dev" class="text-slate-300 hover:text-brand-400 transition-colors">Разработка</a>
                 </nav>
-                <div class="hidden md:flex space-x-4">
-                    <button onclick="openLoginModal()" class="px-5 py-2 rounded-lg border-2 border-slate-700 text-slate-300 hover:border-brand-500 hover:text-brand-400 transition-all font-semibold">
+                
+                <!-- Блок авторизации (ПК) -->
+                <div class="hidden md:flex space-x-4 items-center relative z-50">
+                    <button id="nav-login-btn" onclick="openLoginModal()" class="px-5 py-2 rounded-lg border-2 border-slate-700 text-slate-300 hover:border-brand-500 hover:text-brand-400 transition-all font-semibold">
                         Войти
                     </button>
-                    <button onclick="openRegisterModal()" class="px-5 py-2 rounded-lg border-2 border-brand-500 bg-brand-500 text-slate-900 hover:bg-brand-400 hover:border-brand-400 transition-all font-semibold">
-                        Регистрация
-                    </button>
+                    <!-- Профиль пользователя (скрыт по умолчанию) -->
+                    <div id="nav-user-profile" class="hidden items-center gap-3 cursor-pointer group" onclick="openProfileModal()">
+                        <span id="nav-user-name" class="font-medium text-slate-200 group-hover:text-brand-400 transition-colors">Имя</span>
+                        <img id="nav-user-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Player" alt="Аватар" class="w-10 h-10 rounded-full border-2 border-brand-500 object-cover">
+                    </div>
                 </div>
+
                 <!-- Кнопка мобильного меню -->
                 <div class="md:hidden">
-                    <button id="mobile-menu-btn" class="text-slate-300 hover:text-white p-2">
+                    <button id="mobile-menu-btn" class="text-slate-300 hover:text-white p-2 relative z-50">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
@@ -69,43 +90,56 @@
         </div>
         <!-- Мобильное меню -->
         <div id="mobile-menu" class="hidden md:hidden bg-slate-800 border-b border-slate-700">
-            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col relative z-50">
                 <a href="#hero" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Главная</a>
                 <a href="#news" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Новости</a>
                 <a href="#dev" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Разработка</a>
-                <button onclick="openLoginModal()" class="mt-2 w-full text-left px-3 py-2 text-slate-300 hover:text-brand-400 font-bold">Войти</button>
-                <button onclick="openRegisterModal()" class="w-full text-left px-3 py-2 text-brand-400 font-bold">Регистрация</button>
+                
+                <!-- Моб. авторизация -->
+                <button id="mob-login-btn" onclick="openLoginModal()" class="mt-2 w-full text-left px-3 py-2 text-brand-400 font-bold">Войти</button>
+                
+                <!-- Моб. профиль -->
+                <div id="mob-user-profile" class="hidden mt-2 px-3 py-2 flex flex-col gap-2 border-t border-slate-700 pt-3">
+                    <div class="flex items-center gap-3 cursor-pointer" onclick="openProfileModal()">
+                        <img id="mob-user-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Player" alt="Аватар" class="w-8 h-8 rounded-full border border-brand-500 object-cover">
+                        <span id="mob-user-name" class="font-medium text-slate-200">Имя</span>
+                        <span class="text-xs text-brand-400 ml-auto bg-brand-500/10 px-2 py-1 rounded">Настройки</span>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
 
     <!-- Главный экран -->
-    <main class="flex-grow pt-20">
+    <main class="flex-grow pt-20 relative z-10">
         <section id="hero" class="relative py-20 lg:py-32 overflow-hidden">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+                <div class="inline-block mb-4 px-4 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-400 text-sm font-medium">
+                    🍂 Осеннее обновление
+                </div>
                 <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6">
                     Будущее симуляторов с <span class="text-brand-400 glow-text block mt-2">openOMSI</span>
                 </h1>
                 <p class="mt-4 text-xl text-slate-400 max-w-3xl mx-auto mb-10">
                     Присоединяйтесь к открытой разработке, скачивайте последние билды и следите за развитием нового поколения автобусных симуляторов от VP-OPENOMSI.
                 </p>
-                <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <a href="#download" class="px-8 py-4 rounded-lg bg-brand-500 text-slate-900 font-bold text-lg hover:bg-brand-400 transition-all shadow-[0_0_20px_rgba(250,204,21,0.4)] hover:scale-105">
+                <div class="flex flex-col sm:flex-row justify-center gap-4 relative z-50">
+                    <a href="#download" class="px-8 py-4 rounded-lg bg-brand-500 text-slate-900 font-bold text-lg hover:bg-brand-400 transition-all shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:scale-105 inline-block">
                         Скачать последнюю версию
                     </a>
-                    <a href="https://github.com/openOMSI-org" target="_blank" class="px-8 py-4 rounded-lg bg-slate-800 text-white font-bold text-lg border border-slate-700 hover:border-brand-500 hover:text-brand-400 transition-all">
+                    <a href="https://github.com/openOMSI-org" target="_blank" class="px-8 py-4 rounded-lg bg-slate-800 text-white font-bold text-lg border border-slate-700 hover:border-brand-500 hover:text-brand-400 transition-all inline-block">
                         Исходный код
                     </a>
                 </div>
             </div>
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-500/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-600/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
         </section>
 
         <!-- Новости (Telegram) -->
         <section id="news" class="py-16 bg-slate-900/50">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 class="text-3xl font-bold mb-8 text-center border-b border-slate-800 pb-4">Следите за новостями</h2>
-                <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-2xl glow-box flex flex-col md:flex-row items-center justify-between gap-6">
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 p-8 rounded-2xl glow-box flex flex-col md:flex-row items-center justify-between gap-6 relative z-30">
                     <div>
                         <h3 class="text-2xl font-bold text-white mb-2">Telegram Канал</h3>
                         <p class="text-slate-400">Самые свежие обновления, патчноуты и инсайды с разработки.</p>
@@ -117,41 +151,10 @@
                 </div>
             </div>
         </section>
-
-        <!-- Разработка -->
-        <section id="dev" class="py-16">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-3xl font-bold mb-10 text-center">Наши Репозитории</h2>
-                <div class="grid md:grid-cols-2 gap-8">
-                    <!-- openOMSI -->
-                    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-brand-500 transition-all group">
-                        <div class="flex justify-between items-start mb-4">
-                            <h3 class="text-2xl font-bold text-brand-400 group-hover:glow-text">openOMSI</h3>
-                            <span class="px-3 py-1 bg-slate-900 text-xs rounded-full border border-slate-600">Core</span>
-                        </div>
-                        <p class="text-slate-400 mb-6">Главный движок и ядро симулятора. Открытый исходный код для создания реалистичной физики и графики.</p>
-                        <a href="https://github.com/openOMSI-org/openOMSI" target="_blank" class="text-white hover:text-brand-400 inline-flex items-center gap-2">
-                            Смотреть на GitHub &rarr;
-                        </a>
-                    </div>
-                    <!-- openMapper -->
-                    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-brand-500 transition-all group">
-                        <div class="flex justify-between items-start mb-4">
-                            <h3 class="text-2xl font-bold text-brand-400 group-hover:glow-text">openMapper</h3>
-                            <span class="px-3 py-1 bg-slate-900 text-xs rounded-full border border-slate-600">Tools</span>
-                        </div>
-                        <p class="text-slate-400 mb-6">Инструментарий для создания, редактирования и конвертации карт и маршрутов для симулятора.</p>
-                        <a href="https://github.com/openOMSI-org/openMapper" target="_blank" class="text-white hover:text-brand-400 inline-flex items-center gap-2">
-                            Смотреть на GitHub &rarr;
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
     </main>
 
     <!-- Подвал -->
-    <footer class="bg-slate-950 py-8 border-t border-slate-800 mt-auto">
+    <footer class="bg-slate-950 py-8 border-t border-slate-800 mt-auto relative z-30">
         <div class="max-w-7xl mx-auto px-4 text-center text-slate-500">
             <p>&copy; 2026 VP-OPENOMSI. Verxonly Prod.</p>
         </div>
@@ -159,7 +162,7 @@
 
     <!-- МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ -->
     <div id="login-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(250,204,21,0.15)] relative transform scale-95 transition-transform duration-300" id="login-modal-content">
+        <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(245,158,11,0.15)] relative transform scale-95 transition-transform duration-300" id="login-modal-content">
             <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -178,26 +181,19 @@
                     <label class="block text-sm font-medium text-slate-300 mb-1">Пароль</label>
                     <input type="password" id="password" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="••••••••">
                 </div>
-                <div class="flex items-center justify-between mt-2">
-                    <label class="flex items-center text-sm text-slate-400">
-                        <input type="checkbox" class="mr-2 rounded bg-slate-800 border-slate-600 text-brand-500 focus:ring-brand-500">
-                        Запомнить меня
-                    </label>
-                    <a href="#" class="text-sm text-brand-400 hover:underline">Забыли пароль?</a>
-                </div>
                 <button type="submit" class="w-full mt-4 bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400 transition-colors">
                     Войти
                 </button>
             </form>
             <div class="mt-6 text-center text-slate-400 text-sm">
-                Нет аккаунта? <button onclick="switchToRegister()" class="text-brand-400 hover:underline font-medium">Зарегистрироваться</button>
+                У вас еще нет аккаунта? <button onclick="switchToRegister()" class="text-brand-400 hover:underline font-medium">Хотите зарегистрироваться?</button>
             </div>
         </div>
     </div>
 
     <!-- МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ -->
     <div id="register-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(250,204,21,0.15)] relative transform scale-95 transition-transform duration-300" id="register-modal-content">
+        <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(245,158,11,0.15)] relative transform scale-95 transition-transform duration-300" id="register-modal-content">
             <button onclick="closeRegisterModal()" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -220,12 +216,8 @@
                     <label class="block text-sm font-medium text-slate-300 mb-1">Пароль</label>
                     <input type="password" id="reg-password" required minlength="6" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="••••••••">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Повторите пароль</label>
-                    <input type="password" id="reg-password-confirm" required minlength="6" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="••••••••">
-                </div>
                 <button type="submit" class="w-full mt-4 bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400 transition-colors">
-                    Зарегистрироваться
+                    Зарегистрироваться и войти
                 </button>
             </form>
             <div class="mt-6 text-center text-slate-400 text-sm">
@@ -234,123 +226,228 @@
         </div>
     </div>
 
+    <!-- МОДАЛЬНОЕ ОКНО ПРОФИЛЯ -->
+    <div id="profile-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(245,158,11,0.15)] relative transform scale-95 transition-transform duration-300" id="profile-modal-content">
+            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </button>
+            
+            <h2 class="text-2xl font-bold text-center text-white mb-6">Настройки профиля</h2>
+            
+            <form id="profile-form" onsubmit="saveProfile(event)" class="space-y-6">
+                <!-- Редактирование аватарки -->
+                <div class="flex flex-col items-center gap-4">
+                    <div class="relative group">
+                        <img id="profile-avatar-preview" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Player" alt="Preview" class="w-24 h-24 rounded-full border-4 border-slate-700 object-cover group-hover:border-brand-500 transition-colors">
+                        <label class="absolute inset-0 flex items-center justify-center bg-black/50 text-white opacity-0 group-hover:opacity-100 rounded-full cursor-pointer transition-opacity">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            <input type="file" accept="image/*" class="hidden" onchange="handleAvatarChange(event)">
+                        </label>
+                    </div>
+                    <span class="text-sm text-slate-400">Нажмите на фото, чтобы изменить</span>
+                </div>
+
+                <!-- Редактирование ника -->
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Ваш никнейм</label>
+                    <input type="text" id="edit-nickname" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors">
+                </div>
+
+                <div class="flex flex-col gap-3 mt-6">
+                    <button type="submit" class="w-full bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400 transition-colors">
+                        Сохранить изменения
+                    </button>
+                    <button type="button" onclick="handleLogout()" class="w-full border border-red-500/50 text-red-400 font-semibold py-3 rounded-lg hover:bg-red-500/10 transition-colors">
+                        Выйти из аккаунта
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Скрипты -->
     <script>
+        // Состояние пользователя
+        let currentUser = null; 
+        // Пример структуры: { nickname: 'Игрок', avatar: 'url' }
+
+        // Обновление интерфейса в зависимости от авторизации
+        function updateUI() {
+            const navLoginBtn = document.getElementById('nav-login-btn');
+            const navUserProfile = document.getElementById('nav-user-profile');
+            const mobLoginBtn = document.getElementById('mob-login-btn');
+            const mobUserProfile = document.getElementById('mob-user-profile');
+
+            if (currentUser) {
+                // Прячем кнопки "Войти", показываем профиль
+                navLoginBtn.classList.add('hidden');
+                navUserProfile.classList.remove('hidden');
+                navUserProfile.classList.add('flex');
+                document.getElementById('nav-user-name').innerText = currentUser.nickname;
+                document.getElementById('nav-user-avatar').src = currentUser.avatar;
+
+                mobLoginBtn.classList.add('hidden');
+                mobUserProfile.classList.remove('hidden');
+                document.getElementById('mob-user-name').innerText = currentUser.nickname;
+                document.getElementById('mob-user-avatar').src = currentUser.avatar;
+
+                // Заполняем данные в модальном окне редактирования
+                document.getElementById('edit-nickname').value = currentUser.nickname;
+                document.getElementById('profile-avatar-preview').src = currentUser.avatar;
+            } else {
+                // Показываем кнопки "Войти", прячем профиль
+                navLoginBtn.classList.remove('hidden');
+                navUserProfile.classList.add('hidden');
+                navUserProfile.classList.remove('flex');
+                
+                mobLoginBtn.classList.remove('hidden');
+                mobUserProfile.classList.add('hidden');
+            }
+        }
+
+        // Генерация листьев
+        function createLeaves() {
+            const container = document.getElementById('leaves-container');
+            const leaves = ['🍁', '🍂', '🍃'];
+            for (let i = 0; i < 25; i++) {
+                const leaf = document.createElement('div');
+                leaf.classList.add('leaf');
+                leaf.innerText = leaves[Math.floor(Math.random() * leaves.length)];
+                leaf.style.left = `${Math.random() * 100}vw`;
+                leaf.style.animationDuration = `${Math.random() * 10 + 8}s`;
+                leaf.style.animationDelay = `${Math.random() * 15}s`;
+                leaf.style.fontSize = `${Math.random() * 1.2 + 0.8}rem`;
+                container.appendChild(leaf);
+            }
+        }
+        window.addEventListener('DOMContentLoaded', createLeaves);
+
         // Мобильное меню
         const btn = document.getElementById('mobile-menu-btn');
         const menu = document.getElementById('mobile-menu');
-        btn.addEventListener('click', () => {
-            menu.classList.toggle('hidden');
-        });
+        btn.addEventListener('click', () => menu.classList.toggle('hidden'));
 
-        // Элементы модальных окон
-        const loginModal = document.getElementById('login-modal');
-        const loginContent = document.getElementById('login-modal-content');
+        // Управление модальными окнами
+        function toggleModal(modalId, contentId, show) {
+            const modal = document.getElementById(modalId);
+            const content = document.getElementById(contentId);
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    content.classList.remove('scale-95');
+                    content.classList.add('scale-100');
+                }, 10);
+            } else {
+                modal.classList.add('opacity-0');
+                content.classList.remove('scale-100');
+                content.classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+            }
+        }
+
+        function closeAllModalsInstantly() {
+            ['login-modal', 'register-modal', 'profile-modal'].forEach(id => {
+                const m = document.getElementById(id);
+                const c = document.getElementById(id + '-content');
+                m.classList.add('hidden', 'opacity-0');
+                m.classList.remove('flex');
+                c.classList.add('scale-95');
+                c.classList.remove('scale-100');
+            });
+        }
+
+        function openLoginModal() { closeAllModalsInstantly(); toggleModal('login-modal', 'login-modal-content', true); if(menu) menu.classList.add('hidden'); }
+        function closeLoginModal() { toggleModal('login-modal', 'login-modal-content', false); }
         
-        const registerModal = document.getElementById('register-modal');
-        const registerContent = document.getElementById('register-modal-content');
+        function openRegisterModal() { closeAllModalsInstantly(); toggleModal('register-modal', 'register-modal-content', true); if(menu) menu.classList.add('hidden'); }
+        function closeRegisterModal() { toggleModal('register-modal', 'register-modal-content', false); }
 
-        // Логика окна Входа
-        function openLoginModal() {
-            closeRegisterModalInstantly();
-            loginModal.classList.remove('hidden');
-            loginModal.classList.add('flex');
-            setTimeout(() => {
-                loginModal.classList.remove('opacity-0');
-                loginContent.classList.remove('scale-95');
-                loginContent.classList.add('scale-100');
-            }, 10);
-            if(menu) menu.classList.add('hidden'); // Закрываем мобильное меню при открытии окна
-        }
+        function openProfileModal() { toggleModal('profile-modal', 'profile-modal-content', true); if(menu) menu.classList.add('hidden'); }
+        function closeProfileModal() { toggleModal('profile-modal', 'profile-modal-content', false); }
 
-        function closeLoginModal() {
-            loginModal.classList.add('opacity-0');
-            loginContent.classList.remove('scale-100');
-            loginContent.classList.add('scale-95');
-            setTimeout(() => {
-                loginModal.classList.add('hidden');
-                loginModal.classList.remove('flex');
-            }, 300);
-        }
-
-        function closeLoginModalInstantly() {
-            loginModal.classList.add('hidden');
-            loginModal.classList.remove('flex', 'opacity-0');
-            loginContent.classList.remove('scale-100');
-            loginContent.classList.add('scale-95');
-        }
-
-        // Логика окна Регистрации
-        function openRegisterModal() {
-            closeLoginModalInstantly();
-            registerModal.classList.remove('hidden');
-            registerModal.classList.add('flex');
-            setTimeout(() => {
-                registerModal.classList.remove('opacity-0');
-                registerContent.classList.remove('scale-95');
-                registerContent.classList.add('scale-100');
-            }, 10);
-            if(menu) menu.classList.add('hidden');
-        }
-
-        function closeRegisterModal() {
-            registerModal.classList.add('opacity-0');
-            registerContent.classList.remove('scale-100');
-            registerContent.classList.add('scale-95');
-            setTimeout(() => {
-                registerModal.classList.add('hidden');
-                registerModal.classList.remove('flex');
-            }, 300);
-        }
-
-        function closeRegisterModalInstantly() {
-            registerModal.classList.add('hidden');
-            registerModal.classList.remove('flex', 'opacity-0');
-            registerContent.classList.remove('scale-100');
-            registerContent.classList.add('scale-95');
-        }
-
-        // Переключение между окнами
-        function switchToRegister() {
-            openRegisterModal();
-        }
-
-        function switchToLogin() {
-            openLoginModal();
-        }
+        function switchToRegister() { openRegisterModal(); }
+        function switchToLogin() { openLoginModal(); }
 
         // Закрытие по клику вне окон
-        loginModal.addEventListener('click', (e) => {
-            if (e.target === loginModal) closeLoginModal();
-        });
-        registerModal.addEventListener('click', (e) => {
-            if (e.target === registerModal) closeRegisterModal();
+        window.addEventListener('click', (e) => {
+            if (e.target.id === 'login-modal') closeLoginModal();
+            if (e.target.id === 'register-modal') closeRegisterModal();
+            if (e.target.id === 'profile-modal') closeProfileModal();
         });
 
-        // Обработка формы Входа
+        // Логика Входа
         function handleLogin(e) {
             e.preventDefault();
             const loginVal = document.getElementById('login').value;
-            alert(`Успешный вход! Добро пожаловать, ${loginVal}`);
+            // Устанавливаем пользователя
+            currentUser = {
+                nickname: loginVal,
+                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${loginVal}`
+            };
+            updateUI();
             closeLoginModal();
             e.target.reset();
         }
 
-        // Обработка формы Регистрации
+        // Логика Регистрации (Автоматический вход)
         function handleRegister(e) {
             e.preventDefault();
             const loginVal = document.getElementById('reg-login').value;
-            const passVal = document.getElementById('reg-password').value;
-            const confirmPassVal = document.getElementById('reg-password-confirm').value;
             
-            if(passVal !== confirmPassVal) {
-                alert("Пароли не совпадают!");
-                return;
+            // Сразу авторизуем после регистрации
+            currentUser = {
+                nickname: loginVal,
+                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${loginVal}`
+            };
+            
+            updateUI();
+            closeRegisterModal();
+            e.target.reset();
+        }
+
+        // Логика Профиля
+        let tempAvatarSrc = null;
+
+        function handleAvatarChange(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempAvatarSrc = e.target.result;
+                    document.getElementById('profile-avatar-preview').src = tempAvatarSrc;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function saveProfile(e) {
+            e.preventDefault();
+            const newName = document.getElementById('edit-nickname').value;
+            
+            if (currentUser) {
+                currentUser.nickname = newName;
+                if (tempAvatarSrc) {
+                    currentUser.avatar = tempAvatarSrc;
+                }
             }
             
-            alert(`Аккаунт ${loginVal} успешно создан! Теперь вы можете войти.`);
-            e.target.reset();
-            switchToLogin();
+            updateUI();
+            closeProfileModal();
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            tempAvatarSrc = null;
+            updateUI();
+            closeProfileModal();
         }
     </script>
 </body>
