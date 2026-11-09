@@ -9,22 +9,16 @@
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: {
-                extend: { colors: { brand: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' } } }
-            }
+            theme: { extend: { colors: { brand: { 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706' } } } }
         }
     </script>
     <style>
         body { background-color: #0f172a; color: #f8fafc; overflow-x: hidden; }
         .glow-text { text-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
         .glow-box { box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
-        @keyframes fall {
-            0% { transform: translateY(-10vh) rotate(0deg) translateX(0); opacity: 1; }
-            100% { transform: translateY(110vh) rotate(360deg) translateX(50px); opacity: 0; }
-        }
+        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg) translateX(0); opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg) translateX(50px); opacity: 0; } }
         .leaf { position: absolute; top: -10vh; pointer-events: none; user-select: none; animation: fall linear infinite; filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.3)); }
         
-        /* Свечение ролей для профиля */
         .role-glow-chief_admin { box-shadow: 0 0 15px rgba(239, 68, 68, 0.8); border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.1); }
         .role-glow-admin { box-shadow: 0 0 15px rgba(249, 115, 22, 0.8); border-color: #f97316; color: #f97316; background: rgba(249, 115, 22, 0.1); }
         .role-glow-tech_support { box-shadow: 0 0 15px rgba(59, 130, 246, 0.8); border-color: #3b82f6; color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
@@ -36,7 +30,6 @@
         .releases-content li { margin-bottom: 0.5rem; }
         .releases-content a { color: #fbbf24; text-decoration: underline; }
         .releases-content code { background-color: rgba(0, 0, 0, 0.3); padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-family: monospace; color: #fbbf24; }
-        
         .chat-scroll::-webkit-scrollbar { width: 6px; }
         .chat-scroll::-webkit-scrollbar-track { background: #1e293b; border-radius: 4px; }
         .chat-scroll::-webkit-scrollbar-thumb { background: #fbbf24; border-radius: 4px; }
@@ -45,6 +38,19 @@
 <body class="antialiased min-h-screen flex flex-col relative">
 
     <div id="leaves-container" class="fixed inset-0 pointer-events-none z-40 overflow-hidden"></div>
+
+    <!-- ЭКРАН ТЕХНИЧЕСКИХ РАБОТ (ОБНОВЛЕНИЕ САЙТА) -->
+    <div id="maintenance-screen" class="fixed inset-0 z-[150] hidden items-center justify-center bg-slate-900 flex-col text-center px-4">
+        <div class="absolute inset-0 bg-brand-500/5 blur-[100px] pointer-events-none"></div>
+        <svg class="w-24 h-24 text-brand-500 mb-6 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)] relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4 relative z-10">Сайт обновляется</h1>
+        <p class="text-slate-400 max-w-lg mb-8 relative z-10">Мы устанавливаем свежее обновление VP-OPENOMSI. Портал временно недоступен для пользователей. Пожалуйста, зайдите немного позже!</p>
+        
+        <!-- Скрытая кнопка для входа владельца (замочек) -->
+        <button onclick="openLoginModal()" class="absolute bottom-8 text-slate-700 hover:text-slate-500 transition-colors" title="Вход для администрации">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+        </button>
+    </div>
 
     <!-- Навигация -->
     <header class="fixed w-full z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
@@ -72,10 +78,7 @@
                         <img id="nav-user-avatar" src="" alt="Аватар" class="w-10 h-10 rounded-full border-2 border-brand-500 object-cover bg-slate-800">
                     </div>
                 </div>
-
-                <div class="md:hidden">
-                    <button id="mobile-menu-btn" class="text-slate-300 hover:text-white p-2 relative z-50"><svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-                </div>
+                <div class="md:hidden"><button id="mobile-menu-btn" class="text-slate-300 hover:text-white p-2 relative z-50"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button></div>
             </div>
         </div>
         <div id="mobile-menu" class="hidden md:hidden bg-slate-800 border-b border-slate-700">
@@ -84,10 +87,8 @@
                 <button onclick="switchView('mods')" class="text-left block px-3 py-2 text-slate-300 hover:text-brand-400">Моды</button>
                 <button onclick="switchView('gallery')" class="text-left block px-3 py-2 text-slate-300 hover:text-brand-400">Галерея</button>
                 <button onclick="switchView('help')" class="text-left block px-3 py-2 text-slate-300 hover:text-brand-400">Помощь</button>
-                
                 <button id="mob-admin-btn" onclick="openAdminModal()" class="hidden mt-2 w-full text-left px-3 py-2 text-red-400 font-bold border-t border-slate-700">Админ-панель</button>
                 <button id="mob-login-btn" onclick="openLoginModal()" class="mt-2 w-full text-left px-3 py-2 text-brand-400 font-bold border-t border-slate-700">Войти</button>
-                
                 <div id="mob-user-profile" class="hidden mt-2 px-3 py-2 flex flex-col gap-2 border-t border-slate-700 pt-3">
                     <div class="flex items-center gap-3 cursor-pointer" onclick="openProfileModal()">
                         <img id="mob-user-avatar" src="" class="w-8 h-8 rounded-full border border-brand-500 object-cover bg-slate-800">
@@ -103,7 +104,6 @@
 
     <!-- Основной контент (SPA) -->
     <main class="flex-grow pt-16 relative z-10">
-        
         <!-- ГЛАВНАЯ -->
         <div id="view-home" class="page-view block">
             <section class="relative py-20 lg:py-32 overflow-hidden">
@@ -164,20 +164,16 @@
             <section class="py-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-30 h-[calc(100vh-140px)] flex flex-col">
                 <h2 class="text-3xl font-bold text-white mb-2">Техническая поддержка</h2>
                 <p class="text-slate-400 mb-6">Задайте свой вопрос нашим техническим специалистам.</p>
-                
                 <div id="help-auth-warning" class="hidden bg-brand-500/10 border border-brand-500 text-brand-400 p-6 rounded-2xl text-center">
                     <p class="font-bold mb-4">Для доступа к технической поддержке необходимо войти в аккаунт.</p>
                     <button onclick="openLoginModal()" class="px-6 py-2 bg-brand-500 text-slate-900 font-bold rounded">Войти</button>
                 </div>
-                
                 <div id="help-chat-container" class="hidden flex-grow flex flex-col bg-slate-800/50 border border-slate-700 rounded-2xl overflow-hidden shadow-lg">
                     <div id="help-messages" class="flex-grow overflow-y-auto p-4 space-y-6 chat-scroll"></div>
-                    
                     <div id="help-file-preview-container" class="hidden px-4 pb-2 bg-slate-800 text-xs text-brand-400 flex items-center justify-between border-t border-slate-700 pt-2">
                         <span>Прикреплен файл: <span id="help-file-name" class="font-mono text-white ml-1"></span></span>
                         <button type="button" onclick="clearHelpFile()" class="text-red-400 hover:underline">Удалить файл</button>
                     </div>
-
                     <form onsubmit="submitHelpTicket(event)" class="bg-slate-800 p-4 border-t border-slate-700 flex gap-2 items-center">
                         <label class="cursor-pointer text-slate-400 hover:text-brand-400 transition-colors p-3 bg-slate-900 border border-slate-600 rounded-lg shrink-0" title="Прикрепить файл">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
@@ -191,18 +187,76 @@
         </div>
     </main>
 
-    <!-- Подвал -->
+    <!-- Подвал и Журнал обновлений сайта -->
     <footer class="bg-slate-950 py-6 border-t border-slate-800 mt-auto relative z-30">
-        <div class="max-w-7xl mx-auto px-4 text-center text-slate-500"><p>&copy; 2026 VP-OPENOMSI. Verxonly Prod.</p></div>
+        <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-slate-500 text-sm">
+            <p>&copy; 2026 VP-OPENOMSI. Verxonly Prod.</p>
+            <button onclick="toggleModal('changelog-modal', 'changelog-modal-content', true)" class="mt-2 md:mt-0 hover:text-brand-400 transition-colors border-b border-transparent hover:border-brand-400">
+                Версия портала: <span class="font-bold text-slate-300">v1.2.5</span> (История обновлений)
+            </button>
+        </div>
     </footer>
 
+    <!-- ОКНО ИСТОРИИ ОБНОВЛЕНИЙ ПОРТАЛА (НОВОЕ) -->
+    <div id="changelog-modal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4 py-8">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl shadow-[0_0_40px_rgba(245,158,11,0.2)] relative transform scale-95 transition-transform duration-300 flex flex-col max-h-full" id="changelog-modal-content">
+            <button onclick="closeModal('changelog-modal', 'changelog-modal-content')" class="absolute top-4 right-4 z-20 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
+            <div class="p-6 border-b border-slate-800 flex-shrink-0">
+                <h2 class="text-2xl font-bold text-white">История обновлений сайта</h2>
+                <p class="text-slate-400 text-sm mt-1">Как развивался портал VP-OPENOMSI</p>
+            </div>
+            <div class="p-6 overflow-y-auto chat-scroll flex-grow space-y-6">
+                
+                <div class="relative pl-6 border-l-2 border-brand-500">
+                    <div class="absolute w-3 h-3 bg-brand-500 rounded-full -left-[7px] top-1.5 shadow-[0_0_8px_#f59e0b]"></div>
+                    <h3 class="text-lg font-bold text-white">v1.2.5 <span class="text-brand-400 text-xs font-mono ml-2">Текущая версия</span></h3>
+                    <ul class="mt-2 space-y-1 text-slate-300 text-sm list-disc list-inside">
+                        <li>Добавлен режим «Технических работ» (Доступно только Владельцу).</li>
+                        <li>Добавлен журнал обновлений портала (Changelog).</li>
+                        <li>Улучшено отображение фотографий в детальном просмотре.</li>
+                        <li>Оптимизирована работа модальных окон.</li>
+                    </ul>
+                </div>
+
+                <div class="relative pl-6 border-l-2 border-slate-700">
+                    <div class="absolute w-3 h-3 bg-slate-700 rounded-full -left-[7px] top-1.5"></div>
+                    <h3 class="text-lg font-bold text-white">v1.2.0</h3>
+                    <ul class="mt-2 space-y-1 text-slate-400 text-sm list-disc list-inside">
+                        <li>Внедрена полноценная система ролей (Владелец, Администратор, Тех. спец, Модератор).</li>
+                        <li>Разработана продвинутая Админ-панель для управления контентом и пользователями.</li>
+                        <li>Добавлен онлайн-чат Технической поддержки с возможностью прикреплять файлы.</li>
+                        <li>Разделены логин и отображаемый никнейм.</li>
+                    </ul>
+                </div>
+
+                <div class="relative pl-6 border-l-2 border-slate-700">
+                    <div class="absolute w-3 h-3 bg-slate-700 rounded-full -left-[7px] top-1.5"></div>
+                    <h3 class="text-lg font-bold text-white">v1.1.0</h3>
+                    <ul class="mt-2 space-y-1 text-slate-400 text-sm list-disc list-inside">
+                        <li>Добавлена возможность ставить лайки и писать комментарии.</li>
+                        <li>Появились публичные профили пользователей с полем "О себе" и свечением ролей.</li>
+                        <li>Автоматический перевод патчноутов GitHub на русский язык.</li>
+                    </ul>
+                </div>
+
+                <div class="relative pl-6 border-l-2 border-slate-700">
+                    <div class="absolute w-3 h-3 bg-slate-700 rounded-full -left-[7px] top-1.5"></div>
+                    <h3 class="text-lg font-bold text-white">v1.0.0</h3>
+                    <ul class="mt-2 space-y-1 text-slate-400 text-sm list-disc list-inside">
+                        <li>Запуск базовой версии портала VP-OPENOMSI.</li>
+                        <li>Интеграция с GitHub Releases.</li>
+                        <li>Разделы "Моды" и "Галерея" с базовой загрузкой контента.</li>
+                        <li>Осеннее оформление сайта.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ОКНО ДЕТАЛЬНОГО ПРОСМОТРА С ЛАЙКАМИ И КОММЕНТАМИ -->
-    <div id="item-modal" class="fixed inset-0 z-[110] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4 py-8">
+    <div id="item-modal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4 py-8">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-5xl shadow-[0_0_40px_rgba(245,158,11,0.2)] relative transform scale-95 transition-transform duration-300 overflow-hidden flex flex-col max-h-full" id="item-modal-content">
-            <button onclick="closeModal('item-modal', 'item-modal-content')" class="absolute top-4 right-4 z-20 bg-black/60 text-slate-300 rounded-full p-2 hover:bg-brand-500 hover:text-slate-900 transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-            </button>
-            
+            <button onclick="closeModal('item-modal', 'item-modal-content')" class="absolute top-4 right-4 z-20 bg-black/60 text-slate-300 rounded-full p-2 hover:bg-brand-500 hover:text-slate-900 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
             <div class="w-full bg-slate-950 relative flex-shrink-0 flex items-center justify-center min-h-[40vh] max-h-[55vh]">
                 <img id="item-modal-img" src="" class="w-full h-full object-contain max-h-[55vh]">
                 <div class="absolute bottom-0 left-0 w-full bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent p-6 pt-24 pointer-events-none">
@@ -210,9 +264,8 @@
                     <h2 id="item-modal-title" class="text-3xl font-bold text-white mt-2 leading-tight drop-shadow-md">Название</h2>
                 </div>
             </div>
-            
             <div class="p-6 overflow-y-auto chat-scroll flex-grow bg-slate-900 flex flex-col md:flex-row gap-8">
-                <!-- Инфо (Левая часть) -->
+                <!-- Инфо -->
                 <div class="w-full md:w-1/2 flex flex-col">
                     <div class="flex items-center gap-3 mb-4 pb-4 border-b border-slate-800">
                         <div class="flex items-center gap-3 cursor-pointer group" id="item-modal-author-block">
@@ -222,8 +275,6 @@
                                 <span id="item-modal-author" class="text-white font-bold group-hover:text-brand-400 transition-colors">Никнейм</span>
                             </div>
                         </div>
-                        
-                        <!-- Лайк -->
                         <div class="ml-auto">
                             <button id="item-modal-like-btn" class="flex items-center gap-2 text-slate-400 hover:text-red-500 transition-colors bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700 shadow">
                                 <svg id="item-modal-like-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
@@ -231,23 +282,14 @@
                             </button>
                         </div>
                     </div>
-                    
                     <p id="item-modal-desc" class="text-slate-300 mb-6 whitespace-pre-wrap leading-relaxed text-sm md:text-base chat-scroll"></p>
                     <div id="item-modal-meta" class="flex flex-wrap gap-2 mb-6 hidden"></div>
-                    
                     <a id="item-modal-download" href="#" target="_blank" class="mt-auto block w-full bg-brand-500 text-slate-900 text-center font-bold py-4 rounded-xl hover:bg-brand-400 hidden transition-colors shadow-lg shadow-brand-500/20 text-lg">⬇ Скачать файл</a>
                 </div>
-                
-                <!-- Комментарии (Правая часть) -->
+                <!-- Комментарии -->
                 <div class="w-full md:w-1/2 flex flex-col bg-slate-800/50 rounded-xl p-4 border border-slate-700 shadow-inner">
-                    <h3 class="text-white font-bold mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg> Обсуждение
-                    </h3>
-                    
-                    <div id="item-modal-comments-list" class="flex-grow overflow-y-auto chat-scroll space-y-3 mb-4 min-h-[150px] pr-2">
-                        <!-- Сюда JS загрузит комменты -->
-                    </div>
-                    
+                    <h3 class="text-white font-bold mb-4 flex items-center gap-2"><svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg> Обсуждение</h3>
+                    <div id="item-modal-comments-list" class="flex-grow overflow-y-auto chat-scroll space-y-3 mb-4 min-h-[150px] pr-2"></div>
                     <form onsubmit="submitComment(event)" class="flex gap-2 mt-auto pt-4 border-t border-slate-700">
                         <input type="text" id="item-comment-input" required class="flex-grow bg-slate-900 border border-slate-600 text-white px-3 py-2 rounded-lg text-sm outline-none focus:border-brand-500" placeholder="Написать комментарий...">
                         <button type="submit" class="bg-brand-500 text-slate-900 font-bold px-4 py-2 rounded-lg text-sm hover:bg-brand-400 transition-colors">Отправить</button>
@@ -258,11 +300,10 @@
     </div>
 
     <!-- ПУБЛИЧНЫЙ ПРОФИЛЬ ПОЛЬЗОВАТЕЛЯ -->
-    <div id="public-profile-modal" class="fixed inset-0 z-[120] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4 py-8">
+    <div id="public-profile-modal" class="fixed inset-0 z-[210] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4 py-8">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-md shadow-[0_0_40px_rgba(245,158,11,0.2)] relative transform scale-95 transition-transform duration-300 flex flex-col" id="public-profile-modal-content">
             <button onclick="closeModal('public-profile-modal', 'public-profile-modal-content')" class="absolute top-4 right-4 z-20 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
             <div class="p-8 text-center border-b border-slate-800 relative overflow-hidden">
-                <!-- Декор фон -->
                 <div class="absolute inset-0 bg-brand-500/5 blur-3xl pointer-events-none"></div>
                 <img id="pub-avatar" src="" class="w-24 h-24 rounded-full border-4 border-slate-700 object-cover mx-auto mb-4 bg-slate-800 relative z-10">
                 <h2 id="pub-name" class="text-2xl font-bold text-white relative z-10">Никнейм</h2>
@@ -276,7 +317,7 @@
     </div>
 
     <!-- МОДАЛКИ: АВТОРИЗАЦИЯ И РЕГИСТРАЦИЯ -->
-    <div id="login-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
+    <div id="login-modal" class="fixed inset-0 z-[250] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
         <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(245,158,11,0.15)] relative transform scale-95 transition-transform duration-300" id="login-modal-content">
             <button onclick="closeModal('login-modal', 'login-modal-content')" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button>
             <h2 class="text-2xl font-bold text-center text-white mb-6">Вход</h2>
@@ -289,7 +330,7 @@
         </div>
     </div>
 
-    <div id="register-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
+    <div id="register-modal" class="fixed inset-0 z-[250] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
         <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(245,158,11,0.15)] relative transform scale-95 transition-transform duration-300" id="register-modal-content">
             <button onclick="closeModal('register-modal', 'register-modal-content')" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button>
             <h2 class="text-2xl font-bold text-center text-white mb-6">Регистрация</h2>
@@ -304,7 +345,7 @@
     </div>
 
     <!-- ПРОФИЛЬ (РЕДАКТИРОВАНИЕ) -->
-    <div id="profile-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
+    <div id="profile-modal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
         <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(245,158,11,0.15)] relative transform scale-95 transition-transform duration-300" id="profile-modal-content">
             <button onclick="closeModal('profile-modal', 'profile-modal-content')" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button>
             <h2 class="text-2xl font-bold text-center text-white mb-6">Настройки профиля</h2>
@@ -324,7 +365,7 @@
                 </div>
                 <div>
                     <label class="block text-xs text-slate-400 mb-1 ml-1">О себе</label>
-                    <textarea id="edit-bio" rows="3" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none focus:border-brand-500 chat-scroll" placeholder="Расскажите о себе, своих модах..."></textarea>
+                    <textarea id="edit-bio" rows="2" class="w-full px-4 py-2 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none focus:border-brand-500 chat-scroll" placeholder="Расскажите о себе, своих модах..."></textarea>
                 </div>
                 <div class="flex flex-col gap-2 mt-4">
                     <button type="submit" class="w-full bg-brand-500 text-slate-900 font-bold py-2.5 rounded-lg hover:bg-brand-400">Сохранить</button>
@@ -335,7 +376,7 @@
     </div>
 
     <!-- МОДАЛКА ПРЕДЛОЖЕНИЯ КОНТЕНТА -->
-    <div id="submit-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
+    <div id="submit-modal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
         <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-lg shadow-[0_0_30px_rgba(245,158,11,0.15)] relative transform scale-95 transition-transform duration-300" id="submit-modal-content">
             <button onclick="closeModal('submit-modal', 'submit-modal-content')" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button>
             <h2 id="submit-title" class="text-2xl font-bold text-center text-white mb-6">Предложить контент</h2>
@@ -347,7 +388,7 @@
             <form id="submit-form" class="space-y-4" onsubmit="handleSubmission(event)">
                 <input type="hidden" id="submit-type">
                 <div><input type="text" id="submit-name" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none focus:border-brand-500" placeholder="Название / Заголовок"></div>
-                <div id="submit-desc-group"><textarea id="submit-desc" rows="3" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none focus:border-brand-500 chat-scroll" placeholder="Подробное описание (будет отображаться в окне)"></textarea></div>
+                <div id="submit-desc-group"><textarea id="submit-desc" rows="3" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none focus:border-brand-500 chat-scroll" placeholder="Подробное описание"></textarea></div>
                 <div id="submit-photo-fields" class="hidden space-y-4 bg-slate-800/50 p-4 rounded-lg border border-slate-700">
                     <p class="text-xs text-brand-400 font-bold uppercase tracking-wider mb-2">Детали кадра</p>
                     <input type="text" id="submit-brand" class="w-full px-4 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white text-sm outline-none focus:border-brand-500" placeholder="Марка и модель (напр. Neoplan Starliner)">
@@ -367,7 +408,7 @@
     </div>
 
     <!-- КАСТОМНЫЙ КОНФИРМ -->
-    <div id="confirm-modal" class="fixed inset-0 z-[130] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
+    <div id="confirm-modal" class="fixed inset-0 z-[250] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
         <div class="bg-slate-900 border border-red-500/50 p-6 rounded-2xl w-full max-w-sm shadow-[0_0_30px_rgba(239,68,68,0.2)] relative transform scale-95 transition-transform duration-300 text-center" id="confirm-modal-content">
             <svg class="w-16 h-16 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
             <h3 class="text-xl font-bold text-white mb-2">Подтвердите действие</h3>
@@ -380,7 +421,7 @@
     </div>
 
     <!-- АДМИН-ПАНЕЛЬ -->
-    <div id="admin-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
+    <div id="admin-modal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4">
         <div class="bg-slate-900 border border-red-500/50 p-6 rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto shadow-[0_0_30px_rgba(239,68,68,0.2)] relative transform scale-95 transition-transform duration-300 chat-scroll" id="admin-modal-content">
             <button onclick="closeModal('admin-modal', 'admin-modal-content')" class="absolute top-4 right-4 text-slate-400 hover:text-red-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button>
             <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
@@ -391,8 +432,10 @@
                 <button onclick="switchAdminTab('content')" id="tab-content" class="px-4 py-2 border-b-2 border-brand-500 text-brand-400 font-bold hidden whitespace-nowrap">Контент</button>
                 <button onclick="switchAdminTab('help')" id="tab-help" class="px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-300 font-bold hidden whitespace-nowrap">Тех. поддержка</button>
                 <button onclick="switchAdminTab('users')" id="tab-users" class="px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-300 font-bold hidden whitespace-nowrap">Пользователи</button>
+                <button onclick="switchAdminTab('settings')" id="tab-settings" class="px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-300 font-bold hidden whitespace-nowrap">Система</button>
             </div>
             
+            <!-- Контент -->
             <div id="admin-content-view" class="hidden">
                 <h3 class="text-brand-400 font-bold mb-3 uppercase tracking-wider text-sm border-b border-slate-700 pb-2">Ожидают модерации</h3>
                 <div id="admin-pending-list" class="space-y-4 mb-8"></div>
@@ -400,8 +443,27 @@
                 <div id="admin-approved-list" class="space-y-4"></div>
             </div>
 
+            <!-- Тех Поддержка -->
             <div id="admin-help-view" class="hidden"><div id="admin-tickets-list" class="space-y-6"></div></div>
+            <!-- Пользователи -->
             <div id="admin-users-view" class="hidden"><div id="admin-users-list" class="space-y-3"></div></div>
+            
+            <!-- Настройки Системы (ТОЛЬКО ВЛАДЕЛЕЦ) -->
+            <div id="admin-settings-view" class="hidden">
+                <h3 class="text-white font-bold mb-4">Управление сайтом</h3>
+                <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex justify-between items-center">
+                    <div>
+                        <h4 class="text-white font-bold flex items-center gap-2">
+                            <svg class="w-5 h-5 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            Режим технических работ
+                        </h4>
+                        <p class="text-slate-400 text-sm mt-1">Включение этого режима закроет доступ к сайту для всех обычных пользователей и персонала, кроме Владельца.</p>
+                    </div>
+                    <button id="maintenance-toggle-btn" onclick="toggleMaintenance()" class="px-6 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-colors whitespace-nowrap ml-4">
+                        Включить
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -411,15 +473,20 @@
         const ALL_USERS_KEY = 'vp_openomsi_all_users';
         const ITEMS_KEY = 'vp_openomsi_items';
         const TICKETS_KEY = 'vp_openomsi_tickets';
+        const SETTINGS_KEY = 'vp_openomsi_settings';
 
         let currentUser = null; 
         let allUsers = []; 
         let communityItems = [];
         let helpTickets = []; 
-        let currentOpenItemId = null; // Для комментов и лайков
+        let siteSettings = { isMaintenance: false };
+        let currentOpenItemId = null; 
 
         // ЗАГРУЗКА И СОХРАНЕНИЕ ДАННЫХ
         function syncLoad() {
+            const savedSettings = localStorage.getItem(SETTINGS_KEY);
+            if(savedSettings) { try { siteSettings = JSON.parse(savedSettings); } catch(e){} }
+
             const savedAllUsers = localStorage.getItem(ALL_USERS_KEY);
             if(savedAllUsers) { try { allUsers = JSON.parse(savedAllUsers); } catch(e) { allUsers = []; } }
 
@@ -436,7 +503,6 @@
             if (savedItems) { 
                 try { 
                     communityItems = JSON.parse(savedItems); 
-                    // Гарантируем массивы для старых данных
                     communityItems.forEach(i => {
                         if(!i.likes) i.likes = [];
                         if(!i.comments) i.comments = [];
@@ -451,6 +517,7 @@
         function syncSaveUsers() { localStorage.setItem(ALL_USERS_KEY, JSON.stringify(allUsers)); if(currentUser) localStorage.setItem(USER_KEY, JSON.stringify(currentUser)); else localStorage.removeItem(USER_KEY); }
         function syncSaveItems() { localStorage.setItem(ITEMS_KEY, JSON.stringify(communityItems)); }
         function syncSaveTickets() { localStorage.setItem(TICKETS_KEY, JSON.stringify(helpTickets)); }
+        function syncSaveSettings() { localStorage.setItem(SETTINGS_KEY, JSON.stringify(siteSettings)); }
 
         function getRoleName(role) {
             if(role === 'chief_admin') return 'Владелец';
@@ -460,7 +527,7 @@
             return 'Пользователь';
         }
 
-        // SPA НАВИГАЦИЯ
+        // SPA НАВИГАЦИЯ И MAINTENANCE
         function switchView(viewName) {
             document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
             const targetView = document.getElementById('view-' + viewName);
@@ -474,7 +541,36 @@
             window.scrollTo(0, 0);
         }
 
+        function checkMaintenance() {
+            const mScreen = document.getElementById('maintenance-screen');
+            if(siteSettings.isMaintenance && (!currentUser || currentUser.role !== 'chief_admin')) {
+                mScreen.classList.remove('hidden'); mScreen.classList.add('flex');
+                document.body.style.overflow = 'hidden';
+            } else {
+                mScreen.classList.add('hidden'); mScreen.classList.remove('flex');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function toggleMaintenance() {
+            if(currentUser.role !== 'chief_admin') return;
+            siteSettings.isMaintenance = !siteSettings.isMaintenance;
+            syncSaveSettings();
+            
+            const btn = document.getElementById('maintenance-toggle-btn');
+            if(siteSettings.isMaintenance) {
+                btn.innerText = 'Выключить';
+                btn.className = 'px-6 py-2 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-600 transition-colors whitespace-nowrap ml-4';
+            } else {
+                btn.innerText = 'Включить';
+                btn.className = 'px-6 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-colors whitespace-nowrap ml-4';
+            }
+            checkMaintenance();
+        }
+
         function updateUI() {
+            checkMaintenance();
+            
             const isAuth = !!currentUser;
             document.getElementById('nav-login-btn').classList.toggle('hidden', isAuth);
             document.getElementById('mob-login-btn').classList.toggle('hidden', isAuth);
@@ -522,7 +618,7 @@
             else { m.classList.add('opacity-0'); c.classList.remove('scale-100'); c.classList.add('scale-95'); setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300); }
         }
         function closeAllModals() {
-            ['login-modal','register-modal','profile-modal','submit-modal','admin-modal', 'item-modal', 'confirm-modal', 'public-profile-modal'].forEach(id => {
+            ['login-modal','register-modal','profile-modal','submit-modal','admin-modal', 'item-modal', 'confirm-modal', 'public-profile-modal', 'changelog-modal'].forEach(id => {
                 const m = document.getElementById(id), c = document.getElementById(id+'-content');
                 if(m && c) { m.classList.add('hidden','opacity-0'); m.classList.remove('flex'); c.classList.add('scale-95'); c.classList.remove('scale-100'); }
             });
@@ -557,15 +653,6 @@
             rBadge.classList.add(`role-glow-${user.role}`);
             
             document.getElementById('pub-bio').innerText = user.bio || 'Пользователь не указал информацию о себе.';
-            
-            // Если открыто окно детального просмотра, не закрываем его полностью, просто открываем профиль поверх. 
-            // Но лучше скрыть лишние, чтобы не было наложения.
-            const itemModal = document.getElementById('item-modal');
-            if(itemModal && !itemModal.classList.contains('hidden')) {
-                // Временно прячем контент или просто открываем поверх (z-[120] это позволяет)
-            } else {
-                closeAllModals();
-            }
             toggleModal('public-profile-modal', 'public-profile-modal-content', true);
         }
 
@@ -652,12 +739,10 @@
             }
             
             updateItemSocialUI(item);
-            
             closeAllModals(); toggleModal('item-modal', 'item-modal-content', true);
         }
 
         function updateItemSocialUI(item) {
-            // Лайки
             const likeBtn = document.getElementById('item-modal-like-btn');
             const likeIcon = document.getElementById('item-modal-like-icon');
             const likeCount = document.getElementById('item-modal-like-count');
@@ -666,16 +751,12 @@
             likeCount.innerText = item.likes.length;
             
             if (currentUser && item.likes.includes(currentUser.nickname)) {
-                likeIcon.setAttribute('fill', 'currentColor');
-                likeIcon.classList.add('text-red-500');
+                likeIcon.setAttribute('fill', 'currentColor'); likeIcon.classList.add('text-red-500');
             } else {
-                likeIcon.setAttribute('fill', 'none');
-                likeIcon.classList.remove('text-red-500');
+                likeIcon.setAttribute('fill', 'none'); likeIcon.classList.remove('text-red-500');
             }
-            
             likeBtn.onclick = () => toggleLike(item.id);
 
-            // Комментарии
             const cList = document.getElementById('item-modal-comments-list');
             cList.innerHTML = '';
             if(!item.comments) item.comments = [];
@@ -691,8 +772,7 @@
                                 <span class="text-xs text-brand-400 font-bold cursor-pointer hover:underline" onclick="openPublicProfile('${c.author}')">${c.author}</span>
                                 <p class="text-slate-300 text-sm mt-0.5 break-words">${c.text}</p>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
             }
         }
@@ -702,14 +782,9 @@
             const item = communityItems.find(i => i.id === id);
             if(!item) return;
             if(!item.likes) item.likes = [];
-            
             const idx = item.likes.indexOf(currentUser.nickname);
-            if(idx === -1) item.likes.push(currentUser.nickname);
-            else item.likes.splice(idx, 1);
-            
-            syncSaveItems();
-            updateItemSocialUI(item);
-            renderCommunityContent(); 
+            if(idx === -1) item.likes.push(currentUser.nickname); else item.likes.splice(idx, 1);
+            syncSaveItems(); updateItemSocialUI(item); renderCommunityContent(); 
         }
 
         function submitComment(e) {
@@ -723,10 +798,7 @@
             if(item) {
                 if(!item.comments) item.comments = [];
                 item.comments.push({ author: currentUser.nickname, text: text, date: new Date().toISOString() });
-                syncSaveItems();
-                input.value = '';
-                updateItemSocialUI(item);
-                
+                syncSaveItems(); input.value = ''; updateItemSocialUI(item);
                 const cList = document.getElementById('item-modal-comments-list');
                 setTimeout(() => cList.scrollTop = cList.scrollHeight, 50);
             }
@@ -737,7 +809,6 @@
             if(!currentUser) return openLoginModal();
             if(currentUser.isBlocked) return alert("Ваш аккаунт заблокирован.");
             closeAllModals();
-            
             document.getElementById('submit-type').value = type;
             document.getElementById('submit-success').classList.add('hidden');
             document.getElementById('submit-form').classList.remove('hidden');
@@ -749,7 +820,6 @@
             
             const isPhoto = (type === 'photo');
             document.getElementById('submit-photo-fields').classList.toggle('hidden', !isPhoto);
-            
             toggleModal('submit-modal', 'submit-modal-content', true);
         }
 
@@ -812,8 +882,7 @@
         }
         function submitHelpTicket(e) {
             e.preventDefault();
-            const input = document.getElementById('help-input'), fileInput = document.getElementById('help-file-input');
-            const text = input.value.trim();
+            const input = document.getElementById('help-input'), fileInput = document.getElementById('help-file-input'), text = input.value.trim();
             if((!text && !fileInput.files.length) || !currentUser || currentUser.isBlocked) return;
             const addTicket = (fileData) => { helpTickets.push({ id: Date.now(), author: currentUser.nickname, text: text, attachment: fileData, status: 'open', replies: [] }); syncSaveTickets(); input.value = ''; clearHelpFile(); renderUserChat(); };
             if(fileInput.files[0]) { const r = new FileReader(); r.onload = (evt) => addTicket(evt.target.result); r.readAsDataURL(fileInput.files[0]); } else { addTicket(null); }
@@ -824,38 +893,43 @@
             if(!currentUser) return;
             const r = currentUser.role;
             if(r === 'user') return;
-            
             closeAllModals();
-            const tCont = document.getElementById('tab-content'), tHelp = document.getElementById('tab-help'), tUsers = document.getElementById('tab-users');
             
-            // ТАБЫ: Контент видят модеры+, Юзеров админы+, ТехПоддержку ТОЛЬКО технари и главный (chief)
+            const tCont = document.getElementById('tab-content'), tHelp = document.getElementById('tab-help'), tUsers = document.getElementById('tab-users'), tSett = document.getElementById('tab-settings');
             tCont.classList.toggle('hidden', !['moderator', 'admin', 'chief_admin'].includes(r));
-            tHelp.classList.toggle('hidden', !['tech_support', 'chief_admin'].includes(r)); 
+            tHelp.classList.toggle('hidden', !['tech_support', 'chief_admin'].includes(r));
             tUsers.classList.toggle('hidden', !['admin', 'chief_admin'].includes(r));
+            tSett.classList.toggle('hidden', r !== 'chief_admin');
 
             let defaultTab = 'content';
-            if (r === 'tech_support') defaultTab = 'help'; 
+            if (r === 'tech_support') defaultTab = 'help';
             
+            // Настройка кнопки Обслуживания (если шеф)
+            if(r === 'chief_admin') {
+                const btn = document.getElementById('maintenance-toggle-btn');
+                if(siteSettings.isMaintenance) { btn.innerText = 'Выключить'; btn.className = 'px-6 py-2 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-600 transition-colors whitespace-nowrap ml-4'; }
+                else { btn.innerText = 'Включить'; btn.className = 'px-6 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-colors whitespace-nowrap ml-4'; }
+            }
+
             switchAdminTab(defaultTab);
             toggleModal('admin-modal', 'admin-modal-content', true);
             hideMenu();
         }
 
         function switchAdminTab(tab) {
-            const activeCls = "px-4 py-2 border-b-2 border-brand-500 text-brand-400 font-bold whitespace-nowrap";
-            const inactiveCls = "px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-300 font-bold whitespace-nowrap";
+            const aCls = "px-4 py-2 border-b-2 border-brand-500 text-brand-400 font-bold whitespace-nowrap", iCls = "px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-300 font-bold whitespace-nowrap";
             
-            document.getElementById('tab-content').className = tab === 'content' ? activeCls : inactiveCls;
-            document.getElementById('tab-help').className = tab === 'help' ? activeCls : inactiveCls;
-            document.getElementById('tab-users').className = tab === 'users' ? activeCls : inactiveCls;
+            document.getElementById('tab-content').className = tab === 'content' ? aCls : iCls;
+            document.getElementById('tab-help').className = tab === 'help' ? aCls : iCls;
+            document.getElementById('tab-users').className = tab === 'users' ? aCls : iCls;
+            document.getElementById('tab-settings').className = tab === 'settings' ? aCls : iCls;
             
             document.getElementById('admin-content-view').classList.toggle('hidden', tab !== 'content');
             document.getElementById('admin-help-view').classList.toggle('hidden', tab !== 'help');
             document.getElementById('admin-users-view').classList.toggle('hidden', tab !== 'users');
+            document.getElementById('admin-settings-view').classList.toggle('hidden', tab !== 'settings');
 
-            if(tab === 'content') renderAdminContent();
-            if(tab === 'help') renderAdminHelp();
-            if(tab === 'users') renderAdminUsers();
+            if(tab === 'content') renderAdminContent(); if(tab === 'help') renderAdminHelp(); if(tab === 'users') renderAdminUsers();
         }
 
         function generateAdminItemHTML(item, isPending) {
@@ -869,8 +943,7 @@
                 </div>`;
             }
             const buttonsHtml = isPending 
-                ? `<button onclick="moderateItem(${item.id}, 'approved')" class="bg-green-500/20 text-green-400 hover:bg-green-500 hover:text-white px-4 py-2 rounded-lg text-sm font-bold">Одобрить</button>
-                   <button onclick="requestDelete(${item.id})" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg text-sm font-bold">Отклонить</button>`
+                ? `<button onclick="moderateItem(${item.id}, 'approved')" class="bg-green-500/20 text-green-400 hover:bg-green-500 hover:text-white px-4 py-2 rounded-lg text-sm font-bold">Одобрить</button><button onclick="requestDelete(${item.id})" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg text-sm font-bold">Отклонить</button>`
                 : `<button onclick="requestDelete(${item.id})" class="bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg text-sm font-bold w-full md:w-auto">Безвозвратно Удалить</button>`;
 
             return `
