@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VP-OPENOMSI | Главная</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Marked.js для парсинга Markdown из релизов GitHub -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         tailwind.config = {
@@ -25,66 +23,24 @@
         }
     </script>
     <style>
-        body {
-            background-color: #0f172a;
-            color: #f8fafc;
-            overflow-x: hidden;
-        }
-        .glow-text {
-            text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
-        }
-        .glow-box {
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.2);
-        }
+        body { background-color: #0f172a; color: #f8fafc; overflow-x: hidden; }
+        .glow-text { text-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+        .glow-box { box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
         
-        /* Анимация листьев */
         @keyframes fall {
             0% { transform: translateY(-10vh) rotate(0deg) translateX(0); opacity: 1; }
             100% { transform: translateY(110vh) rotate(360deg) translateX(50px); opacity: 0; }
         }
-        .leaf {
-            position: absolute;
-            top: -10vh;
-            pointer-events: none;
-            user-select: none;
-            animation: fall linear infinite;
-            filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.3));
-        }
+        .leaf { position: absolute; top: -10vh; pointer-events: none; user-select: none; animation: fall linear infinite; filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.3)); }
 
-        /* Стили для сгенерированного Markdown контента */
-        .releases-content h1, .releases-content h2, .releases-content h3 {
-            color: white;
-            font-weight: 700;
-            margin-top: 1.5rem;
-            margin-bottom: 0.75rem;
-        }
-        .releases-content ul {
-            list-style-type: disc;
-            padding-left: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        .releases-content li {
-            margin-bottom: 0.25rem;
-        }
-        .releases-content a {
-            color: #fbbf24;
-            text-decoration: underline;
-        }
-        .releases-content a:hover {
-            color: #f59e0b;
-        }
-        .releases-content code {
-            background-color: rgba(0, 0, 0, 0.3);
-            padding: 0.1rem 0.3rem;
-            border-radius: 0.25rem;
-            font-family: monospace;
-            color: #fbbf24;
-        }
+        .releases-content h1, .releases-content h2, .releases-content h3 { color: white; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+        .releases-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+        .releases-content a { color: #fbbf24; text-decoration: underline; }
+        .releases-content code { background-color: rgba(0, 0, 0, 0.3); padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-family: monospace; color: #fbbf24; }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col relative">
 
-    <!-- Листья -->
     <div id="leaves-container" class="fixed inset-0 pointer-events-none z-40 overflow-hidden"></div>
 
     <!-- Навигация -->
@@ -95,26 +51,30 @@
                     <span class="text-2xl font-bold text-brand-400 glow-text">VP-OPENOMSI</span>
                 </div>
                 <!-- Меню ПК -->
-                <nav class="hidden md:flex space-x-8">
-                    <a href="#hero" class="text-slate-300 hover:text-brand-400 transition-colors">Главная</a>
+                <nav class="hidden md:flex space-x-6 text-sm">
                     <a href="#updates" class="text-slate-300 hover:text-brand-400 transition-colors">Обновления</a>
+                    <a href="#community-mods" class="text-slate-300 hover:text-brand-400 transition-colors">Моды</a>
+                    <a href="#community-photos" class="text-slate-300 hover:text-brand-400 transition-colors">Галерея</a>
                     <a href="#news" class="text-slate-300 hover:text-brand-400 transition-colors">Новости</a>
-                    <a href="#dev" class="text-slate-300 hover:text-brand-400 transition-colors">Разработка</a>
                 </nav>
                 
-                <!-- Блок авторизации (ПК) -->
                 <div class="hidden md:flex space-x-4 items-center relative z-50">
+                    <!-- Кнопка админки (скрыта по умолчанию) -->
+                    <button id="nav-admin-btn" onclick="openAdminModal()" class="hidden px-4 py-1.5 rounded-lg border border-red-500 text-red-400 hover:bg-red-500 hover:text-white transition-all font-semibold text-sm bg-red-500/10">
+                        Админ-панель
+                    </button>
+
                     <button id="nav-login-btn" onclick="openLoginModal()" class="px-5 py-2 rounded-lg border-2 border-slate-700 text-slate-300 hover:border-brand-500 hover:text-brand-400 transition-all font-semibold">
                         Войти
                     </button>
                     <!-- Профиль -->
                     <div id="nav-user-profile" class="hidden items-center gap-3 cursor-pointer group" onclick="openProfileModal()">
                         <span id="nav-user-name" class="font-medium text-slate-200 group-hover:text-brand-400 transition-colors">Имя</span>
-                        <img id="nav-user-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Player" alt="Аватар" class="w-10 h-10 rounded-full border-2 border-brand-500 object-cover">
+                        <img id="nav-user-avatar" src="" alt="Аватар" class="w-10 h-10 rounded-full border-2 border-brand-500 object-cover bg-slate-800">
                     </div>
                 </div>
 
-                <!-- Кнопка мобильного меню -->
+                <!-- Мобильное меню (Гамбургер) -->
                 <div class="md:hidden">
                     <button id="mobile-menu-btn" class="text-slate-300 hover:text-white p-2 relative z-50">
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -124,19 +84,19 @@
                 </div>
             </div>
         </div>
-        <!-- Мобильное меню -->
+        <!-- Мобильное выпадающее меню -->
         <div id="mobile-menu" class="hidden md:hidden bg-slate-800 border-b border-slate-700">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col relative z-50">
-                <a href="#hero" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Главная</a>
                 <a href="#updates" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Обновления</a>
-                <a href="#news" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Новости</a>
-                <a href="#dev" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Разработка</a>
+                <a href="#community-mods" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Моды</a>
+                <a href="#community-photos" class="block px-3 py-2 text-slate-300 hover:text-brand-400">Галерея</a>
                 
-                <button id="mob-login-btn" onclick="openLoginModal()" class="mt-2 w-full text-left px-3 py-2 text-brand-400 font-bold">Войти</button>
+                <button id="mob-admin-btn" onclick="openAdminModal()" class="hidden mt-2 w-full text-left px-3 py-2 text-red-400 font-bold border-t border-slate-700">Админ-панель</button>
+                <button id="mob-login-btn" onclick="openLoginModal()" class="mt-2 w-full text-left px-3 py-2 text-brand-400 font-bold border-t border-slate-700">Войти</button>
                 
                 <div id="mob-user-profile" class="hidden mt-2 px-3 py-2 flex flex-col gap-2 border-t border-slate-700 pt-3">
                     <div class="flex items-center gap-3 cursor-pointer" onclick="openProfileModal()">
-                        <img id="mob-user-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Player" alt="Аватар" class="w-8 h-8 rounded-full border border-brand-500 object-cover">
+                        <img id="mob-user-avatar" src="" alt="Аватар" class="w-8 h-8 rounded-full border border-brand-500 object-cover bg-slate-800">
                         <span id="mob-user-name" class="font-medium text-slate-200">Имя</span>
                         <span class="text-xs text-brand-400 ml-auto bg-brand-500/10 px-2 py-1 rounded">Настройки</span>
                     </div>
@@ -158,41 +118,65 @@
                     Будущее симуляторов с <span class="text-brand-400 glow-text block mt-2">openOMSI</span>
                 </h1>
                 <p class="mt-4 text-xl text-slate-400 max-w-3xl mx-auto mb-10">
-                    Присоединяйтесь к открытой разработке, скачивайте последние билды и следите за развитием нового поколения автобусных симуляторов от VP-OPENOMSI.
+                    Присоединяйтесь к открытой разработке, скачивайте билды, делитесь своими модами и скриншотами.
                 </p>
                 <div class="flex flex-col sm:flex-row justify-center gap-4 relative z-50">
                     <a href="#updates" class="px-8 py-4 rounded-lg bg-brand-500 text-slate-900 font-bold text-lg hover:bg-brand-400 transition-all shadow-[0_0_20px_rgba(245,158,11,0.4)] hover:scale-105 inline-block">
                         Последние версии
                     </a>
-                    <a href="https://github.com/openOMSI-org/openOMSI" target="_blank" class="px-8 py-4 rounded-lg bg-slate-800 text-white font-bold text-lg border border-slate-700 hover:border-brand-500 hover:text-brand-400 transition-all inline-block">
-                        Исходный код
+                    <a href="#community-mods" class="px-8 py-4 rounded-lg bg-slate-800 text-white font-bold text-lg border border-slate-700 hover:border-brand-500 hover:text-brand-400 transition-all inline-block">
+                        Творчество комьюнити
                     </a>
                 </div>
             </div>
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-brand-600/10 rounded-full blur-3xl -z-10 pointer-events-none"></div>
         </section>
 
-        <!-- БЛОК ОБНОВЛЕНИЙ ИЗ GITHUB -->
+        <!-- Блок обновлений GitHub -->
         <section id="updates" class="py-16">
             <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-30">
                 <div class="text-center mb-10">
                     <h2 class="text-3xl font-bold mb-4 text-white">Журнал обновлений</h2>
-                    <p class="text-slate-400">Автоматически синхронизируется с GitHub репозиторием <span class="text-brand-400 font-mono">openOMSI-org/openOMSI</span></p>
+                    <p class="text-slate-400">Синхронизировано с GitHub <span class="text-brand-400 font-mono">openOMSI-org/openOMSI</span></p>
                 </div>
-                
-                <!-- Контейнер для релизов -->
-                <div id="releases-container" class="space-y-6">
-                    <!-- Заглушка на время загрузки -->
-                    <div class="flex justify-center py-10">
-                        <svg class="animate-spin h-10 w-10 text-brand-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
+                <div id="releases-container" class="space-y-6"></div>
+            </div>
+        </section>
+
+        <!-- Моды сообщества -->
+        <section id="community-mods" class="py-16 bg-slate-800/30 border-y border-slate-800">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-30">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white">Моды сообщества</h2>
+                        <p class="text-slate-400 mt-2">Лучшие дополнения от игроков VP-OPENOMSI</p>
                     </div>
+                    <button onclick="openSubmitModal('mod')" class="px-6 py-3 bg-slate-800 border border-brand-500 text-brand-400 font-bold rounded-lg hover:bg-brand-500 hover:text-slate-900 transition-colors">
+                        + Предложить мод
+                    </button>
                 </div>
-                
-                <div class="mt-8 text-center">
-                    <a href="https://github.com/openOMSI-org/openOMSI/releases" target="_blank" class="text-brand-400 hover:text-brand-300 font-medium hover:underline">Посмотреть все обновления на GitHub &rarr;</a>
+                <!-- Сетка модов -->
+                <div id="mods-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <p class="text-slate-500 italic col-span-full text-center">Загрузка модов...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Галерея -->
+        <section id="community-photos" class="py-16">
+            <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-30">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+                    <div>
+                        <h2 class="text-3xl font-bold text-white">Галерея скриншотов</h2>
+                        <p class="text-slate-400 mt-2">Кадры из симулятора от наших пользователей</p>
+                    </div>
+                    <button onclick="openSubmitModal('photo')" class="px-6 py-3 bg-slate-800 border border-brand-500 text-brand-400 font-bold rounded-lg hover:bg-brand-500 hover:text-slate-900 transition-colors">
+                        + Предложить Фотографию
+                    </button>
+                </div>
+                <!-- Сетка фото -->
+                <div id="photos-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <p class="text-slate-500 italic col-span-full text-center">Загрузка галереи...</p>
                 </div>
             </div>
         </section>
@@ -207,34 +191,7 @@
                         <p class="text-slate-400">Самые свежие обновления, патчноуты и инсайды с разработки.</p>
                         <p class="text-brand-400 font-mono mt-2 text-lg">@verxonlyprodopomsi</p>
                     </div>
-                    <a href="https://t.me/verxonlyprodopomsi" target="_blank" class="px-6 py-3 bg-brand-500 text-slate-900 font-bold rounded-lg hover:bg-brand-400 transition-colors shrink-0">
-                        Подписаться
-                    </a>
-                </div>
-            </div>
-        </section>
-
-        <!-- Разработка -->
-        <section id="dev" class="py-16">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-30">
-                <h2 class="text-3xl font-bold mb-10 text-center">Наши Репозитории</h2>
-                <div class="grid md:grid-cols-2 gap-8">
-                    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-brand-500 transition-all group">
-                        <div class="flex justify-between items-start mb-4">
-                            <h3 class="text-2xl font-bold text-brand-400 group-hover:glow-text">openOMSI</h3>
-                            <span class="px-3 py-1 bg-slate-900 text-xs rounded-full border border-slate-600 text-slate-300">Core</span>
-                        </div>
-                        <p class="text-slate-400 mb-6">Главный движок и ядро симулятора. Открытый исходный код для создания реалистичной физики и графики.</p>
-                        <a href="https://github.com/openOMSI-org/openOMSI" target="_blank" class="text-white hover:text-brand-400 inline-flex items-center gap-2">Смотреть на GitHub &rarr;</a>
-                    </div>
-                    <div class="bg-slate-800 rounded-xl p-6 border border-slate-700 hover:border-brand-500 transition-all group">
-                        <div class="flex justify-between items-start mb-4">
-                            <h3 class="text-2xl font-bold text-brand-400 group-hover:glow-text">openMapper</h3>
-                            <span class="px-3 py-1 bg-slate-900 text-xs rounded-full border border-slate-600 text-slate-300">Tools</span>
-                        </div>
-                        <p class="text-slate-400 mb-6">Инструментарий для создания, редактирования и конвертации карт и маршрутов для симулятора.</p>
-                        <a href="https://github.com/openOMSI-org/openMapper" target="_blank" class="text-white hover:text-brand-400 inline-flex items-center gap-2">Смотреть на GitHub &rarr;</a>
-                    </div>
+                    <a href="https://t.me/verxonlyprodopomsi" target="_blank" class="px-6 py-3 bg-brand-500 text-slate-900 font-bold rounded-lg hover:bg-brand-400 transition-colors shrink-0">Подписаться</a>
                 </div>
             </div>
         </section>
@@ -247,309 +204,239 @@
         </div>
     </footer>
 
-    <!-- МОДАЛЬНОЕ ОКНО АВТОРИЗАЦИИ -->
+    <!-- МОДАЛЬНЫЕ ОКНА (АВТОРИЗАЦИЯ, РЕГИСТРАЦИЯ, ПРОФИЛЬ) -->
     <div id="login-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300">
         <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(245,158,11,0.15)] relative transform scale-95 transition-transform duration-300" id="login-modal-content">
-            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
+            <button onclick="closeModal('login-modal', 'login-modal-content')" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             <h2 class="text-2xl font-bold text-center text-white mb-2">Авторизация</h2>
-            <p class="text-center text-slate-400 mb-6">Войдите в аккаунт VP-OPENOMSI</p>
+            <p class="text-center text-slate-400 mb-2">Войдите в аккаунт VP-OPENOMSI</p>
+            <p class="text-center text-xs text-brand-500 mb-6 bg-brand-500/10 py-1 rounded">Подсказка: логин <b>admin</b> для входа админом</p>
             <form id="login-form" class="space-y-4" onsubmit="handleLogin(event)">
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Логин / Email</label>
-                    <input type="text" id="login" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="Введите логин">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Пароль</label>
-                    <input type="password" id="password" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="••••••••">
-                </div>
-                <button type="submit" class="w-full mt-4 bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400 transition-colors">Войти</button>
+                <input type="text" id="login" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Логин (введите admin для теста)">
+                <input type="password" id="password" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Пароль">
+                <button type="submit" class="w-full bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400">Войти</button>
             </form>
-            <div class="mt-6 text-center text-slate-400 text-sm">
-                У вас еще нет аккаунта? <button onclick="switchToRegister()" class="text-brand-400 hover:underline font-medium">Хотите зарегистрироваться?</button>
-            </div>
+            <div class="mt-6 text-center text-slate-400 text-sm">У вас еще нет аккаунта? <button onclick="switchToRegister()" class="text-brand-400 hover:underline">Зарегистрироваться</button></div>
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ -->
     <div id="register-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300">
         <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(245,158,11,0.15)] relative transform scale-95 transition-transform duration-300" id="register-modal-content">
-            <button onclick="closeRegisterModal()" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-            <h2 class="text-2xl font-bold text-center text-white mb-2">Регистрация</h2>
-            <p class="text-center text-slate-400 mb-6">Создайте новый аккаунт</p>
+            <button onclick="closeModal('register-modal', 'register-modal-content')" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <h2 class="text-2xl font-bold text-center text-white mb-6">Регистрация</h2>
             <form id="register-form" class="space-y-4" onsubmit="handleRegister(event)">
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Никнейм</label>
-                    <input type="text" id="reg-login" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="Придумайте логин">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Email</label>
-                    <input type="email" id="reg-email" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="your@email.com">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Пароль</label>
-                    <input type="password" id="reg-password" required minlength="6" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="••••••••">
-                </div>
-                <button type="submit" class="w-full mt-4 bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400 transition-colors">Зарегистрироваться и войти</button>
+                <input type="text" id="reg-login" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Придумайте логин">
+                <input type="password" id="reg-password" required minlength="6" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Пароль">
+                <button type="submit" class="w-full bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400">Зарегистрироваться и войти</button>
             </form>
-            <div class="mt-6 text-center text-slate-400 text-sm">
-                Уже есть аккаунт? <button onclick="switchToLogin()" class="text-brand-400 hover:underline font-medium">Войти</button>
-            </div>
+            <div class="mt-6 text-center text-slate-400 text-sm">Уже есть аккаунта? <button onclick="switchToLogin()" class="text-brand-400 hover:underline">Войти</button></div>
         </div>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО ПРОФИЛЯ -->
     <div id="profile-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300">
         <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-md shadow-[0_0_30px_rgba(245,158,11,0.15)] relative transform scale-95 transition-transform duration-300" id="profile-modal-content">
-            <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
+            <button onclick="closeModal('profile-modal', 'profile-modal-content')" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             <h2 class="text-2xl font-bold text-center text-white mb-6">Настройки профиля</h2>
-            <form id="profile-form" onsubmit="saveProfile(event)" class="space-y-6">
+            <form onsubmit="saveProfile(event)" class="space-y-6">
                 <div class="flex flex-col items-center gap-4">
                     <div class="relative group">
-                        <img id="profile-avatar-preview" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Player" alt="Preview" class="w-24 h-24 rounded-full border-4 border-slate-700 object-cover group-hover:border-brand-500 transition-colors">
+                        <img id="profile-avatar-preview" src="" alt="Preview" class="w-24 h-24 rounded-full border-4 border-slate-700 object-cover group-hover:border-brand-500 bg-slate-800">
                         <label class="absolute inset-0 flex items-center justify-center bg-black/50 text-white opacity-0 group-hover:opacity-100 rounded-full cursor-pointer transition-opacity">
-                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                            <input type="file" accept="image/*" class="hidden" onchange="handleAvatarChange(event)">
+                            <input type="file" accept="image/*" class="hidden" onchange="handleAvatarChange(event)">Изменить
                         </label>
                     </div>
-                    <span class="text-sm text-slate-400">Нажмите на фото, чтобы изменить</span>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-1">Ваш никнейм</label>
-                    <input type="text" id="edit-nickname" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors">
-                </div>
+                <input type="text" id="edit-nickname" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none">
                 <div class="flex flex-col gap-3 mt-6">
-                    <button type="submit" class="w-full bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400 transition-colors">Сохранить изменения</button>
-                    <button type="button" onclick="handleLogout()" class="w-full border border-red-500/50 text-red-400 font-semibold py-3 rounded-lg hover:bg-red-500/10 transition-colors">Выйти из аккаунта</button>
+                    <button type="submit" class="w-full bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400">Сохранить</button>
+                    <button type="button" onclick="handleLogout()" class="w-full border border-red-500/50 text-red-400 font-semibold py-3 rounded-lg hover:bg-red-500/10">Выйти</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ПРЕДЛОЖЕНИЯ КОНТЕНТА -->
+    <div id="submit-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div class="bg-slate-900 border border-slate-700 p-8 rounded-2xl w-full max-w-lg shadow-[0_0_30px_rgba(245,158,11,0.15)] relative transform scale-95 transition-transform duration-300" id="submit-modal-content">
+            <button onclick="closeModal('submit-modal', 'submit-modal-content')" class="absolute top-4 right-4 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            
+            <h2 id="submit-title" class="text-2xl font-bold text-center text-white mb-6">Предложить контент</h2>
+            
+            <!-- Сообщение об успехе (скрыто по умолчанию) -->
+            <div id="submit-success" class="hidden bg-green-500/10 border border-green-500 text-green-400 p-4 rounded-lg mb-6 text-center">
+                <p class="font-bold">Ваша заявка успешно отправлена!</p>
+                <p class="text-sm mt-1">Ожидайте подтверждения модерации.</p>
+            </div>
+
+            <form id="submit-form" class="space-y-4" onsubmit="handleSubmission(event)">
+                <input type="hidden" id="submit-type"> <!-- mod или photo -->
+                
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Название / Заголовок</label>
+                    <input type="text" id="submit-name" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Введите название">
+                </div>
+                
+                <div id="submit-desc-group">
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Описание</label>
+                    <textarea id="submit-desc" rows="3" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Краткое описание"></textarea>
+                </div>
+
+                <div id="submit-link-group" class="hidden">
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Ссылка на скачивание (Google Drive, Yandex Disk)</label>
+                    <input type="url" id="submit-link" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="https://...">
+                </div>
+
+                <div id="submit-img-group">
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Прикрепить изображение (Превью или скриншот)</label>
+                    <input type="file" id="submit-img" accept="image/*" required class="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-brand-400 hover:file:bg-slate-700">
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full mt-4 bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400">Отправить на модерацию</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- АДМИН-ПАНЕЛЬ -->
+    <div id="admin-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div class="bg-slate-900 border border-red-500/50 p-6 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-[0_0_30px_rgba(239,68,68,0.2)] relative transform scale-95 transition-transform duration-300" id="admin-modal-content">
+            <button onclick="closeModal('admin-modal', 'admin-modal-content')" class="absolute top-4 right-4 text-slate-400 hover:text-red-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            
+            <h2 class="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+                <span class="bg-red-500 text-white text-xs px-2 py-1 rounded">ADMIN</span> Панель Модерации
+            </h2>
+            <p class="text-slate-400 mb-6">Ожидают подтверждения:</p>
+            
+            <div id="admin-pending-list" class="space-y-4">
+                <!-- Сюда JS загрузит заявки -->
+            </div>
         </div>
     </div>
 
     <script>
-        /* ИНТЕГРАЦИЯ GITHUB РЕЛИЗОВ */
-        async function fetchGitHubReleases() {
-            const container = document.getElementById('releases-container');
-            const repoUrl = 'https://api.github.com/repos/openOMSI-org/openOMSI/releases';
-            
-            try {
-                const response = await fetch(repoUrl);
-                if (!response.ok) throw new Error('Сетевая ошибка');
-                const releases = await response.json();
-                
-                if (releases.length === 0) {
-                    container.innerHTML = '<p class="text-slate-400 text-center bg-slate-800/50 p-6 rounded-2xl border border-slate-700">Релизов пока нет. Следите за обновлениями!</p>';
-                    return;
-                }
+        // БАЗА ДАННЫХ (моковая)
+        let currentUser = null; // { nickname, avatar, role: 'user' | 'admin' }
+        
+        // Предзаполненные данные для красоты
+        let communityItems = [
+            { id: 1, type: 'mod', title: 'Реалистичные звуки двигателя', desc: 'Заменяет стандартные звуки на более глубокие.', author: 'SoundMaster', status: 'approved', img: 'https://images.unsplash.com/photo-1549405788-b4b391307223?auto=format&fit=crop&q=80&w=400' },
+            { id: 2, type: 'photo', title: 'Вечерний рейс', desc: '', author: 'DriverX', status: 'approved', img: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=400' }
+        ];
 
-                // Отображаем 3 последних релиза
-                const latestReleases = releases.slice(0, 3);
-                let htmlContent = '';
-
-                latestReleases.forEach(release => {
-                    // Форматируем дату на русский
-                    const date = new Date(release.published_at).toLocaleDateString('ru-RU', {
-                        year: 'numeric', month: 'long', day: 'numeric'
-                    });
-                    
-                    // Перевод частых английских терминов в Markdown на русский
-                    let bodyText = release.body || '*Описание отсутствует*';
-                    bodyText = bodyText
-                        .replace(/## What's Changed/gi, '## Что нового')
-                        .replace(/### Added/gi, '### Добавлено')
-                        .replace(/### Fixed/gi, '### Исправлено')
-                        .replace(/### Changed/gi, '### Изменено')
-                        .replace(/### Removed/gi, '### Удалено')
-                        .replace(/**Full Changelog**/gi, '**Полный список изменений**');
-
-                    // Превращаем Markdown в HTML
-                    const htmlBody = marked.parse(bodyText);
-
-                    htmlContent += `
-                        <div class="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 relative overflow-hidden group hover:border-brand-500 transition-colors">
-                            <div class="flex flex-col sm:flex-row justify-between items-start mb-6 gap-4">
-                                <div>
-                                    <h3 class="text-2xl font-bold text-white group-hover:text-brand-400 transition-colors">
-                                        ${release.name || release.tag_name}
-                                    </h3>
-                                    <div class="flex items-center gap-3 mt-2">
-                                        <span class="px-3 py-1 bg-brand-500/10 text-brand-400 text-sm rounded-full border border-brand-500/20 font-mono">
-                                            ${release.tag_name}
-                                        </span>
-                                        <span class="text-slate-400 text-sm">${date}</span>
-                                    </div>
-                                </div>
-                                <a href="${release.html_url}" target="_blank" class="px-5 py-2 bg-slate-700 hover:bg-brand-500 hover:text-slate-900 text-white font-bold rounded-lg transition-all shrink-0">
-                                    Скачать с GitHub
-                                </a>
-                            </div>
-                            <div class="releases-content text-slate-300 text-sm">
-                                ${htmlBody}
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                container.innerHTML = htmlContent;
-                
-            } catch (error) {
-                container.innerHTML = '<p class="text-red-400 text-center bg-slate-800/50 p-6 rounded-2xl border border-red-500/30">Не удалось загрузить данные с GitHub. Проверьте подключение к интернету.</p>';
-                console.error('Ошибка загрузки релизов GitHub:', error);
-            }
-        }
-
-        // Авторизация и профиль
-        let currentUser = null; 
-
+        // --- UI ЛОГИКА ---
         function updateUI() {
-            const navLoginBtn = document.getElementById('nav-login-btn');
-            const navUserProfile = document.getElementById('nav-user-profile');
-            const mobLoginBtn = document.getElementById('mob-login-btn');
-            const mobUserProfile = document.getElementById('mob-user-profile');
+            const navLogin = document.getElementById('nav-login-btn');
+            const navProfile = document.getElementById('nav-user-profile');
+            const mobLogin = document.getElementById('mob-login-btn');
+            const mobProfile = document.getElementById('mob-user-profile');
+            
+            // Админ кнопки
+            const navAdmin = document.getElementById('nav-admin-btn');
+            const mobAdmin = document.getElementById('mob-admin-btn');
 
             if (currentUser) {
-                navLoginBtn.classList.add('hidden');
-                navUserProfile.classList.remove('hidden');
-                navUserProfile.classList.add('flex');
+                navLogin.classList.add('hidden');
+                navProfile.classList.remove('hidden');
+                navProfile.classList.add('flex');
                 document.getElementById('nav-user-name').innerText = currentUser.nickname;
                 document.getElementById('nav-user-avatar').src = currentUser.avatar;
 
-                mobLoginBtn.classList.add('hidden');
-                mobUserProfile.classList.remove('hidden');
+                mobLogin.classList.add('hidden');
+                mobProfile.classList.remove('hidden');
                 document.getElementById('mob-user-name').innerText = currentUser.nickname;
                 document.getElementById('mob-user-avatar').src = currentUser.avatar;
 
+                // Заполнение модалки профиля
                 document.getElementById('edit-nickname').value = currentUser.nickname;
                 document.getElementById('profile-avatar-preview').src = currentUser.avatar;
+
+                // Проверка прав админа
+                if(currentUser.role === 'admin') {
+                    navAdmin.classList.remove('hidden');
+                    mobAdmin.classList.remove('hidden');
+                } else {
+                    navAdmin.classList.add('hidden');
+                    mobAdmin.classList.add('hidden');
+                }
             } else {
-                navLoginBtn.classList.remove('hidden');
-                navUserProfile.classList.add('hidden');
-                navUserProfile.classList.remove('flex');
+                navLogin.classList.remove('hidden');
+                navProfile.classList.add('hidden');
+                navProfile.classList.remove('flex');
                 
-                mobLoginBtn.classList.remove('hidden');
-                mobUserProfile.classList.add('hidden');
+                mobLogin.classList.remove('hidden');
+                mobProfile.classList.add('hidden');
+                
+                navAdmin.classList.add('hidden');
+                mobAdmin.classList.add('hidden');
             }
+
+            renderCommunityContent();
         }
 
-        // Осенние листья
-        function createLeaves() {
-            const container = document.getElementById('leaves-container');
-            const leaves = ['🍁', '🍂', '🍃'];
-            for (let i = 0; i < 25; i++) {
-                const leaf = document.createElement('div');
-                leaf.classList.add('leaf');
-                leaf.innerText = leaves[Math.floor(Math.random() * leaves.length)];
-                leaf.style.left = `${Math.random() * 100}vw`;
-                leaf.style.animationDuration = `${Math.random() * 10 + 8}s`;
-                leaf.style.animationDelay = `${Math.random() * 15}s`;
-                leaf.style.fontSize = `${Math.random() * 1.2 + 0.8}rem`;
-                container.appendChild(leaf);
-            }
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            createLeaves();
-            fetchGitHubReleases();
-        });
-
-        // Меню
-        const btn = document.getElementById('mobile-menu-btn');
-        const menu = document.getElementById('mobile-menu');
-        btn.addEventListener('click', () => menu.classList.toggle('hidden'));
-
-        // Модальные окна
-        function toggleModal(modalId, contentId, show) {
-            const modal = document.getElementById(modalId);
-            const content = document.getElementById(contentId);
+        // --- МОДАЛЬНЫЕ ОКНА УПРАВЛЕНИЕ ---
+        function toggleModal(mId, cId, show) {
+            const m = document.getElementById(mId), c = document.getElementById(cId);
             if (show) {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    content.classList.remove('scale-95');
-                    content.classList.add('scale-100');
-                }, 10);
+                m.classList.remove('hidden'); m.classList.add('flex');
+                setTimeout(() => { m.classList.remove('opacity-0'); c.classList.remove('scale-95'); c.classList.add('scale-100'); }, 10);
             } else {
-                modal.classList.add('opacity-0');
-                content.classList.remove('scale-100');
-                content.classList.add('scale-95');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                }, 300);
+                m.classList.add('opacity-0'); c.classList.remove('scale-100'); c.classList.add('scale-95');
+                setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300);
             }
         }
-
-        function closeAllModalsInstantly() {
-            ['login-modal', 'register-modal', 'profile-modal'].forEach(id => {
-                const m = document.getElementById(id);
-                const c = document.getElementById(id + '-content');
-                m.classList.add('hidden', 'opacity-0');
-                m.classList.remove('flex');
-                c.classList.add('scale-95');
-                c.classList.remove('scale-100');
+        function closeAllModals() {
+            ['login-modal','register-modal','profile-modal','submit-modal','admin-modal'].forEach(id => {
+                const m = document.getElementById(id), c = document.getElementById(id+'-content');
+                m.classList.add('hidden','opacity-0'); m.classList.remove('flex');
+                c.classList.add('scale-95'); c.classList.remove('scale-100');
             });
         }
-
-        function openLoginModal() { closeAllModalsInstantly(); toggleModal('login-modal', 'login-modal-content', true); if(menu) menu.classList.add('hidden'); }
-        function closeLoginModal() { toggleModal('login-modal', 'login-modal-content', false); }
-        function openRegisterModal() { closeAllModalsInstantly(); toggleModal('register-modal', 'register-modal-content', true); if(menu) menu.classList.add('hidden'); }
-        function closeRegisterModal() { toggleModal('register-modal', 'register-modal-content', false); }
-        function openProfileModal() { toggleModal('profile-modal', 'profile-modal-content', true); if(menu) menu.classList.add('hidden'); }
-        function closeProfileModal() { toggleModal('profile-modal', 'profile-modal-content', false); }
+        
+        function openLoginModal() { closeAllModals(); toggleModal('login-modal','login-modal-content',true); hideMenu(); }
+        function openRegisterModal() { closeAllModals(); toggleModal('register-modal','register-modal-content',true); hideMenu(); }
+        function openProfileModal() { closeAllModals(); toggleModal('profile-modal','profile-modal-content',true); hideMenu(); }
+        function closeModal(mId, cId) { toggleModal(mId, cId, false); }
         function switchToRegister() { openRegisterModal(); }
         function switchToLogin() { openLoginModal(); }
+        function hideMenu() { const menu = document.getElementById('mobile-menu'); if(menu) menu.classList.add('hidden'); }
 
-        window.addEventListener('click', (e) => {
-            if (e.target.id === 'login-modal') closeLoginModal();
-            if (e.target.id === 'register-modal') closeRegisterModal();
-            if (e.target.id === 'profile-modal') closeProfileModal();
-        });
-
-        // Авторизация
+        // --- АВТОРИЗАЦИЯ ---
         function handleLogin(e) {
             e.preventDefault();
-            const loginVal = document.getElementById('login').value;
-            currentUser = { nickname: loginVal, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${loginVal}` };
+            const loginVal = document.getElementById('login').value.trim();
+            const role = (loginVal.toLowerCase() === 'admin') ? 'admin' : 'user';
+            
+            currentUser = { 
+                nickname: loginVal, 
+                avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${loginVal}`,
+                role: role
+            };
             updateUI();
-            closeLoginModal();
+            closeModal('login-modal','login-modal-content');
             e.target.reset();
         }
 
         function handleRegister(e) {
             e.preventDefault();
-            const loginVal = document.getElementById('reg-login').value;
-            currentUser = { nickname: loginVal, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${loginVal}` };
+            const loginVal = document.getElementById('reg-login').value.trim();
+            const role = (loginVal.toLowerCase() === 'admin') ? 'admin' : 'user';
+            currentUser = { nickname: loginVal, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${loginVal}`, role: role };
             updateUI();
-            closeRegisterModal();
+            closeModal('register-modal','register-modal-content');
             e.target.reset();
         }
 
-        // Профиль
+        function handleLogout() { currentUser = null; updateUI(); closeModal('profile-modal','profile-modal-content'); }
+        
+        // --- ПРОФИЛЬ ---
         let tempAvatarSrc = null;
         function handleAvatarChange(event) {
             const file = event.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    tempAvatarSrc = e.target.result;
-                    document.getElementById('profile-avatar-preview').src = tempAvatarSrc;
-                }
-                reader.readAsDataURL(file);
+                const r = new FileReader();
+                r.onload = e => { tempAvatarSrc = e.target.result; document.getElementById('profile-avatar-preview').src = tempAvatarSrc; }
+                r.readAsDataURL(file);
             }
         }
-
         function saveProfile(e) {
             e.preventDefault();
             if (currentUser) {
@@ -557,15 +444,224 @@
                 if (tempAvatarSrc) currentUser.avatar = tempAvatarSrc;
             }
             updateUI();
-            closeProfileModal();
+            closeModal('profile-modal','profile-modal-content');
         }
 
-        function handleLogout() {
-            currentUser = null;
-            tempAvatarSrc = null;
-            updateUI();
-            closeProfileModal();
+        // --- ПРЕДЛОЖИТЬ КОНТЕНТ (Пользователь) ---
+        function openSubmitModal(type) {
+            if(!currentUser) {
+                alert("Пожалуйста, войдите в аккаунт, чтобы предлагать контент.");
+                return openLoginModal();
+            }
+            closeAllModals();
+            
+            document.getElementById('submit-type').value = type;
+            document.getElementById('submit-success').classList.add('hidden');
+            document.getElementById('submit-form').classList.remove('hidden');
+            document.getElementById('submit-form').reset();
+            
+            if(type === 'mod') {
+                document.getElementById('submit-title').innerText = 'Предложить мод';
+                document.getElementById('submit-link-group').classList.remove('hidden');
+                document.getElementById('submit-link').required = true;
+            } else {
+                document.getElementById('submit-title').innerText = 'Предложить Фотографию';
+                document.getElementById('submit-link-group').classList.add('hidden');
+                document.getElementById('submit-link').required = false;
+            }
+            
+            toggleModal('submit-modal', 'submit-modal-content', true);
         }
+
+        function handleSubmission(e) {
+            e.preventDefault();
+            const type = document.getElementById('submit-type').value;
+            const title = document.getElementById('submit-name').value;
+            const desc = document.getElementById('submit-desc').value;
+            
+            // Читаем картинку (мокаем URL через FileReader)
+            const fileInput = document.getElementById('submit-img');
+            const reader = new FileReader();
+            
+            reader.onload = function(evt) {
+                const newItem = {
+                    id: Date.now(),
+                    type: type,
+                    title: title,
+                    desc: desc,
+                    author: currentUser.nickname,
+                    status: 'pending', // <--- Ожидает модерации
+                    img: evt.target.result
+                };
+                
+                communityItems.push(newItem);
+                
+                // Показываем уведомление
+                document.getElementById('submit-form').classList.add('hidden');
+                document.getElementById('submit-success').classList.remove('hidden');
+                
+                setTimeout(() => {
+                    closeModal('submit-modal', 'submit-modal-content');
+                }, 3000);
+            };
+            
+            if (fileInput.files[0]) {
+                reader.readAsDataURL(fileInput.files[0]);
+            }
+        }
+
+        // --- АДМИН ПАНЕЛЬ ---
+        function openAdminModal() {
+            if(!currentUser || currentUser.role !== 'admin') return;
+            closeAllModals();
+            renderAdminPanel();
+            toggleModal('admin-modal', 'admin-modal-content', true);
+            hideMenu();
+        }
+
+        function renderAdminPanel() {
+            const list = document.getElementById('admin-pending-list');
+            list.innerHTML = '';
+            
+            const pendingItems = communityItems.filter(i => i.status === 'pending');
+            
+            if(pendingItems.length === 0) {
+                list.innerHTML = '<p class="text-slate-500 italic p-4 bg-slate-800/50 rounded-lg">Новых заявок на модерацию нет.</p>';
+                return;
+            }
+            
+            pendingItems.forEach(item => {
+                const itemType = item.type === 'mod' ? 'Мод' : 'Фотография';
+                const el = document.createElement('div');
+                el.className = 'bg-slate-800 border border-slate-700 p-4 rounded-xl flex flex-col md:flex-row gap-4 items-start md:items-center';
+                el.innerHTML = `
+                    <img src="${item.img}" class="w-full md:w-32 h-20 object-cover rounded-lg bg-slate-900">
+                    <div class="flex-grow">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-brand-500/20 text-brand-400 text-xs px-2 py-0.5 rounded uppercase font-bold">${itemType}</span>
+                            <h4 class="text-white font-bold">${item.title}</h4>
+                        </div>
+                        <p class="text-sm text-slate-400 mb-1">${item.desc || 'Без описания'}</p>
+                        <p class="text-xs text-slate-500">Автор: ${item.author}</p>
+                    </div>
+                    <div class="flex flex-row md:flex-col gap-2 w-full md:w-auto mt-4 md:mt-0">
+                        <button onclick="moderateItem(${item.id}, 'approved')" class="flex-1 bg-green-500/20 text-green-400 hover:bg-green-500 hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors">Одобрить</button>
+                        <button onclick="moderateItem(${item.id}, 'rejected')" class="flex-1 bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors">Отклонить</button>
+                    </div>
+                `;
+                list.appendChild(el);
+            });
+        }
+
+        function moderateItem(id, newStatus) {
+            const idx = communityItems.findIndex(i => i.id === id);
+            if(idx !== -1) {
+                communityItems[idx].status = newStatus;
+                renderAdminPanel(); // обновляем список в админке
+                renderCommunityContent(); // обновляем публичные сетки
+            }
+        }
+
+        // --- ВЫВОД ОДОБРЕННОГО КОНТЕНТА ---
+        function renderCommunityContent() {
+            const modsGrid = document.getElementById('mods-grid');
+            const photosGrid = document.getElementById('photos-grid');
+            modsGrid.innerHTML = '';
+            photosGrid.innerHTML = '';
+            
+            const approvedMods = communityItems.filter(i => i.type === 'mod' && i.status === 'approved');
+            const approvedPhotos = communityItems.filter(i => i.type === 'photo' && i.status === 'approved');
+            
+            if(approvedMods.length === 0) modsGrid.innerHTML = '<p class="text-slate-500 col-span-full">Пока нет одобренных модов.</p>';
+            approvedMods.forEach(m => {
+                modsGrid.innerHTML += `
+                    <div class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 hover:border-brand-500 transition-colors group">
+                        <img src="${m.img}" class="w-full h-48 object-cover">
+                        <div class="p-5">
+                            <h3 class="text-xl font-bold text-white mb-2">${m.title}</h3>
+                            <p class="text-sm text-slate-400 mb-4 line-clamp-2">${m.desc}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-brand-400">Автор: ${m.author}</span>
+                                <button class="px-3 py-1.5 bg-brand-500 text-slate-900 text-sm font-bold rounded hover:bg-brand-400">Скачать</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if(approvedPhotos.length === 0) photosGrid.innerHTML = '<p class="text-slate-500 col-span-full">Пока нет одобренных фотографий.</p>';
+            approvedPhotos.forEach(p => {
+                photosGrid.innerHTML += `
+                    <div class="relative rounded-xl overflow-hidden group cursor-pointer border border-slate-700 hover:border-brand-500 transition-colors">
+                        <img src="${p.img}" class="w-full h-64 object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
+                            <h3 class="text-white font-bold">${p.title}</h3>
+                            <span class="text-xs text-brand-400">Фото от: ${p.author}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // --- GITHUB RELEASES ---
+        async function fetchGitHubReleases() {
+            const container = document.getElementById('releases-container');
+            try {
+                const res = await fetch('https://api.github.com/repos/openOMSI-org/openOMSI/releases');
+                if (!res.ok) throw new Error();
+                const releases = await res.json();
+                
+                if (releases.length === 0) {
+                    container.innerHTML = '<p class="text-center text-slate-400">Релизов пока нет.</p>';
+                    return;
+                }
+
+                let html = '';
+                releases.slice(0, 2).forEach(r => {
+                    const date = new Date(r.published_at).toLocaleDateString('ru-RU');
+                    let bodyText = (r.body || '').replace(/## What's Changed/gi, '## Что нового').replace(/### Added/gi, '### Добавлено').replace(/### Fixed/gi, '### Исправлено');
+                    html += `
+                        <div class="bg-slate-800/50 border border-slate-700 rounded-2xl p-6 hover:border-brand-500 transition-colors">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">${r.name || r.tag_name}</h3>
+                                    <span class="text-slate-400 text-sm">${date}</span>
+                                </div>
+                                <a href="${r.html_url}" target="_blank" class="px-4 py-2 bg-slate-700 hover:bg-brand-500 hover:text-slate-900 text-white font-bold rounded text-sm transition-all">GitHub</a>
+                            </div>
+                            <div class="releases-content text-slate-300 text-sm">${marked.parse(bodyText)}</div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = '<p class="text-red-400 text-center">Ошибка загрузки GitHub</p>';
+            }
+        }
+
+        // --- ИНИЦИАЛИЗАЦИЯ ---
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Листья
+            const cont = document.getElementById('leaves-container');
+            const lvs = ['🍁', '🍂', '🍃'];
+            for (let i=0; i<20; i++) {
+                const el = document.createElement('div');
+                el.className = 'leaf';
+                el.innerText = lvs[Math.floor(Math.random() * lvs.length)];
+                el.style.left = `${Math.random() * 100}vw`;
+                el.style.animationDuration = `${Math.random() * 10 + 8}s`;
+                el.style.animationDelay = `${Math.random() * 15}s`;
+                el.style.fontSize = `${Math.random() * 1.2 + 0.8}rem`;
+                cont.appendChild(el);
+            }
+            
+            fetchGitHubReleases();
+            renderCommunityContent();
+        });
     </script>
 </body>
 </html>
