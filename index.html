@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
-    <!-- Стабильные библиотеки Firebase Compat -->
+    <!-- Подключаем Firebase Compat (работает локально через file:///) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
@@ -43,7 +43,6 @@
 
     <div id="leaves-container" class="fixed inset-0 pointer-events-none z-40 overflow-hidden"></div>
 
-    <!-- ЭКРАН ТЕХНИЧЕСКИХ РАБОТ -->
     <div id="maintenance-screen" class="fixed inset-0 z-[300] hidden items-center justify-center bg-slate-900 flex-col text-center px-4">
         <div class="absolute inset-0 bg-brand-500/5 blur-[100px] pointer-events-none"></div>
         <svg class="w-24 h-24 text-brand-500 mb-6 drop-shadow-[0_0_15px_rgba(245,158,11,0.5)] relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -102,7 +101,7 @@
         </div>
     </header>
 
-    <!-- Основной контент (SPA) -->
+    <!-- Основной контент -->
     <main class="flex-grow pt-16 relative z-10">
         <div id="view-home" class="page-view block">
             <section class="relative py-20 lg:py-32 overflow-hidden">
@@ -188,12 +187,13 @@
         <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-slate-500 text-sm">
             <p>&copy; 2026 VP-OPENOMSI. Verxonly Prod.</p>
             <button onclick="toggleModal('changelog-modal', 'changelog-modal-content', true)" class="mt-2 md:mt-0 hover:text-brand-400 transition-colors border-b border-transparent hover:border-brand-400">
-                Версия портала: <span class="font-bold text-slate-300">v1.2.7</span> (История обновлений)
+                Версия портала: <span class="font-bold text-slate-300">v1.2.8</span> (История обновлений)
             </button>
         </div>
     </footer>
 
-    <!-- Модалки -->
+    <!-- МОДАЛКИ (Все всплывающие окна) -->
+    
     <div id="changelog-modal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4 py-8">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl shadow-[0_0_40px_rgba(245,158,11,0.2)] relative transform scale-95 transition-transform duration-300 flex flex-col max-h-full" id="changelog-modal-content">
             <button onclick="closeModal('changelog-modal', 'changelog-modal-content')" class="absolute top-4 right-4 z-20 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
@@ -204,10 +204,11 @@
             <div class="p-6 overflow-y-auto chat-scroll flex-grow space-y-6">
                 <div class="relative pl-6 border-l-2 border-brand-500">
                     <div class="absolute w-3 h-3 bg-brand-500 rounded-full -left-[7px] top-1.5 shadow-[0_0_8px_#f59e0b]"></div>
-                    <h3 class="text-lg font-bold text-white">v1.2.7 <span class="text-brand-400 text-xs font-mono ml-2">Текущая версия</span></h3>
+                    <h3 class="text-lg font-bold text-white">v1.2.8 <span class="text-brand-400 text-xs font-mono ml-2">Текущая версия</span></h3>
                     <ul class="mt-2 space-y-1 text-slate-300 text-sm list-disc list-inside">
-                        <li>Исправлены конфликты загрузки скриптов при авторизации.</li>
-                        <li>Оптимизирована работа базы данных Firebase.</li>
+                        <li>Исправлена ошибка `window.FB.set is not a function`.</li>
+                        <li>Полный переход на стабильную версию Firebase Compat.</li>
+                        <li>Устранена проблема загрузки модулей при локальном запуске (через file:///).</li>
                     </ul>
                 </div>
             </div>
@@ -281,7 +282,7 @@
                 <input type="password" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Пароль">
                 <button type="submit" class="w-full bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400">Войти</button>
             </form>
-            <div class="mt-6 text-center text-slate-400 text-sm">Нет аккаунта? <button onclick="switchToRegister()" class="text-brand-400 hover:underline">Зарегистрироваться</button></div>
+            <div class="mt-6 text-center text-slate-400 text-sm">Нет аккаунта? <button type="button" onclick="switchToRegister()" class="text-brand-400 hover:underline">Зарегистрироваться</button></div>
         </div>
     </div>
 
@@ -291,11 +292,11 @@
             <h2 class="text-2xl font-bold text-center text-white mb-6">Регистрация</h2>
             <form id="register-form" class="space-y-4" onsubmit="handleRegister(event)">
                 <input type="text" id="reg-login" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Логин (для входа)">
-                <input type="text" id="reg-nickname" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Никнейм">
+                <input type="text" id="reg-nickname" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Никнейм (виден всем)">
                 <input type="password" required minlength="6" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Пароль">
                 <button type="submit" class="w-full bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400">Зарегистрироваться</button>
             </form>
-            <div class="mt-6 text-center text-slate-400 text-sm">Уже есть аккаунт? <button onclick="switchToLogin()" class="text-brand-400 hover:underline">Войти</button></div>
+            <div class="mt-6 text-center text-slate-400 text-sm">Уже есть аккаунт? <button type="button" onclick="switchToLogin()" class="text-brand-400 hover:underline">Войти</button></div>
         </div>
     </div>
 
@@ -330,17 +331,17 @@
             <div id="submit-success" class="hidden bg-green-500/10 border border-green-500 text-green-400 p-4 rounded-lg mb-6 text-center"><p class="font-bold">Заявка отправлена!</p></div>
             <form id="submit-form" class="space-y-4" onsubmit="handleSubmission(event)">
                 <input type="hidden" id="submit-type">
-                <input type="text" id="submit-name" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none" placeholder="Название">
-                <textarea id="submit-desc" rows="3" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none chat-scroll" placeholder="Описание"></textarea>
+                <input type="text" id="submit-name" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none focus:border-brand-500" placeholder="Название">
+                <textarea id="submit-desc" rows="3" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none chat-scroll focus:border-brand-500" placeholder="Описание"></textarea>
                 <div id="submit-photo-fields" class="hidden space-y-4 bg-slate-800/50 p-4 rounded-lg border border-slate-700">
-                    <input type="text" id="submit-brand" class="w-full px-4 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white text-sm outline-none" placeholder="Марка и модель">
+                    <input type="text" id="submit-brand" class="w-full px-4 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white text-sm outline-none focus:border-brand-500" placeholder="Марка и модель">
                     <div class="flex gap-4">
-                        <input type="text" id="submit-plate" class="w-1/2 px-4 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white text-sm outline-none" placeholder="Гос. номер">
-                        <input type="text" id="submit-route" class="w-1/2 px-4 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white text-sm outline-none" placeholder="Маршрут">
+                        <input type="text" id="submit-plate" class="w-1/2 px-4 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white text-sm outline-none focus:border-brand-500" placeholder="Гос. номер">
+                        <input type="text" id="submit-route" class="w-1/2 px-4 py-2 rounded-lg bg-slate-900 border border-slate-600 text-white text-sm outline-none focus:border-brand-500" placeholder="Маршрут">
                     </div>
                 </div>
-                <div id="submit-link-group" class="hidden"><input type="url" id="submit-link" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none" placeholder="Ссылка на скачивание"></div>
-                <input type="file" id="submit-img" accept="image/*" required class="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-brand-400">
+                <div id="submit-link-group" class="hidden"><input type="url" id="submit-link" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white outline-none focus:border-brand-500" placeholder="Ссылка на скачивание"></div>
+                <input type="file" id="submit-img" accept="image/*" required class="w-full text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-brand-400 cursor-pointer">
                 <button type="submit" class="w-full mt-4 bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400">Отправить</button>
             </form>
         </div>
@@ -351,8 +352,8 @@
             <h3 class="text-xl font-bold text-white mb-2">Подтвердите действие</h3>
             <p id="confirm-modal-text" class="text-slate-400 mb-6 text-sm">Удалить?</p>
             <div class="flex gap-3">
-                <button id="confirm-modal-cancel" class="flex-1 bg-slate-800 text-white font-bold py-2 rounded-lg">Отмена</button>
-                <button id="confirm-modal-ok" class="flex-1 bg-red-500 text-white font-bold py-2 rounded-lg">Удалить</button>
+                <button id="confirm-modal-cancel" class="flex-1 bg-slate-800 text-white font-bold py-2 rounded-lg hover:bg-slate-700 transition-colors">Отмена</button>
+                <button id="confirm-modal-ok" class="flex-1 bg-red-500 text-white font-bold py-2 rounded-lg hover:bg-red-600 transition-colors">Удалить</button>
             </div>
         </div>
     </div>
@@ -379,13 +380,13 @@
                         <h4 class="text-white font-bold">Режим технических работ</h4>
                         <p class="text-slate-400 text-sm">Закрывает доступ к сайту для всех, кроме Владельца.</p>
                     </div>
-                    <button id="maintenance-toggle-btn" onclick="toggleMaintenance()" class="px-6 py-2 bg-red-500 text-white font-bold rounded-lg whitespace-nowrap ml-4">Включить</button>
+                    <button id="maintenance-toggle-btn" onclick="toggleMaintenance()" class="px-6 py-2 bg-red-500 text-white font-bold rounded-lg whitespace-nowrap ml-4 transition-colors">Включить</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Основной скрипт логики (Firebase Compat) -->
+    <!-- Основной скрипт логики базы данных -->
     <script>
         const CHIEF_ADMIN_LOGIN = 'verxovnly88'; 
         const USER_KEY = 'vp_openomsi_active_user';
@@ -398,6 +399,7 @@
         let currentOpenItemId = null;
         let db;
 
+        // Инициализация базы данных Firebase
         function initApp() {
             const firebaseConfig = {
                 apiKey: "AIzaSyACvB3zaAY4ZcFZC5NgCcqezs7jtLlOLWQ",
@@ -408,7 +410,11 @@
                 messagingSenderId: "679716166974",
                 appId: "1:679716166974:web:8cc361a50ad428cefe606f"
             };
-            firebase.initializeApp(firebaseConfig);
+            
+            // Если Firebase уже инициализирован (защита от двойного запуска)
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
             db = firebase.database();
 
             // Чтение данных в реальном времени
@@ -425,6 +431,11 @@
                     if(!i.comments) i.comments = [];
                 });
                 renderCommunityContent();
+                // Обновление открытого модального окна, если оно сейчас активно
+                if (currentOpenItemId && !document.getElementById('item-modal').classList.contains('hidden')) {
+                    const activeItem = communityItems.find(i => i.id === currentOpenItemId);
+                    if (activeItem) updateItemSocialUI(activeItem);
+                }
             });
 
             db.ref('tickets').on('value', (snapshot) => {
@@ -450,6 +461,7 @@
                 }
             });
 
+            // Восстановление локальной сессии пользователя
             const savedUser = localStorage.getItem(USER_KEY);
             if (savedUser) { try { currentUser = JSON.parse(savedUser); } catch(e) { currentUser = null; } }
             updateUI();
@@ -497,8 +509,9 @@
 
         function toggleMaintenance() {
             if(!currentUser || currentUser.role !== 'chief_admin') return;
-            siteSettings.isMaintenance = !siteSettings.isMaintenance;
-            db.ref('settings').set(siteSettings);
+            // Инвертируем статус и отправляем в Firebase
+            const newStatus = !siteSettings.isMaintenance;
+            db.ref('settings').set({ isMaintenance: newStatus });
         }
 
         function updateUI() {
@@ -587,27 +600,38 @@
             e.preventDefault();
             const loginVal = document.getElementById('login').value.trim();
             const user = allUsers.find(u => (u.login || u.nickname).toLowerCase() === loginVal.toLowerCase());
-            if (!user) { alert("Аккаунт не найден."); return; }
-            if (user.isBlocked) { alert("Ваш аккаунт заблокирован."); return; }
+            
+            if (!user) { alert("Аккаунт не найден. Пожалуйста, проверьте логин или зарегистрируйтесь."); return; }
+            if (user.isBlocked) { alert("Ваш аккаунт заблокирован администрацией."); return; }
+            
+            // Если входит админ
             if ((user.login || user.nickname).toLowerCase() === CHIEF_ADMIN_LOGIN.toLowerCase()) user.role = 'chief_admin';
+            
             currentUser = user;
             localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
-            updateUI(); closeModal('login-modal','login-modal-content'); e.target.reset();
+            updateUI(); 
+            closeModal('login-modal','login-modal-content'); 
+            e.target.reset();
         }
 
         function handleRegister(e) {
             e.preventDefault();
             const loginVal = document.getElementById('reg-login').value.trim();
             let nickVal = document.getElementById('reg-nickname').value.trim();
-            if (allUsers.find(u => (u.login || u.nickname).toLowerCase() === loginVal.toLowerCase())) { alert("Логин занят!"); return; }
+            
+            if (allUsers.find(u => (u.login || u.nickname).toLowerCase() === loginVal.toLowerCase())) { alert("Такой логин уже занят!"); return; }
             if(!nickVal) nickVal = loginVal; 
+
             let assignedRole = (loginVal.toLowerCase() === CHIEF_ADMIN_LOGIN.toLowerCase()) ? 'chief_admin' : 'user';
             const newUser = { login: loginVal, nickname: nickVal, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${nickVal}`, role: assignedRole, isBlocked: false, bio: '' };
             
+            // Сохраняем в Firebase
             db.ref('users/' + loginVal).set(newUser);
             currentUser = newUser;
             localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
-            updateUI(); closeModal('register-modal','register-modal-content'); e.target.reset();
+            updateUI(); 
+            closeModal('register-modal','register-modal-content'); 
+            e.target.reset();
         }
 
         function handleLogout() { currentUser = null; localStorage.removeItem(USER_KEY); updateUI(); closeModal('profile-modal','profile-modal-content'); switchView('home'); }
@@ -627,6 +651,7 @@
                 if(newNick) currentUser.nickname = newNick;
                 currentUser.bio = newBio;
                 if(tempAvatarSrc) currentUser.avatar = tempAvatarSrc;
+                
                 db.ref('users/' + currentUser.login).set(currentUser);
                 localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
             }
@@ -683,7 +708,7 @@
             else {
                 item.comments.forEach(c => {
                     const cAvatar = allUsers.find(u => u.nickname === c.author)?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${c.author}`;
-                    cList.innerHTML += `<div class="flex gap-3 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"><img src="${cAvatar}" class="w-8 h-8 rounded-full border object-cover cursor-pointer hover:border-brand-500 transition-colors" onclick="openPublicProfile('${c.author}')"><div><span class="text-xs text-brand-400 font-bold cursor-pointer hover:underline" onclick="openPublicProfile('${c.author}')">${c.author}</span><p class="text-slate-300 text-sm mt-0.5">${c.text}</p></div></div>`;
+                    cList.innerHTML += `<div class="flex gap-3 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"><img src="${cAvatar}" class="w-8 h-8 rounded-full border object-cover cursor-pointer hover:border-brand-500 transition-colors" onclick="openPublicProfile('${c.author}')"><div><span class="text-xs text-brand-400 font-bold cursor-pointer hover:underline" onclick="openPublicProfile('${c.author}')">${c.author}</span><p class="text-slate-300 text-sm mt-0.5 break-words">${c.text}</p></div></div>`;
                 });
             }
         }
@@ -708,6 +733,9 @@
                 item.comments.push({ author: currentUser.nickname, text: text });
                 db.ref('items/' + currentOpenItemId + '/comments').set(item.comments);
                 document.getElementById('item-comment-input').value = '';
+                
+                const cList = document.getElementById('item-modal-comments-list');
+                setTimeout(() => cList.scrollTop = cList.scrollHeight, 50);
             }
         }
 
@@ -830,10 +858,10 @@
             const pending = communityItems.filter(i => i.status === 'pending'), approved = communityItems.filter(i => i.status === 'approved');
             
             pending.forEach(item => {
-                pList.innerHTML += `<div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center"><span class="text-white">${item.title} (${item.author})</span><div class="flex gap-2"><button onclick="moderateItem(${item.id}, 'approved')" class="bg-green-500/20 text-green-400 px-3 py-1 rounded">Одобрить</button><button onclick="deleteItem(${item.id})" class="bg-red-500/20 text-red-400 px-3 py-1 rounded">Отклонить</button></div></div>`;
+                pList.innerHTML += `<div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center"><span class="text-white">${item.title} (${item.author})</span><div class="flex gap-2"><button onclick="moderateItem(${item.id}, 'approved')" class="bg-green-500/20 text-green-400 px-3 py-1 rounded hover:bg-green-500 hover:text-slate-900 transition-colors">Одобрить</button><button onclick="deleteItem(${item.id})" class="bg-red-500/20 text-red-400 px-3 py-1 rounded hover:bg-red-500 hover:text-white transition-colors">Отклонить</button></div></div>`;
             });
             approved.forEach(item => {
-                aList.innerHTML += `<div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center"><span class="text-white">${item.title}</span><button onclick="deleteItem(${item.id})" class="bg-red-500/20 text-red-400 px-3 py-1 rounded">Удалить</button></div>`;
+                aList.innerHTML += `<div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center"><span class="text-white">${item.title}</span><button onclick="deleteItem(${item.id})" class="bg-red-500/20 text-red-400 px-3 py-1 rounded hover:bg-red-500 hover:text-white transition-colors">Удалить</button></div>`;
             });
         }
 
@@ -844,7 +872,7 @@
             const list = document.getElementById('admin-tickets-list'); if(!list) return;
             list.innerHTML = '';
             helpTickets.forEach(t => {
-                list.innerHTML += `<div class="bg-slate-800 p-4 rounded-xl"><p class="text-brand-400 font-bold">${t.author}: ${t.text}</p><div class="flex gap-2 mt-2"><input type="text" id="reply-${t.id}" class="bg-slate-900 text-white px-2 py-1 rounded flex-grow"><button onclick="adminReply(${t.id})" class="bg-brand-500 text-slate-900 px-3 py-1 rounded font-bold">Ответить</button></div></div>`;
+                list.innerHTML += `<div class="bg-slate-800 p-4 rounded-xl"><p class="text-brand-400 font-bold">${t.author}: ${t.text}</p><div class="flex gap-2 mt-2"><input type="text" id="reply-${t.id}" class="bg-slate-900 text-white px-2 py-1 rounded flex-grow outline-none focus:border focus:border-brand-500"><button onclick="adminReply(${t.id})" class="bg-brand-500 text-slate-900 px-3 py-1 rounded font-bold">Ответить</button></div></div>`;
             });
         }
         function adminReply(id) {
@@ -863,7 +891,7 @@
             list.innerHTML = '';
             allUsers.forEach(u => {
                 if(u.login === currentUser.login) return;
-                list.innerHTML += `<div class="bg-slate-800 p-3 rounded flex justify-between items-center"><span class="text-white">${u.nickname} (${u.role})</span><button onclick="toggleBlock('${u.login}')" class="bg-red-500/20 text-red-400 px-3 py-1 rounded text-xs">${u.isBlocked ? 'Разбан' : 'Бан'}</button></div>`;
+                list.innerHTML += `<div class="bg-slate-800 p-3 rounded flex justify-between items-center"><span class="text-white">${u.nickname} (${u.role})</span><button onclick="toggleBlock('${u.login}')" class="bg-red-500/20 text-red-400 px-3 py-1 rounded text-xs hover:bg-red-500 hover:text-white transition-colors">${u.isBlocked ? 'Разбан' : 'Бан'}</button></div>`;
             });
         }
         function toggleBlock(login) {
@@ -876,7 +904,7 @@
             const approved = communityItems.filter(i => i.status === 'approved').reverse().slice(0, 3);
             container.innerHTML = '';
             approved.forEach(item => {
-                container.innerHTML += `<div onclick="openItemDetails(${item.id})" class="bg-slate-800 p-4 rounded-xl flex gap-4 items-center cursor-pointer hover:border-brand-500 border border-slate-700"><img src="${item.img}" class="w-16 h-16 object-cover rounded"><div><h4 class="text-white font-bold text-sm">${item.title}</h4><span class="text-xs text-brand-400">Автор: ${item.author}</span></div></div>`;
+                container.innerHTML += `<div onclick="openItemDetails(${item.id})" class="bg-slate-800 p-4 rounded-xl flex gap-4 items-center cursor-pointer hover:border-brand-500 border border-slate-700 transition-colors shadow-lg hover:shadow-brand-500/20"><img src="${item.img}" class="w-16 h-16 object-cover rounded"><div><h4 class="text-white font-bold text-sm">${item.title}</h4><span class="text-xs text-brand-400">Автор: ${item.author}</span></div></div>`;
             });
         }
 
@@ -887,9 +915,9 @@
             communityItems.filter(i => i.status === 'approved').forEach(item => {
                 const likeCount = item.likes ? item.likes.length : 0;
                 if(item.type === 'mod' && modsGrid) {
-                    modsGrid.innerHTML += `<div onclick="openItemDetails(${item.id})" class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 cursor-pointer"><img src="${item.img}" class="w-full h-48 object-cover"><div class="p-5"><h3 class="text-xl font-bold text-white">${item.title}</h3><span class="text-xs text-brand-400">❤️ ${likeCount} | Автор: ${item.author}</span></div></div>`;
+                    modsGrid.innerHTML += `<div onclick="openItemDetails(${item.id})" class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 cursor-pointer hover:border-brand-500 transition-colors shadow-lg hover:shadow-brand-500/20"><img src="${item.img}" class="w-full h-48 object-cover"><div class="p-5"><h3 class="text-xl font-bold text-white">${item.title}</h3><span class="text-xs text-brand-400">❤️ ${likeCount} | Автор: ${item.author}</span></div></div>`;
                 } else if(item.type === 'photo' && photosGrid) {
-                    photosGrid.innerHTML += `<div onclick="openItemDetails(${item.id})" class="relative rounded-xl overflow-hidden border border-slate-700 h-64 cursor-pointer"><img src="${item.img}" class="w-full h-full object-cover"><div class="absolute bottom-0 bg-gradient-to-t from-slate-900 p-4 w-full"><h3 class="text-white font-bold">${item.title}</h3><span class="text-xs text-brand-400">❤️ ${likeCount} | ${item.author}</span></div></div>`;
+                    photosGrid.innerHTML += `<div onclick="openItemDetails(${item.id})" class="relative rounded-xl overflow-hidden border border-slate-700 h-64 cursor-pointer hover:border-brand-500 transition-colors shadow-lg hover:shadow-brand-500/20"><img src="${item.img}" class="w-full h-full object-cover"><div class="absolute bottom-0 bg-gradient-to-t from-slate-900 p-4 w-full"><h3 class="text-white font-bold">${item.title}</h3><span class="text-xs text-brand-400">❤️ ${likeCount} | ${item.author}</span></div></div>`;
                 }
             });
             renderRecentActivity();
