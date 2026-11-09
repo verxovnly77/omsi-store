@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     
-    <!-- Подключаем Firebase Compat (работает локально через file:///) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
@@ -51,7 +50,6 @@
         <button onclick="openLoginModal()" class="absolute bottom-8 text-slate-700 hover:text-slate-500 transition-colors" title="Вход для администрации"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></button>
     </div>
 
-    <!-- Навигация -->
     <header class="fixed w-full z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
@@ -64,11 +62,9 @@
                     <button onclick="switchView('gallery')" class="nav-btn text-slate-300 transition-colors hover:text-brand-400" data-target="gallery">Галерея</button>
                     <button onclick="switchView('help')" class="nav-btn text-slate-300 transition-colors hover:text-brand-400" data-target="help">Помощь</button>
                 </nav>
-                
                 <div class="hidden md:flex space-x-4 items-center relative z-50">
                     <button id="nav-admin-btn" onclick="openAdminModal()" class="hidden px-4 py-1.5 rounded-lg border border-red-500 text-red-400 hover:bg-red-500 hover:text-white transition-all font-semibold text-sm bg-red-500/10">Админ-панель</button>
                     <button id="nav-login-btn" onclick="openLoginModal()" class="px-5 py-2 rounded-lg border-2 border-slate-700 text-slate-300 hover:border-brand-500 hover:text-brand-400 transition-all font-semibold">Войти</button>
-                    
                     <div id="nav-user-profile" class="hidden items-center gap-3 cursor-pointer group" onclick="openProfileModal()">
                         <div class="flex flex-col text-right">
                             <span id="nav-user-name" class="font-medium text-slate-200 group-hover:text-brand-400 transition-colors">Никнейм</span>
@@ -101,7 +97,6 @@
         </div>
     </header>
 
-    <!-- Основной контент -->
     <main class="flex-grow pt-16 relative z-10">
         <div id="view-home" class="page-view block">
             <section class="relative py-20 lg:py-32 overflow-hidden">
@@ -182,18 +177,16 @@
         </div>
     </main>
 
-    <!-- Подвал -->
     <footer class="bg-slate-950 py-6 border-t border-slate-800 mt-auto relative z-30">
         <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-slate-500 text-sm">
             <p>&copy; 2026 VP-OPENOMSI. Verxonly Prod.</p>
             <button onclick="toggleModal('changelog-modal', 'changelog-modal-content', true)" class="mt-2 md:mt-0 hover:text-brand-400 transition-colors border-b border-transparent hover:border-brand-400">
-                Версия портала: <span class="font-bold text-slate-300">v1.2.8</span> (История обновлений)
+                Версия портала: <span class="font-bold text-slate-300">v1.2.9</span> (История обновлений)
             </button>
         </div>
     </footer>
 
-    <!-- МОДАЛКИ (Все всплывающие окна) -->
-    
+    <!-- Модалки -->
     <div id="changelog-modal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 px-4 py-8">
         <div class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-2xl shadow-[0_0_40px_rgba(245,158,11,0.2)] relative transform scale-95 transition-transform duration-300 flex flex-col max-h-full" id="changelog-modal-content">
             <button onclick="closeModal('changelog-modal', 'changelog-modal-content')" class="absolute top-4 right-4 z-20 text-slate-400 hover:text-brand-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></button>
@@ -204,11 +197,10 @@
             <div class="p-6 overflow-y-auto chat-scroll flex-grow space-y-6">
                 <div class="relative pl-6 border-l-2 border-brand-500">
                     <div class="absolute w-3 h-3 bg-brand-500 rounded-full -left-[7px] top-1.5 shadow-[0_0_8px_#f59e0b]"></div>
-                    <h3 class="text-lg font-bold text-white">v1.2.8 <span class="text-brand-400 text-xs font-mono ml-2">Текущая версия</span></h3>
+                    <h3 class="text-lg font-bold text-white">v1.2.9 <span class="text-brand-400 text-xs font-mono ml-2">Текущая версия</span></h3>
                     <ul class="mt-2 space-y-1 text-slate-300 text-sm list-disc list-inside">
-                        <li>Исправлена ошибка `window.FB.set is not a function`.</li>
-                        <li>Полный переход на стабильную версию Firebase Compat.</li>
-                        <li>Устранена проблема загрузки модулей при локальном запуске (через file:///).</li>
+                        <li>Исправлена ошибка с `toLowerCase()`, ломающая систему входа.</li>
+                        <li>Оптимизирована защита от поврежденных аккаунтов.</li>
                     </ul>
                 </div>
             </div>
@@ -292,7 +284,7 @@
             <h2 class="text-2xl font-bold text-center text-white mb-6">Регистрация</h2>
             <form id="register-form" class="space-y-4" onsubmit="handleRegister(event)">
                 <input type="text" id="reg-login" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Логин (для входа)">
-                <input type="text" id="reg-nickname" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Никнейм (виден всем)">
+                <input type="text" id="reg-nickname" required class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Никнейм">
                 <input type="password" required minlength="6" class="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-600 text-white focus:border-brand-500 outline-none" placeholder="Пароль">
                 <button type="submit" class="w-full bg-brand-500 text-slate-900 font-bold py-3 rounded-lg hover:bg-brand-400">Зарегистрироваться</button>
             </form>
@@ -386,94 +378,89 @@
         </div>
     </div>
 
-    <!-- Основной скрипт логики базы данных -->
+    <!-- Firebase модуль -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, set, get, update, remove, onValue, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyACvB3zaAY4ZcFZC5NgCcqezs7jtLlOLWQ",
+            authDomain: "omsistore-877c2.firebaseapp.com",
+            databaseURL: "https://omsistore-877c2-default-rtdb.firebaseio.com",
+            projectId: "omsistore-877c2",
+            storageBucket: "omsistore-877c2.firebasestorage.app",
+            messagingSenderId: "679716166974",
+            appId: "1:679716166974:web:8cc361a50ad428cefe606f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        window.FB = { db, ref, set, get, update, remove, onValue, push };
+
+        onValue(ref(db, 'users'), (snapshot) => {
+            window.allUsers = snapshot.val() ? Object.values(snapshot.val()) : [];
+            window.checkCurrentSession();
+            window.updateUI();
+        });
+
+        onValue(ref(db, 'items'), (snapshot) => {
+            window.communityItems = snapshot.val() ? Object.values(snapshot.val()) : [];
+            window.communityItems.forEach(i => {
+                if(!i.likes) i.likes = [];
+                if(!i.comments) i.comments = [];
+            });
+            window.renderCommunityContent();
+        });
+
+        onValue(ref(db, 'tickets'), (snapshot) => {
+            window.helpTickets = snapshot.val() ? Object.values(snapshot.val()) : [];
+            window.renderUserChat();
+            if(window.currentUser && ['tech_support', 'chief_admin'].includes(window.currentUser.role)) {
+                window.renderAdminHelp();
+            }
+        });
+
+        onValue(ref(db, 'settings'), (snapshot) => {
+            window.siteSettings = snapshot.val() || { isMaintenance: false };
+            window.checkMaintenance();
+            const btn = document.getElementById('maintenance-toggle-btn');
+            if(btn) {
+                if(window.siteSettings.isMaintenance) {
+                    btn.innerText = 'Выключить';
+                    btn.className = 'px-6 py-2 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-600 transition-colors whitespace-nowrap ml-4';
+                } else {
+                    btn.innerText = 'Включить';
+                    btn.className = 'px-6 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-colors whitespace-nowrap ml-4';
+                }
+            }
+        });
+
+        const savedUser = localStorage.getItem('vp_openomsi_active_user');
+        if (savedUser) {
+            try { window.currentUser = JSON.parse(savedUser); } catch(e) { window.currentUser = null; }
+        }
+        window.updateUI();
+    </script>
+
+    <!-- Основная логика -->
     <script>
         const CHIEF_ADMIN_LOGIN = 'verxovnly88'; 
         const USER_KEY = 'vp_openomsi_active_user';
 
-        let currentUser = null; 
-        let allUsers = []; 
-        let communityItems = [];
-        let helpTickets = []; 
-        let siteSettings = { isMaintenance: false };
-        let currentOpenItemId = null;
-        let db;
+        window.currentUser = null; 
+        window.allUsers = []; 
+        window.communityItems = [];
+        window.helpTickets = []; 
+        window.siteSettings = { isMaintenance: false };
+        let currentOpenItemId = null; 
 
-        // Инициализация базы данных Firebase
-        function initApp() {
-            const firebaseConfig = {
-                apiKey: "AIzaSyACvB3zaAY4ZcFZC5NgCcqezs7jtLlOLWQ",
-                authDomain: "omsistore-877c2.firebaseapp.com",
-                databaseURL: "https://omsistore-877c2-default-rtdb.firebaseio.com",
-                projectId: "omsistore-877c2",
-                storageBucket: "omsistore-877c2.firebasestorage.app",
-                messagingSenderId: "679716166974",
-                appId: "1:679716166974:web:8cc361a50ad428cefe606f"
-            };
-            
-            // Если Firebase уже инициализирован (защита от двойного запуска)
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
+        window.checkCurrentSession = function() {
+            if (window.currentUser) {
+                const fresh = window.allUsers.find(u => u && (u.login || u.nickname) === (window.currentUser.login || window.currentUser.nickname));
+                if (!fresh || fresh.isBlocked) { window.handleLogout(); }
+                else { window.currentUser = fresh; }
             }
-            db = firebase.database();
-
-            // Чтение данных в реальном времени
-            db.ref('users').on('value', (snapshot) => {
-                allUsers = snapshot.val() ? Object.values(snapshot.val()) : [];
-                checkCurrentSession();
-                updateUI();
-            });
-
-            db.ref('items').on('value', (snapshot) => {
-                communityItems = snapshot.val() ? Object.values(snapshot.val()) : [];
-                communityItems.forEach(i => {
-                    if(!i.likes) i.likes = [];
-                    if(!i.comments) i.comments = [];
-                });
-                renderCommunityContent();
-                // Обновление открытого модального окна, если оно сейчас активно
-                if (currentOpenItemId && !document.getElementById('item-modal').classList.contains('hidden')) {
-                    const activeItem = communityItems.find(i => i.id === currentOpenItemId);
-                    if (activeItem) updateItemSocialUI(activeItem);
-                }
-            });
-
-            db.ref('tickets').on('value', (snapshot) => {
-                helpTickets = snapshot.val() ? Object.values(snapshot.val()) : [];
-                renderUserChat();
-                if(currentUser && ['tech_support', 'chief_admin'].includes(currentUser.role)) {
-                    renderAdminHelp();
-                }
-            });
-
-            db.ref('settings').on('value', (snapshot) => {
-                siteSettings = snapshot.val() || { isMaintenance: false };
-                checkMaintenance();
-                const btn = document.getElementById('maintenance-toggle-btn');
-                if(btn) {
-                    if(siteSettings.isMaintenance) {
-                        btn.innerText = 'Выключить';
-                        btn.className = 'px-6 py-2 bg-slate-700 text-white font-bold rounded-lg hover:bg-slate-600 transition-colors whitespace-nowrap ml-4';
-                    } else {
-                        btn.innerText = 'Включить';
-                        btn.className = 'px-6 py-2 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-colors whitespace-nowrap ml-4';
-                    }
-                }
-            });
-
-            // Восстановление локальной сессии пользователя
-            const savedUser = localStorage.getItem(USER_KEY);
-            if (savedUser) { try { currentUser = JSON.parse(savedUser); } catch(e) { currentUser = null; } }
-            updateUI();
-        }
-
-        function checkCurrentSession() {
-            if (currentUser) {
-                const fresh = allUsers.find(u => (u.login || u.nickname) === (currentUser.login || currentUser.nickname));
-                if (!fresh || fresh.isBlocked) { handleLogout(); }
-                else { currentUser = fresh; }
-            }
-        }
+        };
 
         function getRoleName(role) {
             if(role === 'chief_admin') return 'Владелец';
@@ -496,27 +483,26 @@
             window.scrollTo(0, 0);
         }
 
-        function checkMaintenance() {
+        window.checkMaintenance = function() {
             const mScreen = document.getElementById('maintenance-screen');
-            if(siteSettings.isMaintenance && (!currentUser || currentUser.role !== 'chief_admin')) {
+            if(window.siteSettings.isMaintenance && (!window.currentUser || window.currentUser.role !== 'chief_admin')) {
                 if(mScreen) { mScreen.classList.remove('hidden'); mScreen.classList.add('flex'); }
                 document.body.style.overflow = 'hidden';
             } else {
                 if(mScreen) { mScreen.classList.add('hidden'); mScreen.classList.remove('flex'); }
                 document.body.style.overflow = '';
             }
-        }
+        };
 
         function toggleMaintenance() {
-            if(!currentUser || currentUser.role !== 'chief_admin') return;
-            // Инвертируем статус и отправляем в Firebase
-            const newStatus = !siteSettings.isMaintenance;
-            db.ref('settings').set({ isMaintenance: newStatus });
+            if(!window.currentUser || window.currentUser.role !== 'chief_admin') return;
+            window.siteSettings.isMaintenance = !window.siteSettings.isMaintenance;
+            window.FB.set(window.FB.ref(window.FB.db, 'settings'), window.siteSettings);
         }
 
-        function updateUI() {
-            checkMaintenance();
-            const isAuth = !!currentUser;
+        window.updateUI = function() {
+            window.checkMaintenance();
+            const isAuth = !!window.currentUser;
             document.getElementById('nav-login-btn').classList.toggle('hidden', isAuth);
             document.getElementById('mob-login-btn').classList.toggle('hidden', isAuth);
             
@@ -526,23 +512,23 @@
             if (isAuth) {
                 np.classList.remove('hidden'); np.classList.add('flex');
                 mp.classList.remove('hidden');
-                document.getElementById('nav-user-name').innerText = currentUser.nickname;
-                document.getElementById('nav-user-role').innerText = getRoleName(currentUser.role);
-                document.getElementById('nav-user-avatar').src = currentUser.avatar;
-                document.getElementById('mob-user-name').innerText = currentUser.nickname;
-                document.getElementById('mob-user-role').innerText = getRoleName(currentUser.role);
-                document.getElementById('mob-user-avatar').src = currentUser.avatar;
+                document.getElementById('nav-user-name').innerText = window.currentUser.nickname;
+                document.getElementById('nav-user-role').innerText = getRoleName(window.currentUser.role);
+                document.getElementById('nav-user-avatar').src = window.currentUser.avatar;
+                document.getElementById('mob-user-name').innerText = window.currentUser.nickname;
+                document.getElementById('mob-user-role').innerText = getRoleName(window.currentUser.role);
+                document.getElementById('mob-user-avatar').src = window.currentUser.avatar;
                 
-                document.getElementById('edit-nickname').value = currentUser.nickname;
-                document.getElementById('edit-bio').value = currentUser.bio || '';
-                document.getElementById('profile-avatar-preview').src = currentUser.avatar;
+                document.getElementById('edit-nickname').value = window.currentUser.nickname;
+                document.getElementById('edit-bio').value = window.currentUser.bio || '';
+                document.getElementById('profile-avatar-preview').src = window.currentUser.avatar;
 
                 const roleBadge = document.getElementById('profile-role-badge');
-                roleBadge.innerText = getRoleName(currentUser.role);
+                roleBadge.innerText = getRoleName(window.currentUser.role);
                 roleBadge.className = 'mt-1 px-4 py-1 rounded-full border text-[10px] font-bold uppercase tracking-wider text-center';
-                roleBadge.classList.add(`role-glow-${currentUser.role}`);
+                roleBadge.classList.add(`role-glow-${window.currentUser.role}`);
 
-                const canAdmin = ['moderator', 'tech_support', 'admin', 'chief_admin'].includes(currentUser.role);
+                const canAdmin = ['moderator', 'tech_support', 'admin', 'chief_admin'].includes(window.currentUser.role);
                 document.getElementById('nav-admin-btn').classList.toggle('hidden', !canAdmin);
                 document.getElementById('mob-admin-btn').classList.toggle('hidden', !canAdmin);
             } else {
@@ -551,9 +537,9 @@
                 document.getElementById('nav-admin-btn').classList.add('hidden');
                 document.getElementById('mob-admin-btn').classList.add('hidden');
             }
-            renderCommunityContent();
+            window.renderCommunityContent();
             renderUserChat();
-        }
+        };
 
         function toggleModal(mId, cId, show) {
             const m = document.getElementById(mId), c = document.getElementById(cId);
@@ -584,7 +570,7 @@
         }
 
         function openPublicProfile(nickname) {
-            const user = allUsers.find(u => u.nickname === nickname);
+            const user = window.allUsers.find(u => u && u.nickname === nickname);
             if(!user) return;
             document.getElementById('pub-avatar').src = user.avatar;
             document.getElementById('pub-name').innerText = user.nickname;
@@ -599,17 +585,16 @@
         function handleLogin(e) {
             e.preventDefault();
             const loginVal = document.getElementById('login').value.trim();
-            const user = allUsers.find(u => (u.login || u.nickname).toLowerCase() === loginVal.toLowerCase());
+            const user = window.allUsers.find(u => u && (u.login || u.nickname)?.toLowerCase() === loginVal.toLowerCase());
             
             if (!user) { alert("Аккаунт не найден. Пожалуйста, проверьте логин или зарегистрируйтесь."); return; }
             if (user.isBlocked) { alert("Ваш аккаунт заблокирован администрацией."); return; }
             
-            // Если входит админ
             if ((user.login || user.nickname).toLowerCase() === CHIEF_ADMIN_LOGIN.toLowerCase()) user.role = 'chief_admin';
             
-            currentUser = user;
-            localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
-            updateUI(); 
+            window.currentUser = user;
+            localStorage.setItem(USER_KEY, JSON.stringify(window.currentUser));
+            window.updateUI(); 
             closeModal('login-modal','login-modal-content'); 
             e.target.reset();
         }
@@ -619,22 +604,21 @@
             const loginVal = document.getElementById('reg-login').value.trim();
             let nickVal = document.getElementById('reg-nickname').value.trim();
             
-            if (allUsers.find(u => (u.login || u.nickname).toLowerCase() === loginVal.toLowerCase())) { alert("Такой логин уже занят!"); return; }
+            if (window.allUsers.find(u => u && (u.login || u.nickname)?.toLowerCase() === loginVal.toLowerCase())) { alert("Такой логин уже занят!"); return; }
             if(!nickVal) nickVal = loginVal; 
 
             let assignedRole = (loginVal.toLowerCase() === CHIEF_ADMIN_LOGIN.toLowerCase()) ? 'chief_admin' : 'user';
             const newUser = { login: loginVal, nickname: nickVal, avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${nickVal}`, role: assignedRole, isBlocked: false, bio: '' };
             
-            // Сохраняем в Firebase
-            db.ref('users/' + loginVal).set(newUser);
-            currentUser = newUser;
-            localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
-            updateUI(); 
+            window.FB.set(window.FB.ref(window.FB.db, 'users/' + loginVal), newUser);
+            window.currentUser = newUser;
+            localStorage.setItem(USER_KEY, JSON.stringify(window.currentUser));
+            window.updateUI(); 
             closeModal('register-modal','register-modal-content'); 
             e.target.reset();
         }
 
-        function handleLogout() { currentUser = null; localStorage.removeItem(USER_KEY); updateUI(); closeModal('profile-modal','profile-modal-content'); switchView('home'); }
+        function handleLogout() { window.currentUser = null; localStorage.removeItem(USER_KEY); window.updateUI(); closeModal('profile-modal','profile-modal-content'); switchView('home'); }
         
         let tempAvatarSrc = null;
         function handleAvatarChange(event) {
@@ -645,28 +629,27 @@
         }
         function saveProfile(e) {
             e.preventDefault();
-            if (currentUser) {
+            if (window.currentUser) {
                 const newNick = document.getElementById('edit-nickname').value.trim();
                 const newBio = document.getElementById('edit-bio').value.trim();
-                if(newNick) currentUser.nickname = newNick;
-                currentUser.bio = newBio;
-                if(tempAvatarSrc) currentUser.avatar = tempAvatarSrc;
-                
-                db.ref('users/' + currentUser.login).set(currentUser);
-                localStorage.setItem(USER_KEY, JSON.stringify(currentUser));
+                if(newNick) window.currentUser.nickname = newNick;
+                window.currentUser.bio = newBio;
+                if(tempAvatarSrc) window.currentUser.avatar = tempAvatarSrc;
+                window.FB.set(window.FB.ref(window.FB.db, 'users/' + window.currentUser.login), window.currentUser);
+                localStorage.setItem(USER_KEY, JSON.stringify(window.currentUser));
             }
-            updateUI(); closeModal('profile-modal','profile-modal-content');
+            window.updateUI(); closeModal('profile-modal','profile-modal-content');
         }
 
         function openItemDetails(id) {
-            const item = communityItems.find(i => i.id === id);
+            const item = window.communityItems.find(i => i.id === id);
             if(!item) return;
             currentOpenItemId = id;
             document.getElementById('item-modal-img').src = item.img;
             document.getElementById('item-modal-type').innerText = item.type === 'mod' ? 'МОД' : 'ФОТО';
             document.getElementById('item-modal-type').className = item.type === 'mod' ? 'bg-brand-500 text-slate-900 text-xs font-bold px-2 py-0.5 rounded uppercase' : 'bg-green-500 text-slate-900 text-xs font-bold px-2 py-0.5 rounded uppercase';
             document.getElementById('item-modal-title').innerText = item.title;
-            const avatar = allUsers.find(u => u.nickname === item.author)?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.author}`;
+            const avatar = window.allUsers.find(u => u && u.nickname === item.author)?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.author}`;
             document.getElementById('item-modal-author-avatar').src = avatar;
             document.getElementById('item-modal-author').innerText = item.author;
             document.getElementById('item-modal-author-block').onclick = () => openPublicProfile(item.author);
@@ -694,7 +677,7 @@
             const likeCount = document.getElementById('item-modal-like-count');
             if(!item.likes) item.likes = [];
             likeCount.innerText = item.likes.length;
-            if (currentUser && item.likes.includes(currentUser.nickname)) {
+            if (window.currentUser && item.likes.includes(window.currentUser.nickname)) {
                 likeIcon.setAttribute('fill', 'currentColor'); likeIcon.classList.add('text-red-500');
             } else {
                 likeIcon.setAttribute('fill', 'none'); likeIcon.classList.remove('text-red-500');
@@ -707,41 +690,38 @@
             if(item.comments.length === 0) { cList.innerHTML = '<p class="text-slate-500 text-sm italic">Нет комментариев.</p>'; }
             else {
                 item.comments.forEach(c => {
-                    const cAvatar = allUsers.find(u => u.nickname === c.author)?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${c.author}`;
+                    const cAvatar = window.allUsers.find(u => u && u.nickname === c.author)?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${c.author}`;
                     cList.innerHTML += `<div class="flex gap-3 bg-slate-900/50 p-3 rounded-lg border border-slate-700/50"><img src="${cAvatar}" class="w-8 h-8 rounded-full border object-cover cursor-pointer hover:border-brand-500 transition-colors" onclick="openPublicProfile('${c.author}')"><div><span class="text-xs text-brand-400 font-bold cursor-pointer hover:underline" onclick="openPublicProfile('${c.author}')">${c.author}</span><p class="text-slate-300 text-sm mt-0.5 break-words">${c.text}</p></div></div>`;
                 });
             }
         }
 
         function toggleLike(id) {
-            if(!currentUser) return alert("Войдите в аккаунт.");
-            const item = communityItems.find(i => i.id === id);
+            if(!window.currentUser) return alert("Войдите в аккаунт.");
+            const item = window.communityItems.find(i => i.id === id);
             if(!item.likes) item.likes = [];
-            const idx = item.likes.indexOf(currentUser.nickname);
-            if(idx === -1) item.likes.push(currentUser.nickname); else item.likes.splice(idx, 1);
-            db.ref('items/' + id + '/likes').set(item.likes);
+            const idx = item.likes.indexOf(window.currentUser.nickname);
+            if(idx === -1) item.likes.push(window.currentUser.nickname); else item.likes.splice(idx, 1);
+            window.FB.set(window.FB.ref(window.FB.db, 'items/' + id + '/likes'), item.likes);
         }
 
         function submitComment(e) {
             e.preventDefault();
-            if(!currentUser) return alert("Войдите в аккаунт.");
+            if(!window.currentUser) return alert("Войдите в аккаунт.");
             const text = document.getElementById('item-comment-input').value.trim();
             if(!text) return;
-            const item = communityItems.find(i => i.id === currentOpenItemId);
+            const item = window.communityItems.find(i => i.id === currentOpenItemId);
             if(item) {
                 if(!item.comments) item.comments = [];
-                item.comments.push({ author: currentUser.nickname, text: text });
-                db.ref('items/' + currentOpenItemId + '/comments').set(item.comments);
+                item.comments.push({ author: window.currentUser.nickname, text: text });
+                window.FB.set(window.FB.ref(window.FB.db, 'items/' + currentOpenItemId + '/comments'), item.comments);
                 document.getElementById('item-comment-input').value = '';
-                
-                const cList = document.getElementById('item-modal-comments-list');
-                setTimeout(() => cList.scrollTop = cList.scrollHeight, 50);
             }
         }
 
         function openSubmitModal(type) {
-            if(!currentUser) return openLoginModal();
-            if(currentUser.isBlocked) return alert("Аккаунт заблокирован.");
+            if(!window.currentUser) return openLoginModal();
+            if(window.currentUser.isBlocked) return alert("Аккаунт заблокирован.");
             closeAllModals();
             document.getElementById('submit-type').value = type;
             document.getElementById('submit-success').classList.add('hidden');
@@ -762,14 +742,14 @@
                 const newItem = {
                     id: Date.now(), type: type, title: document.getElementById('submit-name').value,
                     desc: document.getElementById('submit-desc').value, link: type === 'mod' ? document.getElementById('submit-link').value : '',
-                    author: currentUser.nickname, status: 'pending', img: evt.target.result, likes: [], comments: []
+                    author: window.currentUser.nickname, status: 'pending', img: evt.target.result, likes: [], comments: []
                 };
                 if (type === 'photo') {
                     newItem.brand = document.getElementById('submit-brand').value;
                     newItem.plate = document.getElementById('submit-plate').value;
                     newItem.route = document.getElementById('submit-route').value;
                 }
-                db.ref('items/' + newItem.id).set(newItem);
+                window.FB.set(window.FB.ref(window.FB.db, 'items/' + newItem.id), newItem);
                 document.getElementById('submit-form').classList.add('hidden'); document.getElementById('submit-success').classList.remove('hidden');
                 setTimeout(() => closeModal('submit-modal', 'submit-modal-content'), 2000);
             };
@@ -788,9 +768,9 @@
         function renderUserChat() {
             const authWarn = document.getElementById('help-auth-warning'), chatCont = document.getElementById('help-chat-container'), msgList = document.getElementById('help-messages');
             if(!authWarn) return;
-            if(!currentUser) { authWarn.classList.remove('hidden'); chatCont.classList.add('hidden'); return; }
+            if(!window.currentUser) { authWarn.classList.remove('hidden'); chatCont.classList.add('hidden'); return; }
             authWarn.classList.add('hidden'); chatCont.classList.remove('hidden'); chatCont.classList.add('flex');
-            const myTickets = helpTickets.filter(t => t.author === currentUser.nickname);
+            const myTickets = window.helpTickets.filter(t => t.author === window.currentUser.nickname);
             msgList.innerHTML = '';
             if(myTickets.length === 0) { msgList.innerHTML = '<div class="text-center text-slate-500 mt-10">Нет обращений.</div>'; } 
             else {
@@ -799,7 +779,15 @@
                     msgList.innerHTML += `<div class="flex flex-col items-end mb-4"><div class="bg-brand-500 text-slate-900 px-4 py-2 rounded-2xl max-w-[85%]" style="overflow-wrap: anywhere;">${t.text}${attachHtml}</div></div>`;
                     if(t.replies) {
                         t.replies.forEach(r => {
-                            msgList.innerHTML += `<div class="flex items-end gap-2 mb-4"><div class="bg-slate-700 text-white px-4 py-2 rounded-2xl max-w-[85%]" style="overflow-wrap: anywhere;"><span class="text-xs text-brand-400 font-bold">${r.author}:</span> ${r.text}</div></div>`;
+                            const avatar = window.allUsers.find(u => u && u.nickname === r.author)?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${r.author}`;
+                            msgList.innerHTML += `
+                                <div class="flex items-end gap-2 mb-4">
+                                    <img src="${avatar}" class="w-6 h-6 rounded-full border border-slate-600 object-cover cursor-pointer hover:border-brand-500" onclick="openPublicProfile('${r.author}')">
+                                    <div class="flex flex-col items-start max-w-[85%]">
+                                        <span class="text-[10px] text-brand-400 mb-1 font-bold cursor-pointer hover:underline" onclick="openPublicProfile('${r.author}')">Поддержка (${r.author})</span>
+                                        <div class="bg-slate-700 text-white px-4 py-2 rounded-2xl max-w-[85%]" style="overflow-wrap: anywhere;">${r.text}</div>
+                                    </div>
+                                </div>`;
                         });
                     }
                 });
@@ -810,10 +798,10 @@
         function submitHelpTicket(e) {
             e.preventDefault();
             const input = document.getElementById('help-input'), fileInput = document.getElementById('help-file-input'), text = input.value.trim();
-            if((!text && !fileInput.files.length) || !currentUser) return;
+            if((!text && !fileInput.files.length) || !window.currentUser) return;
             const addTicket = (fileData) => {
-                const newTicket = { id: Date.now(), author: currentUser.nickname, text: text, attachment: fileData, replies: [] };
-                db.ref('tickets/' + newTicket.id).set(newTicket);
+                const newTicket = { id: Date.now(), author: window.currentUser.nickname, text: text, attachment: fileData, replies: [] };
+                window.FB.set(window.FB.ref(window.FB.db, 'tickets/' + newTicket.id), newTicket);
                 input.value = ''; clearHelpFile();
             };
             if(fileInput.files[0]) {
@@ -822,10 +810,10 @@
         }
 
         function openAdminModal() {
-            if(!currentUser || currentUser.role === 'user') return;
+            if(!window.currentUser || window.currentUser.role === 'user') return;
             closeAllModals();
             const tCont = document.getElementById('tab-content'), tHelp = document.getElementById('tab-help'), tUsers = document.getElementById('tab-users'), tSett = document.getElementById('tab-settings');
-            const r = currentUser.role;
+            const r = window.currentUser.role;
             tCont.classList.toggle('hidden', !['moderator', 'admin', 'chief_admin'].includes(r));
             tHelp.classList.toggle('hidden', !['tech_support', 'chief_admin'].includes(r));
             tUsers.classList.toggle('hidden', !['admin', 'chief_admin'].includes(r));
@@ -846,16 +834,16 @@
             document.getElementById('admin-users-view').classList.toggle('hidden', tab !== 'users');
             document.getElementById('admin-settings-view').classList.toggle('hidden', tab !== 'settings');
 
-            if(tab === 'content') renderAdminContent(); 
-            if(tab === 'help') renderAdminHelp(); 
-            if(tab === 'users') renderAdminUsers();
+            if(tab === 'content') window.renderAdminContent(); 
+            if(tab === 'help') window.renderAdminHelp(); 
+            if(tab === 'users') window.renderAdminUsers();
         }
 
-        function renderAdminContent() {
+        window.renderAdminContent = function() {
             const pList = document.getElementById('admin-pending-list'), aList = document.getElementById('admin-approved-list');
             if(!pList) return;
             pList.innerHTML = ''; aList.innerHTML = '';
-            const pending = communityItems.filter(i => i.status === 'pending'), approved = communityItems.filter(i => i.status === 'approved');
+            const pending = window.communityItems.filter(i => i.status === 'pending'), approved = window.communityItems.filter(i => i.status === 'approved');
             
             pending.forEach(item => {
                 pList.innerHTML += `<div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center"><span class="text-white">${item.title} (${item.author})</span><div class="flex gap-2"><button onclick="moderateItem(${item.id}, 'approved')" class="bg-green-500/20 text-green-400 px-3 py-1 rounded hover:bg-green-500 hover:text-slate-900 transition-colors">Одобрить</button><button onclick="deleteItem(${item.id})" class="bg-red-500/20 text-red-400 px-3 py-1 rounded hover:bg-red-500 hover:text-white transition-colors">Отклонить</button></div></div>`;
@@ -863,56 +851,90 @@
             approved.forEach(item => {
                 aList.innerHTML += `<div class="bg-slate-800 p-4 rounded-xl flex justify-between items-center"><span class="text-white">${item.title}</span><button onclick="deleteItem(${item.id})" class="bg-red-500/20 text-red-400 px-3 py-1 rounded hover:bg-red-500 hover:text-white transition-colors">Удалить</button></div>`;
             });
-        }
+        };
 
-        function moderateItem(id, status) { db.ref('items/' + id).update({ status: status }); }
-        function deleteItem(id) { customConfirm("Удалить контент?", () => { db.ref('items/' + id).remove(); }); }
+        function moderateItem(id, status) { window.FB.update(window.FB.ref(window.FB.db, 'items/' + id), { status: status }); }
+        function deleteItem(id) { customConfirm("Удалить контент?", () => { window.FB.remove(window.FB.ref(window.FB.db, 'items/' + id)); }); }
 
-        function renderAdminHelp() {
+        window.renderAdminHelp = function() {
             const list = document.getElementById('admin-tickets-list'); if(!list) return;
             list.innerHTML = '';
-            helpTickets.forEach(t => {
+            window.helpTickets.forEach(t => {
                 list.innerHTML += `<div class="bg-slate-800 p-4 rounded-xl"><p class="text-brand-400 font-bold">${t.author}: ${t.text}</p><div class="flex gap-2 mt-2"><input type="text" id="reply-${t.id}" class="bg-slate-900 text-white px-2 py-1 rounded flex-grow outline-none focus:border focus:border-brand-500"><button onclick="adminReply(${t.id})" class="bg-brand-500 text-slate-900 px-3 py-1 rounded font-bold">Ответить</button></div></div>`;
             });
-        }
+        };
         function adminReply(id) {
             const text = document.getElementById(`reply-${id}`).value.trim();
             if(!text) return;
-            const t = helpTickets.find(x => x.id === id);
+            const t = window.helpTickets.find(x => x.id === id);
             if(t) {
                 if(!t.replies) t.replies = [];
-                t.replies.push({ author: currentUser.nickname, text: text });
-                db.ref('tickets/' + id).set(t);
+                t.replies.push({ author: window.currentUser.nickname, text: text });
+                window.FB.set(window.FB.ref(window.FB.db, 'tickets/' + id), t);
             }
         }
 
-        function renderAdminUsers() {
+        window.renderAdminUsers = function() {
             const list = document.getElementById('admin-users-list'); if(!list) return;
             list.innerHTML = '';
-            allUsers.forEach(u => {
-                if(u.login === currentUser.login) return;
-                list.innerHTML += `<div class="bg-slate-800 p-3 rounded flex justify-between items-center"><span class="text-white">${u.nickname} (${u.role})</span><button onclick="toggleBlock('${u.login}')" class="bg-red-500/20 text-red-400 px-3 py-1 rounded text-xs hover:bg-red-500 hover:text-white transition-colors">${u.isBlocked ? 'Разбан' : 'Бан'}</button></div>`;
+            const otherUsers = window.allUsers.filter(u => u && (u.login || u.nickname) !== (window.currentUser.login || window.currentUser.nickname));
+            if(otherUsers.length === 0) { list.innerHTML = '<p class="text-slate-500">Нет других пользователей.</p>'; return; }
+            
+            otherUsers.forEach(u => {
+                const canModify = !(window.currentUser.role === 'admin' && u.role === 'chief_admin');
+                const userLoginOrNick = u.login || u.nickname;
+                let controlsHtml = '';
+                if(canModify) {
+                    const btnClass = u.isBlocked ? "bg-green-500/20 text-green-400 hover:bg-green-500" : "bg-red-500/20 text-red-400 hover:bg-red-500";
+                    controlsHtml += `<button onclick="toggleBlock('${userLoginOrNick}')" class="px-3 py-1.5 rounded-lg text-xs font-bold hover:text-white ${btnClass}">${u.isBlocked ? "Разблокировать" : "Заблокировать"}</button>`;
+                    if (window.currentUser.role === 'chief_admin') {
+                        controlsHtml += `
+                            <select onchange="changeUserRole('${userLoginOrNick}', this.value)" class="bg-slate-700 border border-slate-600 text-white text-xs rounded-lg px-2 py-1.5 outline-none ml-2">
+                                <option value="user" ${u.role==='user'?'selected':''}>Пользователь</option>
+                                <option value="moderator" ${u.role==='moderator'?'selected':''}>Модератор</option>
+                                <option value="tech_support" ${u.role==='tech_support'?'selected':''}>Тех. Специалист</option>
+                                <option value="admin" ${u.role==='admin'?'selected':''}>Администратор</option>
+                            </select>`;
+                    }
+                }
+                list.innerHTML += `
+                    <div class="flex items-center justify-between bg-slate-800 border border-slate-700 p-3 rounded-lg overflow-x-auto">
+                        <div class="flex items-center gap-3 cursor-pointer group" onclick="openPublicProfile('${u.nickname}')">
+                            <img src="${u.avatar}" class="w-8 h-8 rounded-full border border-slate-600 flex-shrink-0 object-cover group-hover:border-brand-500">
+                            <div>
+                                <span class="text-white font-bold block leading-tight group-hover:text-brand-400 ${u.isBlocked ? 'line-through opacity-50' : ''}">${u.nickname}</span>
+                                <span class="text-[10px] text-slate-500 block leading-tight">Логин: ${userLoginOrNick}</span>
+                                <span class="text-[10px] text-brand-400 uppercase">${getRoleName(u.role)} ${u.isBlocked ? '(BANNED)' : ''}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center whitespace-nowrap ml-2">${controlsHtml}</div>
+                    </div>`;
             });
+        };
+        
+        function toggleBlock(loginStr) { 
+            const u = window.allUsers.find(x => x && (x.login || x.nickname) === loginStr); 
+            if(u) { u.isBlocked = !u.isBlocked; window.FB.set(window.FB.ref(window.FB.db, 'users/' + (u.login || u.nickname)), u); } 
         }
-        function toggleBlock(login) {
-            const u = allUsers.find(x => x.login === login);
-            if(u) { u.isBlocked = !u.isBlocked; db.ref('users/' + login).set(u); }
+        function changeUserRole(loginStr, role) { 
+            const u = window.allUsers.find(x => x && (x.login || x.nickname) === loginStr); 
+            if(u) { u.role = role; window.FB.set(window.FB.ref(window.FB.db, 'users/' + (u.login || u.nickname)), u); } 
         }
 
         function renderRecentActivity() {
             const container = document.getElementById('recent-activity-container'); if(!container) return;
-            const approved = communityItems.filter(i => i.status === 'approved').reverse().slice(0, 3);
+            const approved = window.communityItems.filter(i => i.status === 'approved').reverse().slice(0, 3);
             container.innerHTML = '';
             approved.forEach(item => {
                 container.innerHTML += `<div onclick="openItemDetails(${item.id})" class="bg-slate-800 p-4 rounded-xl flex gap-4 items-center cursor-pointer hover:border-brand-500 border border-slate-700 transition-colors shadow-lg hover:shadow-brand-500/20"><img src="${item.img}" class="w-16 h-16 object-cover rounded"><div><h4 class="text-white font-bold text-sm">${item.title}</h4><span class="text-xs text-brand-400">Автор: ${item.author}</span></div></div>`;
             });
         }
 
-        function renderCommunityContent() {
+        window.renderCommunityContent = function() {
             const modsGrid = document.getElementById('mods-grid'), photosGrid = document.getElementById('photos-grid');
             if(modsGrid) modsGrid.innerHTML = ''; if(photosGrid) photosGrid.innerHTML = '';
             
-            communityItems.filter(i => i.status === 'approved').forEach(item => {
+            window.communityItems.filter(i => i.status === 'approved').forEach(item => {
                 const likeCount = item.likes ? item.likes.length : 0;
                 if(item.type === 'mod' && modsGrid) {
                     modsGrid.innerHTML += `<div onclick="openItemDetails(${item.id})" class="bg-slate-800 rounded-xl overflow-hidden border border-slate-700 cursor-pointer hover:border-brand-500 transition-colors shadow-lg hover:shadow-brand-500/20"><img src="${item.img}" class="w-full h-48 object-cover"><div class="p-5"><h3 class="text-xl font-bold text-white">${item.title}</h3><span class="text-xs text-brand-400">❤️ ${likeCount} | Автор: ${item.author}</span></div></div>`;
@@ -921,7 +943,7 @@
                 }
             });
             renderRecentActivity();
-        }
+        };
 
         async function fetchGitHubReleases() {
             const container = document.getElementById('releases-container'); if(!container) return;
@@ -937,7 +959,6 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            initApp();
             fetchGitHubReleases();
             document.getElementById('mobile-menu-btn').addEventListener('click', () => { document.getElementById('mobile-menu').classList.toggle('hidden'); });
             
